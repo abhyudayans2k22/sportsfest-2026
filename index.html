@@ -269,8 +269,10 @@
             mask-image: radial-gradient(white, black);
             backface-visibility: hidden;
             -webkit-backface-visibility: hidden;
-            transform: translateZ(0);          /* ADD THIS */
-    -webkit-transform: translateZ(0);  /* ADD THIS */
+            transform: translateZ(0);
+            /* ADD THIS */
+            -webkit-transform: translateZ(0);
+            /* ADD THIS */
         }
 
         .app-wrapper.menu-open .content-card-wrapper {
@@ -998,20 +1000,21 @@
             transform-style: preserve-3d;
             will-change: transform;
             animation: liveCardFloat 4s ease-in-out infinite;
-transform: translateZ(0);
+            transform: translateZ(0);
             backface-visibility: hidden;
             -webkit-backface-visibility: hidden;
         }
 
         @media (max-width: 768px) {
-    #live .gyro-3d-box,
-    #live .no-live-inner,
-    #results .gyro-3d-box,
-    #results .results-glass-dropdown-wrapper {
-        backdrop-filter: blur(8px);
-        -webkit-backdrop-filter: blur(8px);
-    }
-}
+
+            #live .gyro-3d-box,
+            #live .no-live-inner,
+            #results .gyro-3d-box,
+            #results .results-glass-dropdown-wrapper {
+                backdrop-filter: blur(8px);
+                -webkit-backdrop-filter: blur(8px);
+            }
+        }
 
         #live .gyro-3d-box-container:hover .gyro-3d-box {
             border-color: rgba(255, 255, 255, 0.15);
@@ -1019,9 +1022,16 @@ transform: translateZ(0);
         }
 
         @keyframes liveCardFloat {
-    0%, 100% { transform: translateY(0px) translateZ(0); }
-    50% { transform: translateY(-6px) translateZ(0); }
-}
+
+            0%,
+            100% {
+                transform: translateY(0px) translateZ(0);
+            }
+
+            50% {
+                transform: translateY(-6px) translateZ(0);
+            }
+        }
 
         #live .card-header-row {
             display: flex;
@@ -3683,6 +3693,128 @@ transform: translateZ(0);
             vertical-align: -0.1em;
             display: inline-block;
         }
+
+        /* ============================================================
+   PERFORMANCE MODE — Android / Low-end device optimizations
+============================================================ */
+        body.perf-mode #live .gyro-3d-box,
+        body.perf-mode #live .no-live-inner,
+        body.perf-mode #results .gyro-3d-box,
+        body.perf-mode #results .results-glass-dropdown-wrapper,
+        body.perf-mode #live #refreshBtn {
+            backdrop-filter: none !important;
+            -webkit-backdrop-filter: none !important;
+            background-color: rgba(15, 15, 22, 0.88) !important;
+        }
+
+        body.perf-mode #live .gyro-3d-box {
+            animation: none !important;
+            transform: none !important;
+            transform-style: flat !important;
+        }
+
+        body.perf-mode #live .pulsating-indicator-dot::after {
+            animation: none !important;
+        }
+
+        body.perf-mode #live .main-page-live-title span {
+            animation: none !important;
+        }
+
+        /* Remove home page heavy effects */
+        body.perf-mode #home .logo-3d-environment {
+            perspective: none !important;
+        }
+
+        body.perf-mode #home .logo-3d-card {
+            transform-style: flat !important;
+            will-change: auto !important;
+        }
+
+        body.perf-mode #home .front-gold-layer {
+            filter: none !important;
+        }
+
+        body.perf-mode #home .edge-layer-1,
+        body.perf-mode #home .edge-layer-2,
+        body.perf-mode #home .edge-layer-3,
+        body.perf-mode #home .edge-layer-4 {
+            display: none !important;
+        }
+
+        body.perf-mode #home .scroll-header-bar {
+            display: none !important;
+        }
+
+        body.perf-mode #home .embroid-header-bound-crop {
+            display: none !important;
+        }
+
+        /* Smooth page transitions — reduce duration on perf mode */
+        body.perf-mode .pages-track {
+            perspective: none !important;
+            transition-timing-function: ease-out !important;
+        }
+
+        body.perf-mode .content-card-wrapper {
+            -webkit-mask-image: none !important;
+            mask-image: none !important;
+        }
+
+        /* Results page */
+        body.perf-mode #results #resultsTitleBig span,
+        body.perf-mode #results #resultsTitleSmall span {
+            animation: none !important;
+        }
+
+        /* Teams page */
+        body.perf-mode #teams .logo-img-3d {
+            animation: none !important;
+            transform: none !important;
+        }
+
+        body.perf-mode #teams .logo-bg-ring {
+            animation: none !important;
+            display: none !important;
+        }
+
+        body.perf-mode #teams .bg-row {
+            animation: none !important;
+        }
+
+        body.perf-mode #teams .main-title {
+            animation: none !important;
+        }
+
+        /* Gallery */
+        body.perf-mode #gallery .intro-overlay {
+            display: none !important;
+        }
+
+        body.perf-mode #gallery .gallery-item:hover {
+            transform: none !important;
+        }
+
+        /* Standings scrolling N animation */
+        body.perf-mode #standings .n-first .scroller,
+        body.perf-mode #standings .n-second .scroller {
+            animation: none !important;
+        }
+
+        /* Carousel animations — stop on perf mode */
+        body.perf-mode #live .carousel-section-box img,
+        body.perf-mode #results .carousel-section-box img {
+            animation: none !important;
+            opacity: 1 !important;
+            transform: none !important;
+        }
+
+        body.perf-mode #live .carousel-section-box img:nth-child(2),
+        body.perf-mode #live .carousel-section-box img:nth-child(3),
+        body.perf-mode #results .carousel-section-box img:nth-child(2),
+        body.perf-mode #results .carousel-section-box img:nth-child(3) {
+            display: none !important;
+        }
     </style>
 
     <script src="https://cdn.jsdelivr.net/npm/twemoji@14.0.2/dist/twemoji.min.js" crossorigin="anonymous"></script>
@@ -3690,6 +3822,19 @@ transform: translateZ(0);
 </head>
 
 <body>
+
+    <script>
+        // Auto-detect Android or low-memory devices and enable performance mode
+        (function () {
+            const isAndroid = /Android/i.test(navigator.userAgent);
+            const isLowEnd = navigator.hardwareConcurrency <= 4 ||
+                (navigator.deviceMemory && navigator.deviceMemory <= 4);
+
+            if (isAndroid || isLowEnd) {
+                document.body.classList.add('perf-mode');
+            }
+        })();
+    </script>
 
     <div class="app-wrapper" id="appWrapper">
 
@@ -5053,15 +5198,15 @@ transform: translateZ(0);
         }
 
         let scrollTicking = false;
-homeScrollInner.addEventListener('scroll', () => {
-    if (!scrollTicking) {
-        requestAnimationFrame(() => {
-            updateScrollTransformations();
-            scrollTicking = false;
-        });
-        scrollTicking = true;
-    }
-}, { passive: true });
+        homeScrollInner.addEventListener('scroll', () => {
+            if (!scrollTicking) {
+                requestAnimationFrame(() => {
+                    updateScrollTransformations();
+                    scrollTicking = false;
+                });
+                scrollTicking = true;
+            }
+        }, { passive: true });
 
         window.addEventListener('resize', () => {
             maxScrollDistance = window.innerHeight * 0.85;
@@ -5095,6 +5240,11 @@ homeScrollInner.addEventListener('scroll', () => {
         }
 
         function animateStarfield() {
+            // Only animate when on home page (currentIndex === 0)
+            if (currentIndex !== 0) {
+                requestAnimationFrame(animateStarfield);
+                return;
+            }
             starCtx.clearRect(0, 0, starCanvas.width, starCanvas.height);
             for (let i = 0; i < totalStars; i++) {
                 const star = starsArray[i];
@@ -5130,6 +5280,7 @@ homeScrollInner.addEventListener('scroll', () => {
         }
 
         function drawLogoSparkles() {
+            if (currentIndex !== 0) { requestAnimationFrame(drawLogoSparkles); return; }
             sCtx.clearRect(0, 0, sparkleCanvas.width, sparkleCanvas.height);
             if (Math.random() < 0.01) createLogoSparkle();
             for (let i = logoSparkles.length - 1; i >= 0; i--) {
@@ -5164,6 +5315,7 @@ homeScrollInner.addEventListener('scroll', () => {
         let starProgress = 0, isStarActive = true, lastLaunchTime = Date.now();
 
         function drawShootingStarSystem() {
+            if (currentIndex !== 0) { requestAnimationFrame(drawShootingStarSystem); return; }
             oCtx.clearRect(0, 0, oCanvas.width, oCanvas.height);
             const cx = oCanvas.width / 2, cy = oCanvas.height / 2;
             if (!isStarActive && Date.now() - lastLaunchTime > orbitConfig.interval) { isStarActive = true; starProgress = 0; }
@@ -5293,6 +5445,14 @@ homeScrollInner.addEventListener('scroll', () => {
             window.startGalleryIntro = function () {
                 if (introPlayed) return;
                 introPlayed = true;
+
+                // Skip cinematic intro on perf mode
+                if (document.body.classList.contains('perf-mode')) {
+                    const intro = document.getElementById("galleryIntroOverlay");
+                    if (intro) intro.remove();
+                    if (galleryScroll) galleryScroll.style.overflow = "auto";
+                    return;
+                }
 
                 const gallery = document.getElementById("gallery");
                 if (gallery) {
@@ -5753,6 +5913,16 @@ homeScrollInner.addEventListener('scroll', () => {
             });
 
             window.resetTeamsIntro = function () {
+                // On perf mode, skip intro entirely — go straight to slider
+                if (document.body.classList.contains('perf-mode')) {
+                    introCompleted = true;
+                    hasInitializedSlider = true;
+                    teamsScrollInner.scrollTop = SCROLL_DISTANCE_FOR_EFFECT;
+                    logoSlider.classList.add('active');
+                    logoSlider.scrollLeft = 0;
+                    updateParallaxLayout();
+                    return;
+                }
                 introCompleted = false;
                 hasInitializedSlider = false;
                 teamsScrollInner.scrollTop = 0;
