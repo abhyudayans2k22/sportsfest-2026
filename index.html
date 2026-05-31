@@ -129,6 +129,7 @@
             transform: scale(1.03) translateX(-5px);
         }
 
+        /* Dynamic Navigation Header Box - High End Default (No Box) */
         .header-box {
             position: absolute;
             right: 24px;
@@ -150,6 +151,7 @@
                 visibility 0.3s ease;
         }
 
+        /* Dynamically boxed on other pages or scroll */
         .header-box.with-box {
             padding: 1px 12px;
             background: rgba(255, 255, 255, 0.15);
@@ -158,11 +160,13 @@
             -webkit-backdrop-filter: blur(10px);
         }
 
+        /* When menu opens, completely clear backgrounds and outlines to prevent overlaps */
         .app-wrapper.menu-open .header-box {
             background: transparent !important;
             border-color: transparent !important;
             backdrop-filter: none !important;
             -webkit-backdrop-filter: none !important;
+            box-shadow: none !important;
         }
 
         .header-box.hide-header {
@@ -270,9 +274,7 @@
             backface-visibility: hidden;
             -webkit-backface-visibility: hidden;
             transform: translateZ(0);
-            /* ADD THIS */
             -webkit-transform: translateZ(0);
-            /* ADD THIS */
         }
 
         .app-wrapper.menu-open .content-card-wrapper {
@@ -436,7 +438,7 @@
 
         #home .edge-layer-4 {
             transform: translateZ(0px);
-            filter: brightness(0) contrast(2) drop-shadow(0 8px 15px rgba(0, 0, 0, 0.9));
+            filter: brightness(0) contrast(2) drop-shadow(0 8px 15px rgba(0, 0, 0, 0.95));
         }
 
         #home .logo-sparkle-overlay {
@@ -2763,21 +2765,24 @@
 
         @keyframes assembleTitle {
             0% {
-                letter-spacing: 14vw;
-                filter: blur(16px);
-                transform: scale(1.6);
                 opacity: 0;
+                filter: blur(15px);
+                transform: scale(1.6);
+                letter-spacing: 14vw;
             }
 
-            30% {
+            40% {
                 opacity: 1;
+                filter: blur(4px);
+                transform: scale(1.1);
+                letter-spacing: 10vw;
             }
 
             100% {
-                letter-spacing: 0.18em;
+                opacity: 1;
                 filter: blur(0px);
                 transform: scale(1);
-                opacity: 1;
+                letter-spacing: 2vw;
             }
         }
 
@@ -3199,6 +3204,30 @@
                 font-size: 12px;
                 border-radius: 14px;
             }
+        }
+
+        .page-title-label {
+            position: absolute;
+            left: 24px;
+            top: 15px;
+            z-index: 9999;
+            font-family: 'Oswald', 'Impact', 'Arial Narrow', sans-serif;
+            font-size: 22px;
+            font-weight: 700;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: #ffffff;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+            height: 55px;
+            display: flex;
+            align-items: center;
+            text-shadow: 0 0 15px rgba(255, 255, 255, 0.2);
+        }
+
+        .page-title-label.visible {
+            opacity: 1;
         }
 
 
@@ -3642,7 +3671,7 @@
         }
 
         #teams .scroll-spacer {
-            height: 2000px;
+            height: 600px;
             position: relative;
             z-index: 2;
             pointer-events: none;
@@ -3695,8 +3724,8 @@
         }
 
         /* ============================================================
-   PERFORMANCE MODE — Android / Low-end device optimizations
-============================================================ */
+           PERFORMANCE MODE — Android / Low-end device optimizations
+        ============================================================ */
         body.perf-mode #live .gyro-3d-box,
         body.perf-mode #live .no-live-inner,
         body.perf-mode #results .gyro-3d-box,
@@ -3721,12 +3750,14 @@
             animation: none !important;
         }
 
-        /* Remove home page heavy effects */
+        /* Remove home page heavy effects and lock centered logo coordinates */
         body.perf-mode #home .logo-3d-environment {
             perspective: none !important;
+            transform: translate3d(0, 0, 0) scale(1);
         }
 
         body.perf-mode #home .logo-3d-card {
+            transform: none !important;
             transform-style: flat !important;
             will-change: auto !important;
         }
@@ -3815,6 +3846,71 @@
         body.perf-mode #results .carousel-section-box img:nth-child(3) {
             display: none !important;
         }
+
+        /* ============================================================
+           LOW END DEVICE OPTIMIZED POPUP TRANSITIONS (Android Bypass)
+        ============================================================ */
+        body.perf-mode .app-wrapper.menu-open .content-card-wrapper {
+            transform: none !important;
+            border-radius: 0 !important;
+            box-shadow: none !important;
+            pointer-events: auto !important;
+        }
+
+        body.perf-mode .app-wrapper.menu-open .header-box {
+            background: transparent !important;
+            border-color: transparent !important;
+            backdrop-filter: none !important;
+            -webkit-backdrop-filter: none !important;
+            box-shadow: none !important;
+        }
+
+        body.perf-mode .app-wrapper.menu-open .logo-img {
+            max-width: 100px !important;
+            opacity: 1 !important;
+            margin-right: 12px !important;
+            visibility: visible !important;
+        }
+
+        body.perf-mode .menu-layer {
+            position: absolute;
+            right: 24px;
+            top: 15px;
+            width: 240px;
+            height: auto;
+            max-height: calc(100% - 30px);
+            padding: 70px 24px 20px 24px;
+            border-radius: 24px;
+            background: rgba(20, 20, 28, 0.98);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            align-items: flex-end;
+            z-index: 9998;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.2s ease, visibility 0.2s ease;
+        }
+
+        body.perf-mode .app-wrapper.menu-open .menu-layer {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        body.perf-mode .menu-list {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            text-align: right;
+            width: 100%;
+        }
+
+        body.perf-mode .menu-item {
+            font-size: 1.15rem;
+            padding: 8px 0;
+        }
     </style>
 
     <script src="https://cdn.jsdelivr.net/npm/twemoji@14.0.2/dist/twemoji.min.js" crossorigin="anonymous"></script>
@@ -3824,13 +3920,23 @@
 <body>
 
     <script>
-        // Auto-detect Android or low-memory devices and enable performance mode
+        // Enhanced auto-detect optimized for high-end iOS/Apple devices (like iPhone 15)
         (function () {
             const isAndroid = /Android/i.test(navigator.userAgent);
-            const isLowEnd = navigator.hardwareConcurrency <= 4 ||
-                (navigator.deviceMemory && navigator.deviceMemory <= 4);
+            const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
 
-            if (isAndroid || isLowEnd) {
+            // Safari iOS restricts hardwareConcurrency reporting to 4 (or 2 in low power state) for privacy reasons,
+            // and does not support deviceMemory API. We bypass this to ensure premium iOS devices are not incorrectly throttled.
+            let isLowEnd = false;
+            if (isAndroid) {
+                isLowEnd = navigator.hardwareConcurrency <= 4 || (navigator.deviceMemory && navigator.deviceMemory <= 4);
+            } else if (isIOS) {
+                isLowEnd = navigator.hardwareConcurrency <= 2;
+            } else {
+                isLowEnd = navigator.hardwareConcurrency <= 4 || (navigator.deviceMemory && navigator.deviceMemory <= 4);
+            }
+
+            if (isLowEnd) {
                 document.body.classList.add('perf-mode');
             }
         })();
@@ -3838,6 +3944,7 @@
 
     <div class="app-wrapper" id="appWrapper">
 
+        <div class="page-title-label" id="pageTitleLabel">GALLERY</div>
         <!-- ── Global Burger + Logo header ── -->
         <div class="header-box home-page-active" id="headerBox">
             <img src="https://i.ibb.co/d055H7M2/Untitled11-20260524180510.png" alt="Logo" class="logo-img">
@@ -5071,34 +5178,51 @@
             });
             menuItems[targetIndex].classList.add('active-link');
 
-            if (targetIndex === 0) {
-                headerBox.classList.remove('with-box');
-                headerBox.classList.add('home-page-active');
-            } else {
-                headerBox.classList.add('with-box');
-                headerBox.classList.remove('home-page-active');
-            }
-            headerBox.classList.add('light-theme-lines');
-
             currentIndex = targetIndex;
+
+            const pageTitleLabel = document.getElementById('pageTitleLabel');
+            if (pageTitleLabel) {
+                const titles = ['', '', '', '', '', 'Gallery'];
+                const title = titles[targetIndex] || '';
+                pageTitleLabel.textContent = title;
+                if (title) {
+                    pageTitleLabel.classList.add('visible');
+                } else {
+                    pageTitleLabel.classList.remove('visible');
+                }
+            }
+
+            if (!document.body.classList.contains('perf-mode')) {
+                if (targetIndex === 0) {
+                    headerBox.classList.remove('with-box');
+                } else {
+                    headerBox.classList.add('with-box');
+                }
+            }
 
             const contentCard = document.getElementById('contentCard');
             const menuLayer = document.querySelector('.menu-layer');
             const isMenuOpen = appWrapper.classList.contains('menu-open');
 
             if (isMenuOpen) {
-                const zoomDuration = 0.5;
-                const totalDuration = transitionDuration + zoomDuration;
+                const isPerfMode = document.body.classList.contains('perf-mode');
+                if (isPerfMode) {
+                    // Simple dropdown closing without scale down/shifting animations on performance mode
+                    appWrapper.classList.remove('menu-open');
+                } else {
+                    const zoomDuration = 0.5;
+                    const totalDuration = transitionDuration + zoomDuration;
 
-                contentCard.style.transition = `transform ${zoomDuration}s cubic-bezier(0.16, 1, 0.3, 1) ${transitionDuration}s, border-radius ${zoomDuration}s cubic-bezier(0.16, 1, 0.3, 1) ${transitionDuration}s`;
-                menuLayer.style.transition = `opacity 0.2s ease ${totalDuration - 0.1}s, visibility 0.2s ease ${totalDuration - 0.1}s`;
+                    contentCard.style.transition = `transform ${zoomDuration}s cubic-bezier(0.16, 1, 0.3, 1) ${transitionDuration}s, border-radius ${zoomDuration}s cubic-bezier(0.16, 1, 0.3, 1) ${transitionDuration}s`;
+                    menuLayer.style.transition = `opacity 0.2s ease ${totalDuration - 0.1}s, visibility 0.2s ease ${totalDuration - 0.1}s`;
 
-                appWrapper.classList.remove('menu-open');
+                    appWrapper.classList.remove('menu-open');
 
-                setTimeout(() => {
-                    contentCard.style.transition = '';
-                    menuLayer.style.transition = '';
-                }, (totalDuration + 0.2) * 1000);
+                    setTimeout(() => {
+                        contentCard.style.transition = '';
+                        menuLayer.style.transition = '';
+                    }, (totalDuration + 0.2) * 1000);
+                }
             } else {
                 appWrapper.classList.remove('menu-open');
             }
@@ -5153,6 +5277,13 @@
         let autoRotX = 0, autoRotY = 0;
 
         function updateLogoIdleMovement() {
+            if (document.body.classList.contains('perf-mode')) {
+                // Completely static representation in performance mode
+                const currentScroll = homeScrollInner.scrollTop;
+                logo3DZone.style.transform = `translate3d(0, ${-currentScroll}px, 0) scale(1)`;
+                logoCard.style.transform = 'none';
+                return;
+            }
             timeX += 0.012; timeY += 0.008;
             autoRotY = Math.sin(timeX) * 14;
             autoRotX = Math.cos(timeY) * 11;
@@ -5167,19 +5298,36 @@
             const currentScroll = homeScrollInner.scrollTop;
             scrollPercent = Math.min(currentScroll / maxScrollDistance, 1);
 
-            homeHeaderBar.style.opacity = scrollPercent;
-            const targetBlur = scrollPercent * 12;
-            homeHeaderBar.style.backdropFilter = `blur(${targetBlur}px)`;
-            homeHeaderBar.style.webkitBackdropFilter = `blur(${targetBlur}px)`;
+            const isPerfMode = document.body.classList.contains('perf-mode');
+
+            if (!isPerfMode) {
+                homeHeaderBar.style.opacity = scrollPercent;
+                const targetBlur = scrollPercent * 12;
+                homeHeaderBar.style.backdropFilter = `blur(${targetBlur}px)`;
+                homeHeaderBar.style.webkitBackdropFilter = `blur(${targetBlur}px)`;
+                embroidCropWrap.style.opacity = scrollPercent * 0.7;
+
+                // Toggle with-box class on scroll (only if we are on the Home page)
+                if (currentIndex === 0) {
+                    headerBox.classList.remove('with-box');
+                }
+            }
 
             scrollArrow.style.opacity = Math.max(1 - (scrollPercent * 3), 0);
             logoTagline.style.opacity = Math.max(1 - (scrollPercent * 3.3), 0);
-            embroidCropWrap.style.opacity = scrollPercent * 0.7;
 
             applyUnifiedTransforms();
         }
 
         function applyUnifiedTransforms() {
+            const isPerfMode = document.body.classList.contains('perf-mode');
+            if (isPerfMode) {
+                const currentScroll = homeScrollInner.scrollTop;
+                logo3DZone.style.transform = `translate3d(0, ${-currentScroll}px, 0) scale(1)`;
+                logoCard.style.transform = 'none';
+                return;
+            }
+
             const screenWidth = window.innerWidth;
             const screenHeight = window.innerHeight;
             const targetX = -(screenWidth / 2) + 20 + 25;
@@ -5535,7 +5683,9 @@
 
                                     lightbox.classList.add("active");
                                     if (headerBox) headerBox.classList.add("hide-header");
-                                    if (galleryScroll) galleryScroll.style.overflow = "hidden";
+                                    const _ptl = document.getElementById('pageTitleLabel');
+                                    if (_ptl) _ptl.style.opacity = '0';
+                                    if (galleryScroll) galleryScroll.style.overflow = "auto";
                                     clickCount = 0;
                                 }, 250);
                             } else {
@@ -5621,6 +5771,8 @@
                 if (e.target === lightbox) {
                     lightbox.classList.remove("active");
                     if (headerBox) headerBox.classList.remove("hide-header");
+                    const _ptl = document.getElementById('pageTitleLabel');
+                    if (_ptl && _ptl.classList.contains('visible')) _ptl.style.opacity = '1';
                     if (galleryScroll) galleryScroll.style.overflow = "auto";
                 }
             });
@@ -5629,12 +5781,16 @@
                 renderFavoritesUI();
                 favsPopup.classList.add("open");
                 if (headerBox) headerBox.classList.add("hide-header");
+                const _ptl = document.getElementById('pageTitleLabel');
+                if (_ptl) _ptl.style.opacity = '0';
                 if (galleryScroll) galleryScroll.style.overflow = "hidden";
             });
 
             closeFavsBtn.addEventListener("click", () => {
                 favsPopup.classList.remove("open");
                 if (headerBox) headerBox.classList.remove("hide-header");
+                const _ptl = document.getElementById('pageTitleLabel');
+                if (_ptl && _ptl.classList.contains('visible')) _ptl.style.opacity = '1';
                 if (galleryScroll) galleryScroll.style.overflow = "auto";
             });
 
@@ -5696,10 +5852,10 @@
     ============================================================ -->
     <script>
         (function () {
-            const SCROLL_DISTANCE_FOR_EFFECT = 350;
+            const SCROLL_DISTANCE_FOR_EFFECT = 200;
             const FINAL_TOP_PADDING = 50;
             const FINAL_MINI_SCALE = 0.40;
-            const SNAP_SPEED = 700;
+            const SNAP_SPEED = 450;
 
             const TEAM_COLORS = [
                 [212, 175, 55],
@@ -5750,6 +5906,8 @@
                 teamsPage.style.setProperty('--team-g', g);
                 teamsPage.style.setProperty('--team-b', b);
             }
+
+            teamsScrollInner.style.overflow = 'hidden';
 
             function updateParallaxLayout() {
                 const currentScroll = teamsScrollInner.scrollTop;
@@ -5830,7 +5988,7 @@
                 }
 
                 if (currentScroll < SCROLL_DISTANCE_FOR_EFFECT) {
-                    if (Math.abs(scrollDelta) > 4) {
+                    if (Math.abs(scrollDelta) > 1) {
                         if (event && event.cancelable) event.preventDefault();
 
                         if (scrollDelta > 0) {
@@ -5842,19 +6000,20 @@
                 }
             }
 
-            teamsScrollInner.addEventListener('touchstart', (e) => {
+            teamsPage.addEventListener('touchstart', (e) => {
                 touchStartY = e.touches[0].clientY;
             }, { passive: true });
 
-            teamsScrollInner.addEventListener('touchmove', (e) => {
+            teamsPage.addEventListener('touchmove', (e) => {
                 if (introCompleted) return;
+                if (e.target.closest('.logo-viewport')) return;
                 const touchCurrentY = e.touches[0].clientY;
                 const scrollDelta = touchStartY - touchCurrentY;
                 touchStartY = touchCurrentY;
                 handleScrollAttempt(scrollDelta, e);
             }, { passive: false });
 
-            teamsScrollInner.addEventListener('wheel', (e) => {
+            teamsPage.addEventListener('wheel', (e) => {
                 if (introCompleted) return;
                 handleScrollAttempt(e.deltaY, e);
             }, { passive: false });
@@ -7043,7 +7202,6 @@
             if (!row) return;
 
             if (totalRendered === 0) {
-
                 row.innerHTML = `
     <div id="landingSpacer" style="flex: 0 0 80vw; scroll-snap-align: center; pointer-events: none;"></div>
     <div id="noMatchesFoundCard" style="flex: 0 0 80vw; max-width: 440px; scroll-snap-align: center; display: flex; justify-content: center; align-items: center; pointer-events: auto; padding: 0 10px;">
@@ -7054,7 +7212,6 @@
         </div>
     </div>
 `;
-
                 el('results').style.backgroundColor = winnerBGColors.DEFAULT;
             } else {
                 row.innerHTML = `
