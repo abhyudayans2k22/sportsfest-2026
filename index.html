@@ -15,6 +15,8 @@
     <link
         href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Anton&family=Oswald:wght@400;500;600;700&display=swap"
         rel="stylesheet">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#000000">
 
     <style>
         /* ============================================================
@@ -1041,6 +1043,7 @@
             justify-content: space-between;
             width: 100%;
             height: 32px;
+            gap: 1px;
         }
 
         #live .sport-brand-identity {
@@ -1058,14 +1061,36 @@
             text-shadow: 0 0 8px rgba(255, 255, 255, 0.25);
         }
 
+        /* ADD THIS new rule after #live .sport-label-text: */
+        #live .sport-brand-identity {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            min-width: 0;
+            flex-shrink: 1;
+        }
+
+        #live .sport-label-text {
+            color: #ffffff;
+            font-size: 15px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            text-shadow: 0 0 8px rgba(255, 255, 255, 0.25);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
         #live .innings-status-badge {
             border: 1px solid rgba(255, 255, 255, 0.18);
             border-radius: 8px;
-            padding: 4px 12px;
+            padding: 4px 10px;
             display: flex;
             align-items: center;
             justify-content: center;
-            margin-left: -80px;
+            margin-left: -90px;
+            flex-shrink: 0;
         }
 
         #live .innings-status-badge span {
@@ -4133,24 +4158,30 @@
                                     <div class="match-field-arena">
                                         <div class="team-block-identity">
                                             <img id="cricketTeam1Logo" class="team-logo-shield" src="" alt="">
-                                            <div class="team-name-tag"><span id="cricketTeam1Name">--</span></div>
+                                            <div class="team-name-tag"
+                                                style="position:relative; display:flex; flex-direction:row; align-items:center; justify-content:center; gap:4px;">
+                                                <span id="cricketTeam1Name">--</span>
+                                                <span id="team1TossCoin"
+                                                    style="display:none; font-size:13px; filter:drop-shadow(0px 0px 5px rgba(255,215,0,0.8)); animation:coinFloat 2s ease-in-out infinite; line-height:1;">🪙</span>
+                                            </div>
                                         </div>
-                                        <div class="scoreline-block left-align" style="position:relative;">
+                                        <div class="scoreline-block left-align">
                                             <span id="cricketTeam1Score" class="live-score-value">0/0</span>
                                             <span id="cricketTeam1Overs" class="live-overs-value">(0.0)</span>
-                                            <span id="team1TossCoin"
-                                                style="display:none; position:absolute; top:38px; right:63px; font-size:13px; filter:drop-shadow(0px 0px 5px rgba(255,215,0,0.8)); animation:coinFloat 2s ease-in-out infinite;">🪙</span>
                                         </div>
                                         <div class="match-mid-split"><span class="vs-middle-text">VS</span></div>
-                                        <div class="scoreline-block right-align" style="position:relative;">
+                                        <div class="scoreline-block right-align">
                                             <span id="cricketTeam2Score" class="live-score-value">0/0</span>
                                             <span id="cricketTeam2Overs" class="live-overs-value">(0.0)</span>
-                                            <span id="team2TossCoin"
-                                                style="display:none; position:absolute; top:38px; left:140px; font-size:13px; filter:drop-shadow(0px 0px 5px rgba(255,215,0,0.8)); animation:coinFloat 2s ease-in-out infinite;">🪙</span>
                                         </div>
                                         <div class="team-block-identity">
                                             <img id="cricketTeam2Logo" class="team-logo-shield" src="" alt="">
-                                            <div class="team-name-tag"><span id="cricketTeam2Name">--</span></div>
+                                            <div class="team-name-tag"
+                                                style="position:relative; display:flex; flex-direction:row; align-items:center; justify-content:center; gap:4px;">
+                                                <span id="cricketTeam2Name">--</span>
+                                                <span id="team2TossCoin"
+                                                    style="display:none; font-size:13px; filter:drop-shadow(0px 0px 5px rgba(255,215,0,0.8)); animation:coinFloat 2s ease-in-out infinite; line-height:1;">🪙</span>
+                                            </div>
                                         </div>
                                     </div>
                                     <div class="match-insight-ticker">
@@ -6825,24 +6856,28 @@
                     <div class="scorecard-header-divider"></div>
                     <div class="match-field-arena">
                         <div class="team-block-identity">
-                            <img class="team-logo-shield" src="${logo1}" alt="">
-                            <div class="team-name-tag"><span>${t1}</span></div>
-                        </div>
-                        <div class="scoreline-block left-align" style="position:relative;">
-                            <span class="live-score-value">${s1.r}/${s1.w}</span>
-                            <span class="live-overs-value">(${formatOvers(b1)})</span>
-                            <span style="display:${showCoin1}; position:absolute; top: 38px; right:57px; font-size:13px; filter:drop-shadow(0px 0px 5px rgba(255,215,0,0.8));">🪙</span>
-                        </div>
+    <img class="team-logo-shield" src="${logo1}" alt="">
+    <div class="team-name-tag" style="display:flex; flex-direction:row; align-items:center; justify-content:center; gap:4px;">
+        <span>${t1}</span>
+        <span style="display:${showCoin1}; font-size:13px; filter:drop-shadow(0px 0px 5px rgba(255,215,0,0.8)); line-height:1;">🪙</span>
+    </div>
+</div>
+<div class="scoreline-block left-align">
+    <span class="live-score-value">${s1.r}/${s1.w}</span>
+    <span class="live-overs-value">(${formatOvers(b1)})</span>
+</div>
                         <div class="match-mid-split"><span class="vs-middle-text">VS</span></div>
-                        <div class="scoreline-block right-align" style="position:relative;">
-                            <span class="live-score-value">${s2.r}/${s2.w}</span>
-                            <span class="live-overs-value">(${formatOvers(b2)})</span>
-                            <span style="display:${showCoin2}; position:absolute; top: 38px; left:129px; font-size:13px; filter:drop-shadow(0px 0px 5px rgba(255,215,0,0.8));">🪙</span>
-                        </div>
-                        <div class="team-block-identity">
-                            <img class="team-logo-shield" src="${logo2}" alt="">
-                            <div class="team-name-tag"><span>${t2}</span></div>
-                        </div>
+                        <div class="scoreline-block right-align">
+    <span class="live-score-value">${s2.r}/${s2.w}</span>
+    <span class="live-overs-value">(${formatOvers(b2)})</span>
+</div>
+<div class="team-block-identity">
+    <img class="team-logo-shield" src="${logo2}" alt="">
+    <div class="team-name-tag" style="display:flex; flex-direction:row; align-items:center; justify-content:center; gap:4px;">
+        <span>${t2}</span>
+        <span style="display:${showCoin2}; font-size:13px; filter:drop-shadow(0px 0px 5px rgba(255,215,0,0.8)); line-height:1;">🪙</span>
+    </div>
+</div>
                     </div>
                     <div class="match-insight-ticker">
                         <span class="match-insight-text">${insight}</span>
@@ -7469,6 +7504,28 @@
             setTimeout(initFocusObserver, 800);
         });
     </script>
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('sw.js').then(reg => {
+                    console.log('SW registered');
+                }).catch(err => {
+                    console.log('SW failed:', err);
+                });
+            });
+        }
+
+        // Save this event somewhere, call .prompt() whenever you want
+        let deferredPrompt;
+        window.addEventListener('beforeinstallprompt', e => {
+            e.preventDefault();
+            deferredPrompt = e;
+            // show your custom button, then later:
+            // deferredPrompt.prompt();
+        });
+
+    </script>
+
 
 </body>
 
