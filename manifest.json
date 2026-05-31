@@ -1,0 +1,24 @@
+{
+  "name": "Udaan Sports Fest '26",
+  "short_name": "Udaan",
+  "description": "GEMS Annual Sports Fest Live Scores & Gallery",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#000000",
+  "theme_color": "#000000",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "https://i.ibb.co/d055H7M2/Untitled11-20260524180510.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "https://i.ibb.co/d055H7M2/Untitled11-20260524180510.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
