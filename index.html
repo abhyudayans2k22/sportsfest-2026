@@ -5855,7 +5855,7 @@
             const SCROLL_DISTANCE_FOR_EFFECT = 200;
             const FINAL_TOP_PADDING = 50;
             const FINAL_MINI_SCALE = 0.40;
-            const SNAP_SPEED = 450;
+            const SNAP_SPEED = 380;
 
             const TEAM_COLORS = [
                 [212, 175, 55],
@@ -5873,11 +5873,17 @@
             const prevBtn = document.getElementById('teamsPrevBtn');
             const nextBtn = document.getElementById('teamsNextBtn');
 
-            let isAnimating = false;
             let introCompleted = false;
-            let snapTimeout;
-            let touchStartY = 0;
             let hasInitializedSlider = false;
+            let isAnimating = false;
+
+            // Touch tracking
+            let touchStartY = 0;
+            let touchStartX = 0;
+            let isTouchVertical = null; // null = undecided, true = vertical, false = horizontal
+
+            // Virtual scroll progress (0 to SCROLL_DISTANCE_FOR_EFFECT)
+            let virtualScroll = 0;
 
             function updateDynamicBackground() {
                 if (!introCompleted) {
@@ -5886,60 +5892,50 @@
                     teamsPage.style.setProperty('--team-b', '0');
                     return;
                 }
-
                 const scrollLeft = logoSlider.scrollLeft;
                 const width = logoSlider.offsetWidth || window.innerWidth;
                 if (width === 0) return;
-
                 const progress = Math.max(0, Math.min(2.999, scrollLeft / width));
                 const baseIndex = Math.floor(progress);
                 const percent = progress - baseIndex;
-
                 const c1 = TEAM_COLORS[baseIndex];
                 const c2 = TEAM_COLORS[(baseIndex + 1) % TEAM_COLORS.length];
-
-                const r = Math.round(c1[0] + (c2[0] - c1[0]) * percent);
-                const g = Math.round(c1[1] + (c2[1] - c1[1]) * percent);
-                const b = Math.round(c1[2] + (c2[2] - c1[2]) * percent);
-
-                teamsPage.style.setProperty('--team-r', r);
-                teamsPage.style.setProperty('--team-g', g);
-                teamsPage.style.setProperty('--team-b', b);
+                teamsPage.style.setProperty('--team-r', Math.round(c1[0] + (c2[0] - c1[0]) * percent));
+                teamsPage.style.setProperty('--team-g', Math.round(c1[1] + (c2[1] - c1[1]) * percent));
+                teamsPage.style.setProperty('--team-b', Math.round(c1[2] + (c2[2] - c1[2]) * percent));
             }
 
-            teamsScrollInner.style.overflow = 'hidden';
+            function applyIntroProgress(progress) {
+                // progress: 0 = start, 1 = complete
+                bgContainer.style.opacity = (1 - progress).toFixed(3);
+                scrollIndicator.style.opacity = Math.max(0, 1 - progress * 4.5).toFixed(3);
 
-            function updateParallaxLayout() {
-                const currentScroll = teamsScrollInner.scrollTop;
-                let scrollProgress = introCompleted
-                    ? 1
-                    : Math.min(currentScroll / SCROLL_DISTANCE_FOR_EFFECT, 1);
+                const halfH = teamsPage.offsetHeight / 2;
+                const titleH = titleContainer.offsetHeight;
+                const travel = halfH - FINAL_TOP_PADDING - (titleH * FINAL_MINI_SCALE / 2);
+                const yOffset = -(travel * progress);
+                const scale = 1 - ((1 - FINAL_MINI_SCALE) * progress);
 
-                bgContainer.style.opacity = (1 - scrollProgress).toFixed(3);
-                scrollIndicator.style.opacity = Math.max(0, 1 - (scrollProgress * 4.5)).toFixed(3);
+                titleContainer.style.transform = `translate(-50%, calc(-50% + ${yOffset}px)) scale(${scale})`;
 
-                const halfScreenHeight = teamsPage.offsetHeight / 2;
-                const titleContainerHeight = titleContainer.offsetHeight;
-                const travelDistance = halfScreenHeight - FINAL_TOP_PADDING - (titleContainerHeight * FINAL_MINI_SCALE / 2);
-
-                const activeYOffset = -(travelDistance * scrollProgress);
-                const activeScaleFactor = 1 - ((1 - FINAL_MINI_SCALE) * scrollProgress);
-
-                titleContainer.style.transform = `translate(-50%, calc(-50% + ${activeYOffset}px)) scale(${activeScaleFactor})`;
-
-                if (scrollProgress >= 1) {
-                    logoSlider.classList.add('active');
-                    if (!hasInitializedSlider) {
-                        hasInitializedSlider = true;
-                        logoSlider.scrollLeft = 0;
+                if (progress >= 1) {
+                    if (!introCompleted) {
+                        introCompleted = true;
+                        logoSlider.classList.add('active');
+                        if (!hasInitializedSlider) {
+                            hasInitializedSlider = true;
+                            logoSlider.scrollLeft = 0;
+                        }
+                        updateDynamicBackground();
                     }
-                    updateDynamicBackground();
                 } else {
-                    logoSlider.classList.remove('active');
+                    if (introCompleted) {
+                        introCompleted = false;
+                        logoSlider.classList.remove('active');
+                    }
                     teamsPage.style.setProperty('--team-r', '0');
                     teamsPage.style.setProperty('--team-g', '0');
                     teamsPage.style.setProperty('--team-b', '0');
-                    hasInitializedSlider = false;
                 }
             }
 
@@ -5947,160 +5943,161 @@
                 return t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t;
             }
 
-            function smoothScrollTo(destination, duration) {
+            function animateTo(targetScroll, duration) {
                 if (isAnimating) return;
                 isAnimating = true;
-
-                const startScroll = teamsScrollInner.scrollTop;
-                const change = destination - startScroll;
+                const start = virtualScroll;
+                const change = targetScroll - start;
                 let startTime = null;
 
-                function animate(currentTime) {
-                    if (!startTime) startTime = currentTime;
-                    const timeElapsed = currentTime - startTime;
-                    const progress = Math.min(timeElapsed / duration, 1);
-                    const easeValue = easeInOutQuad(progress);
-
-                    teamsScrollInner.scrollTop = startScroll + change * easeValue;
-
-                    if (timeElapsed < duration) {
-                        requestAnimationFrame(animate);
+                function step(now) {
+                    if (!startTime) startTime = now;
+                    const elapsed = now - startTime;
+                    const t = Math.min(elapsed / duration, 1);
+                    virtualScroll = start + change * easeInOutQuad(t);
+                    applyIntroProgress(virtualScroll / SCROLL_DISTANCE_FOR_EFFECT);
+                    if (t < 1) {
+                        requestAnimationFrame(step);
                     } else {
-                        teamsScrollInner.scrollTop = destination;
+                        virtualScroll = targetScroll;
+                        applyIntroProgress(virtualScroll / SCROLL_DISTANCE_FOR_EFFECT);
                         isAnimating = false;
-                        if (destination >= SCROLL_DISTANCE_FOR_EFFECT) {
-                            introCompleted = true;
-                            updateParallaxLayout();
-                        }
                     }
                 }
-                requestAnimationFrame(animate);
+                requestAnimationFrame(step);
             }
 
-            function handleScrollAttempt(scrollDelta, event) {
-                if (introCompleted) return;
-
-                const currentScroll = teamsScrollInner.scrollTop;
-
-                if (isAnimating) {
-                    if (event && event.cancelable) event.preventDefault();
-                    return;
-                }
-
-                if (currentScroll < SCROLL_DISTANCE_FOR_EFFECT) {
-                    if (Math.abs(scrollDelta) > 1) {
-                        if (event && event.cancelable) event.preventDefault();
-
-                        if (scrollDelta > 0) {
-                            smoothScrollTo(SCROLL_DISTANCE_FOR_EFFECT, SNAP_SPEED);
-                        } else if (scrollDelta < 0 && currentScroll > 0) {
-                            smoothScrollTo(0, SNAP_SPEED);
-                        }
-                    }
+            function snapToNearest() {
+                if (isAnimating) return;
+                if (virtualScroll > 0 && virtualScroll < SCROLL_DISTANCE_FOR_EFFECT) {
+                    const target = virtualScroll > SCROLL_DISTANCE_FOR_EFFECT / 2
+                        ? SCROLL_DISTANCE_FOR_EFFECT
+                        : 0;
+                    animateTo(target, SNAP_SPEED - 150);
                 }
             }
 
+            let snapTimer = null;
+
+            function onVirtualScrollDelta(delta) {
+                if (introCompleted && delta > 0) return; // already done, let slider handle
+                if (!introCompleted && delta < 0 && virtualScroll <= 0) return; // at top, nothing to do
+
+                if (introCompleted && delta < 0) {
+                    // User wants to scroll back to intro
+                    introCompleted = false;
+                    virtualScroll = SCROLL_DISTANCE_FOR_EFFECT;
+                    logoSlider.classList.remove('active');
+                    hasInitializedSlider = false;
+                }
+
+                virtualScroll = Math.max(0, Math.min(SCROLL_DISTANCE_FOR_EFFECT, virtualScroll + delta));
+                applyIntroProgress(virtualScroll / SCROLL_DISTANCE_FOR_EFFECT);
+
+                clearTimeout(snapTimer);
+                snapTimer = setTimeout(snapToNearest, 120);
+            }
+
+            // ── Touch handling on the entire teams page ──
             teamsPage.addEventListener('touchstart', (e) => {
                 touchStartY = e.touches[0].clientY;
+                touchStartX = e.touches[0].clientX;
+                isTouchVertical = null;
             }, { passive: true });
 
             teamsPage.addEventListener('touchmove', (e) => {
-                if (introCompleted) return;
-                if (e.target.closest('.logo-viewport')) return;
-                const touchCurrentY = e.touches[0].clientY;
-                const scrollDelta = touchStartY - touchCurrentY;
-                touchStartY = touchCurrentY;
-                handleScrollAttempt(scrollDelta, e);
+                const dy = touchStartY - e.touches[0].clientY;
+                const dx = touchStartX - e.touches[0].clientX;
+
+                // Decide axis on first significant move
+                if (isTouchVertical === null && (Math.abs(dy) > 4 || Math.abs(dx) > 4)) {
+                    isTouchVertical = Math.abs(dy) > Math.abs(dx);
+                }
+
+                if (isTouchVertical === false) return; // horizontal swipe → let slider handle
+
+                // If intro is complete and swiping down inside a logo-viewport, let it scroll naturally
+                if (introCompleted) {
+                    const inViewport = e.target.closest('.logo-viewport');
+                    if (inViewport && dy < 0) return; // scrolling up inside card content
+                    if (inViewport && dy > 0 && inViewport.scrollTop > 0) return; // not at top yet
+                    // Swipe up past top of card → dismiss intro (go back)
+                    if (dy < -40 && !isAnimating) {
+                        e.preventDefault();
+                        animateTo(0, SNAP_SPEED);
+                        return;
+                    }
+                    return;
+                }
+
+                // Intro not complete — intercept vertical swipes
+                if (isTouchVertical) {
+                    e.preventDefault();
+                    onVirtualScrollDelta(dy * 0.6);
+                    touchStartY = e.touches[0].clientY;
+                }
             }, { passive: false });
 
+            teamsPage.addEventListener('touchend', () => {
+                isTouchVertical = null;
+                if (!introCompleted) {
+                    clearTimeout(snapTimer);
+                    snapToNearest();
+                }
+            }, { passive: true });
+
+            // Desktop wheel support
             teamsPage.addEventListener('wheel', (e) => {
                 if (introCompleted) return;
-                handleScrollAttempt(e.deltaY, e);
+                e.preventDefault();
+                onVirtualScrollDelta(e.deltaY * 0.5);
             }, { passive: false });
 
-            teamsScrollInner.addEventListener('scroll', () => {
-                if (teamsScrollInner.scrollTop >= SCROLL_DISTANCE_FOR_EFFECT) {
-                    introCompleted = true;
-                }
-
-                window.requestAnimationFrame(updateParallaxLayout);
-
-                if (!introCompleted && !isAnimating) {
-                    clearTimeout(snapTimeout);
-                    snapTimeout = setTimeout(() => {
-                        const currentScroll = teamsScrollInner.scrollTop;
-                        if (currentScroll > 0 && currentScroll < SCROLL_DISTANCE_FOR_EFFECT) {
-                            if (currentScroll > SCROLL_DISTANCE_FOR_EFFECT / 2) {
-                                smoothScrollTo(SCROLL_DISTANCE_FOR_EFFECT, SNAP_SPEED - 150);
-                            } else {
-                                smoothScrollTo(0, SNAP_SPEED - 150);
-                            }
-                        }
-                    }, 100);
-                }
-            });
-
+            // Horizontal slider scroll → update bg color
             logoSlider.addEventListener('scroll', () => {
                 if (!introCompleted) return;
-                window.requestAnimationFrame(updateDynamicBackground);
-            });
+                requestAnimationFrame(updateDynamicBackground);
+            }, { passive: true });
 
             prevBtn.addEventListener('click', () => {
                 const width = logoSlider.offsetWidth || window.innerWidth;
-                const currentIndex = Math.round(logoSlider.scrollLeft / width);
-                let targetScroll = (currentIndex - 1) * width;
-                if (targetScroll < -5) {
-                    targetScroll = width * 3;
-                }
-                logoSlider.scrollTo({
-                    left: targetScroll,
-                    behavior: 'smooth'
-                });
+                const cur = Math.round(logoSlider.scrollLeft / width);
+                logoSlider.scrollTo({ left: Math.max(0, cur - 1) * width, behavior: 'smooth' });
             });
 
             nextBtn.addEventListener('click', () => {
                 const width = logoSlider.offsetWidth || window.innerWidth;
-                const currentIndex = Math.round(logoSlider.scrollLeft / width);
-                let targetScroll = (currentIndex + 1) * width;
-                if (targetScroll >= width * 4 - 5) {
-                    targetScroll = 0;
-                }
-                logoSlider.scrollTo({
-                    left: targetScroll,
-                    behavior: 'smooth'
-                });
+                const cur = Math.round(logoSlider.scrollLeft / width);
+                const maxSlide = logoSlider.children.length - 1;
+                logoSlider.scrollTo({ left: Math.min(maxSlide, cur + 1) * width, behavior: 'smooth' });
             });
 
             window.resetTeamsIntro = function () {
-                // On perf mode, skip intro entirely — go straight to slider
                 if (document.body.classList.contains('perf-mode')) {
                     introCompleted = true;
                     hasInitializedSlider = true;
-                    teamsScrollInner.scrollTop = SCROLL_DISTANCE_FOR_EFFECT;
+                    virtualScroll = SCROLL_DISTANCE_FOR_EFFECT;
                     logoSlider.classList.add('active');
                     logoSlider.scrollLeft = 0;
-                    updateParallaxLayout();
+                    applyIntroProgress(1);
                     return;
                 }
                 introCompleted = false;
                 hasInitializedSlider = false;
-                teamsScrollInner.scrollTop = 0;
-                if (logoSlider) {
-                    logoSlider.classList.remove('active');
-                    logoSlider.scrollLeft = 0;
-                }
-                updateParallaxLayout();
+                virtualScroll = 0;
+                isAnimating = false;
+                logoSlider.classList.remove('active');
+                logoSlider.scrollLeft = 0;
+                applyIntroProgress(0);
             };
 
             window.addEventListener('resize', () => {
-                window.requestAnimationFrame(updateParallaxLayout);
-                window.requestAnimationFrame(updateDynamicBackground);
+                requestAnimationFrame(() => applyIntroProgress(virtualScroll / SCROLL_DISTANCE_FOR_EFFECT));
+                requestAnimationFrame(updateDynamicBackground);
             });
 
-            window.addEventListener('DOMContentLoaded', () => {
-                teamsScrollInner.scrollTop = 0;
-                updateParallaxLayout();
-            });
+            // Init
+            applyIntroProgress(0);
         })();
     </script>
 
