@@ -6187,16 +6187,30 @@
                 }
             };
 
-            stage.addEventListener('scroll', function () {
-                const scrollTop = stage.scrollTop;
-                if (segH > 0) {
-                    if (scrollTop >= 2 * segH) {
-                        stage.scrollTop = scrollTop - segH;
-                    } else if (scrollTop < segH) {
-                        stage.scrollTop = scrollTop + segH;
-                    }
-                }
+            let _jumping = false;
+stage.addEventListener('scroll', function () {
+    if (_jumping) return;
+    const scrollTop = stage.scrollTop;
+    if (segH > 0) {
+        if (scrollTop >= 2 * segH) {
+            _jumping = true;
+            stage.style.overflow = 'hidden';
+            stage.scrollTop = scrollTop - segH;
+            requestAnimationFrame(() => {
+                stage.style.overflow = '';
+                _jumping = false;
             });
+        } else if (scrollTop < segH) {
+            _jumping = true;
+            stage.style.overflow = 'hidden';
+            stage.scrollTop = scrollTop + segH;
+            requestAnimationFrame(() => {
+                stage.style.overflow = '';
+                _jumping = false;
+            });
+        }
+    }
+});
 
             window.addEventListener('load', window.centerStandingsOnTitle);
             window.addEventListener('resize', window.centerStandingsOnTitle);
