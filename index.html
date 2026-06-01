@@ -1048,22 +1048,6 @@
             display: flex;
             align-items: center;
             gap: 5px;
-        }
-
-        #live .sport-label-text {
-            color: #ffffff;
-            font-size: 15px;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            text-shadow: 0 0 8px rgba(255, 255, 255, 0.25);
-        }
-
-        /* ADD THIS new rule after #live .sport-label-text: */
-        #live .sport-brand-identity {
-            display: flex;
-            align-items: center;
-            gap: 5px;
             min-width: 0;
             flex-shrink: 1;
         }
@@ -1666,10 +1650,10 @@
             align-items: flex-start;
             gap: 16px;
             width: 100%;
-            height: 100%;
+            height: calc(100% - 195px); /* Constrained height to keep scroll container on screen */
             overflow-x: auto;
             overflow-y: hidden;
-            padding: 20px 10vw 55px 10vw;
+            padding: 10px 10vw 40px 10vw; /* Refined padding for maximum viewport economy */
             scroll-snap-type: x mandatory;
             -webkit-overflow-scrolling: touch;
             margin-top: 195px;
@@ -2334,6 +2318,19 @@
 
         #results .winner-banner.visible {
             display: block;
+        }
+
+        /* Results focused card — allow inner scroll and prevent screen boundary overflow */
+        #results .gyro-3d-box-container.card-focused .gyro-3d-box {
+            max-height: calc(100dvh - 250px); /* Explicit limit to prevent offscreen bleeding */
+            overflow-y: auto;
+            overflow-x: hidden;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;
+        }
+
+        #results .gyro-3d-box-container.card-focused .gyro-3d-box::-webkit-scrollbar {
+            display: none;
         }
 
 
@@ -3821,6 +3818,27 @@
             animation: none !important;
         }
 
+        body.perf-mode #results .gyro-3d-box-container {
+            transform: scale(1) !important;
+            opacity: 1 !important;
+            transition: none !important;
+        }
+
+        body.perf-mode #results .card-below-victory {
+            max-height: none !important;
+            opacity: 1 !important;
+            display: block !important;
+            transition: none !important;
+        }
+
+        body.perf-mode #results .gyro-3d-box {
+            max-height: calc(100dvh - 250px) !important; /* Unified boundary containment */
+            overflow-y: auto;
+            overflow-x: hidden;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;
+        }
+
         /* Teams page */
         body.perf-mode #teams .logo-img-3d {
             animation: none !important;
@@ -3855,19 +3873,38 @@
             animation: none !important;
         }
 
-        /* Carousel animations — stop on perf mode */
+        /* Carousel animations —  perf mode */
+        @keyframes perfSimpleFade {
+            0%   { opacity: 1; }
+            30%  { opacity: 1; }
+            40%  { opacity: 0; }
+            90%  { opacity: 0; }
+            100% { opacity: 1; }
+        }
+
         body.perf-mode #live .carousel-section-box img,
         body.perf-mode #results .carousel-section-box img {
-            animation: none !important;
-            opacity: 1 !important;
+            animation: perfSimpleFade 9s linear infinite !important;
+            /* opacity: 0 !important; */
             transform: none !important;
         }
 
+        body.perf-mode #live .carousel-section-box img:nth-child(1),
+        body.perf-mode #results .carousel-section-box img:nth-child(1) {
+            animation-delay: 0s !important;
+            display: block !important;
+        }
+
         body.perf-mode #live .carousel-section-box img:nth-child(2),
+        body.perf-mode #results .carousel-section-box img:nth-child(2) {
+            animation-delay: 3s !important;
+            display: block !important;
+        }
+
         body.perf-mode #live .carousel-section-box img:nth-child(3),
-        body.perf-mode #results .carousel-section-box img:nth-child(2),
         body.perf-mode #results .carousel-section-box img:nth-child(3) {
-            display: none !important;
+            animation-delay: 6s !important;
+            display: block !important;
         }
 
         /* ============================================================
@@ -6188,29 +6225,29 @@
             };
 
             let _jumping = false;
-stage.addEventListener('scroll', function () {
-    if (_jumping) return;
-    const scrollTop = stage.scrollTop;
-    if (segH > 0) {
-        if (scrollTop >= 2 * segH) {
-            _jumping = true;
-            stage.style.overflow = 'hidden';
-            stage.scrollTop = scrollTop - segH;
-            requestAnimationFrame(() => {
-                stage.style.overflow = '';
-                _jumping = false;
+            stage.addEventListener('scroll', function () {
+                if (_jumping) return;
+                const scrollTop = stage.scrollTop;
+                if (segH > 0) {
+                    if (scrollTop >= 2 * segH) {
+                        _jumping = true;
+                        stage.style.overflow = 'hidden';
+                        stage.scrollTop = scrollTop - segH;
+                        requestAnimationFrame(() => {
+                            stage.style.overflow = '';
+                            _jumping = false;
+                        });
+                    } else if (scrollTop < segH) {
+                        _jumping = true;
+                        stage.style.overflow = 'hidden';
+                        stage.scrollTop = scrollTop + segH;
+                        requestAnimationFrame(() => {
+                            stage.style.overflow = '';
+                            _jumping = false;
+                        });
+                    }
+                }
             });
-        } else if (scrollTop < segH) {
-            _jumping = true;
-            stage.style.overflow = 'hidden';
-            stage.scrollTop = scrollTop + segH;
-            requestAnimationFrame(() => {
-                stage.style.overflow = '';
-                _jumping = false;
-            });
-        }
-    }
-});
 
             window.addEventListener('load', window.centerStandingsOnTitle);
             window.addEventListener('resize', window.centerStandingsOnTitle);
@@ -6373,7 +6410,7 @@ stage.addEventListener('scroll', function () {
             }
             el('cricketInsightText').textContent = insight;
             let leftPct = computeCricketWinPct(t1, t2, s1, s2, b1, b2, inn, toss, matchFinished, maxBalls, maxWkts);
-            leftPct = Math.round(Math.max(5, Math.min(95, leftPct)));
+            leftPct = Math.round(leftPct);
             const rightPct = 100 - leftPct;
             el('leftPredictorSegment').style.width = `${leftPct}%`;
             el('leftPredictorSegment').style.backgroundColor = getColor(t1);
@@ -6391,20 +6428,42 @@ stage.addEventListener('scroll', function () {
         }
 
         function computeCricketWinPct(t1, t2, s1, s2, b1, b2, inn, toss, matchOver, maxBalls, maxWkts) {
+            const c1 = t1.replace(/-[BG]$/i, '').toUpperCase();
+            const c2 = t2.replace(/-[BG]$/i, '').toUpperCase();
             let base = 50;
-            const b1k = t1.replace(/-[BG]$/i, ''), b2k = t2.replace(/-[BG]$/i, '');
-            if (b1k === 'PRJ' || b2k === 'PRJ') base = (b1k === 'PRJ') ? 40 : 60;
-            else if (b1k === 'ABH' || b1k === 'VYV') base = 55;
-            if (matchOver) { if (s1.r > s2.r) return 100; if (s2.r > s1.r) return 0; return 50; }
-            if (inn === 1) { if (b1 > 0) { const rr = s1.r / (b1 / 6); return base + (rr - 7.5) * 2.5 - s1.w * 4; } return base; }
-            const target = s1.r + 1, runsReq = target - s2.r, ballsLeft = Math.max(0, maxBalls - b2);
-            if (runsReq <= 0) return 0; if (ballsLeft <= 0) return 100;
-            const reqRR = runsReq / (ballsLeft / 6), curRR2 = b2 > 0 ? s2.r / (b2 / 6) : 7.5;
-            let swing = (curRR2 - reqRR) * 5;
+            if (c1 === 'PRJ') base = 40;
+            else if (c2 === 'PRJ') base = 60;
+
+            if (matchOver) {
+                if (s1.r > s2.r) return 100;
+                if (s2.r > s1.r) return 0;
+                return 50;
+            }
+
+            if (inn === 1) {
+                if (b1 === 0) return base;
+                const rr = s1.r / (b1 / 6);
+                const rrSwing = (rr - 7.5) * 2.5;
+                const wktPenalty = Math.max(0, s1.w - 4) * 2;
+                return Math.max(15, Math.min(85, base + rrSwing - wktPenalty));
+            }
+
+            const target = s1.r + 1;
+            const runsReq = target - s2.r;
+            const ballsLeft = Math.max(0, maxBalls - b2);
             const wktsLeft = maxWkts - s2.w;
-            if (wktsLeft === 1) swing -= runsReq <= ballsLeft ? 3.5 : s2.w * 5.5;
-            else swing -= s2.w * 6;
-            return base - swing;
+
+            if (runsReq <= 0) return 0;
+            if (ballsLeft <= 0 || wktsLeft <= 0) return 100;
+
+            const reqRR = runsReq / (ballsLeft / 6);
+            const rrPressure = (reqRR - 7.5) * 6;
+            const wktPressure = Math.pow((maxWkts - wktsLeft) / maxWkts, 1.8) * 30;
+            let pressure = rrPressure + wktPressure;
+            pressure = Math.max(-30, Math.min(30, pressure));
+            const t2WinPct = (100 - base) - pressure;
+
+            return Math.max(5, Math.min(95, 100 - t2WinPct));
         }
 
         function renderBasketballLive(rec) {
@@ -6541,7 +6600,6 @@ stage.addEventListener('scroll', function () {
             window.dispatchEvent(new Event('twemojiReparseTrigger'));
         }
 
-        // Connect Real-Time Live listeners
         const sports = ['cricket', 'basketball', 'badminton', 'volleyball', 'throwball'];
         sports.forEach(sport => {
             onValue(ref(db, `matches/${sport}/current`), snapshot => {
@@ -6868,28 +6926,28 @@ stage.addEventListener('scroll', function () {
                     <div class="scorecard-header-divider"></div>
                     <div class="match-field-arena">
                         <div class="team-block-identity">
-    <img class="team-logo-shield" src="${logo1}" alt="">
-    <div class="team-name-tag" style="display:flex; flex-direction:row; align-items:center; justify-content:center; gap:4px;">
-        <span>${t1}</span>
-        <span style="display:${showCoin1}; font-size:13px; filter:drop-shadow(0px 0px 5px rgba(255,215,0,0.8)); line-height:1;">🪙</span>
-    </div>
-</div>
-<div class="scoreline-block left-align">
-    <span class="live-score-value">${s1.r}/${s1.w}</span>
-    <span class="live-overs-value">(${formatOvers(b1)})</span>
-</div>
+                            <img class="team-logo-shield" src="${logo1}" alt="">
+                            <div class="team-name-tag" style="display:flex; flex-direction:row; align-items:center; justify-content:center; gap:4px;">
+                                <span>${t1}</span>
+                                <span style="display:${showCoin1}; font-size:13px; filter:drop-shadow(0px 0px 5px rgba(255,215,0,0.8)); line-height:1;">🪙</span>
+                            </div>
+                        </div>
+                        <div class="scoreline-block left-align">
+                            <span class="live-score-value">${s1.r}/${s1.w}</span>
+                            <span class="live-overs-value">(${formatOvers(b1)})</span>
+                        </div>
                         <div class="match-mid-split"><span class="vs-middle-text">VS</span></div>
                         <div class="scoreline-block right-align">
-    <span class="live-score-value">${s2.r}/${s2.w}</span>
-    <span class="live-overs-value">(${formatOvers(b2)})</span>
-</div>
-<div class="team-block-identity">
-    <img class="team-logo-shield" src="${logo2}" alt="">
-    <div class="team-name-tag" style="display:flex; flex-direction:row; align-items:center; justify-content:center; gap:4px;">
-        <span>${t2}</span>
-        <span style="display:${showCoin2}; font-size:13px; filter:drop-shadow(0px 0px 5px rgba(255,215,0,0.8)); line-height:1;">🪙</span>
-    </div>
-</div>
+                            <span class="live-score-value">${s2.r}/${s2.w}</span>
+                            <span class="live-overs-value">(${formatOvers(b2)})</span>
+                        </div>
+                        <div class="team-block-identity">
+                            <img class="team-logo-shield" src="${logo2}" alt="">
+                            <div class="team-name-tag" style="display:flex; flex-direction:row; align-items:center; justify-content:center; gap:4px;">
+                                <span>${t2}</span>
+                                <span style="display:${showCoin2}; font-size:13px; filter:drop-shadow(0px 0px 5px rgba(255,215,0,0.8)); line-height:1;">🪙</span>
+                            </div>
+                        </div>
                     </div>
                     <div class="match-insight-ticker">
                         <span class="match-insight-text">${insight}</span>
@@ -6964,15 +7022,15 @@ stage.addEventListener('scroll', function () {
                     <div class="card-below-victory">
                         <div class="scorecard-header-divider" style="margin-top:24px; margin-bottom:16px;"></div>
                         <div class="individual-tracker-wrapper">
-    <div class="tracker-column left-side">
-        <div class="tracker-column-header">${t1}</div>
-        <div style="display:flex;flex-direction:column;gap:6px;width:100%;">${t1PlayersHTML || ''}</div>
-    </div>
-    <div class="tracker-column right-side">
-        <div class="tracker-column-header">${t2}</div>
-        <div style="display:flex;flex-direction:column;gap:6px;width:100%;">${t2PlayersHTML || ''}</div>
-    </div>
-</div>
+                            <div class="tracker-column left-side">
+                                <div class="tracker-column-header">${t1}</div>
+                                <div style="display:flex;flex-direction:column;gap:6px;width:100%;">${t1PlayersHTML || ''}</div>
+                            </div>
+                            <div class="tracker-column right-side">
+                                <div class="tracker-column-header">${t2}</div>
+                                <div style="display:flex;flex-direction:column;gap:6px;width:100%;">${t2PlayersHTML || ''}</div>
+                            </div>
+                        </div>
                         ${carouselHTML}
                     </div>
                 </div>
@@ -7150,12 +7208,76 @@ stage.addEventListener('scroll', function () {
             </div>`;
         }
 
+        function getResultOnlyCardHTML(rec, cardId) {
+            const t1 = rec.team1 || '--', t2 = rec.team2 || '--';
+            const logo1 = rec.team1Logo || getLogo(t1, rec);
+            const logo2 = rec.team2Logo || getLogo(t2, rec);
+            const sc1 = rec.team1Score ?? '0';
+            const sc2 = rec.team2Score ?? '0';
+            const sportLabel = rec.sport
+                ? rec.sport.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase())
+                : 'Sport';
+
+            const n1 = parseFloat(sc1) || 0;
+            const n2 = parseFloat(sc2) || 0;
+            let winnerMsg = '';
+            if (n1 > n2) winnerMsg = `${t1} won!`;
+            else if (n2 > n1) winnerMsg = `${t2} won!`;
+            else winnerMsg = 'Draw!';
+
+            const bannerClass = 'winner-banner visible';
+            const remarksHTML = rec.remarks
+                ? `<div style="margin-top:10px;padding:10px 12px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:10px;color:#b0b3b8;font-size:12px;line-height:1.5;">${rec.remarks}</div>`
+                : '';
+
+            const carouselHTML = getCarouselHTML(rec.uploadedImages);
+
+            return `
+  <div class="gyro-3d-box-container card-visible" id="${cardId}">
+    <div class="gyro-3d-box">
+      <div class="card-header-row">
+        <div class="sport-brand-identity">
+          <span class="sport-label-text">${sportLabel}</span>
+        </div>
+        <div class="finished-broadcast-indicator">
+          <span class="finished-tag-text">FINISHED</span>
+        </div>
+      </div>
+      <div class="scorecard-header-divider"></div>
+      <div class="match-field-arena">
+        <div class="team-block-identity">
+          <img class="team-logo-shield" src="${logo1}" alt="">
+          <div class="team-name-tag"><span>${t1}</span></div>
+        </div>
+        <div class="scoreline-block left-align">
+          <span class="live-score-value">${sc1}</span>
+        </div>
+        <div class="match-mid-split"><span class="vs-middle-text">VS</span></div>
+        <div class="scoreline-block right-align">
+          <span class="live-score-value">${sc2}</span>
+        </div>
+        <div class="team-block-identity">
+          <img class="team-logo-shield" src="${logo2}" alt="">
+          <div class="team-name-tag"><span>${t2}</span></div>
+        </div>
+      </div>
+      <div class="${bannerClass}">${winnerMsg}</div>
+      <div class="card-below-victory">
+        ${remarksHTML}
+        ${carouselHTML}
+      </div>
+    </div>
+  </div>`;
+        }
+
         function renderAllFilteredMatches() {
             const teamFilter = el('resultsTeamDropdown').value;
             let combinedHTML = '';
             let totalRendered = 0;
 
-            const sportsList = ['cricket', 'basketball', 'badminton', 'volleyball', 'throwball'];
+            const knownSports = ['cricket', 'basketball', 'badminton', 'volleyball', 'throwball'];
+            const resultOnlyKeys = Object.keys(allMatchesCache).filter(k => !knownSports.includes(k));
+            const sportsList = [...knownSports, ...resultOnlyKeys];
 
             sportsList.forEach(sport => {
                 const matches = allMatchesCache[sport];
@@ -7215,6 +7337,12 @@ stage.addEventListener('scroll', function () {
                         }
                     }
 
+                    if (rec.resultOnly === true) {
+                        const n1 = parseFloat(rec.team1Score) || 0;
+                        const n2 = parseFloat(rec.team2Score) || 0;
+                        winnerTeam = n1 >= n2 ? t1 : t2;
+                    }
+
                     let winColor = winnerBGColors.DEFAULT;
                     if (winnerTeam) {
                         const baseCode = normalizeTeamCode(winnerTeam);
@@ -7228,6 +7356,8 @@ stage.addEventListener('scroll', function () {
                         cardHTML = getBasketballCardHTML(rec, cardId);
                     } else if (sport === 'badminton') {
                         cardHTML = getBadmintonCardHTML(rec, cardId);
+                    } else if (rec.resultOnly === true) {
+                        cardHTML = getResultOnlyCardHTML(rec, cardId);
                     } else {
                         cardHTML = getCourtSportCardHTML(sport, rec, cardId);
                     }
@@ -7401,6 +7531,8 @@ stage.addEventListener('scroll', function () {
                 entries.forEach(entry => {
                     if (entry.isIntersecting) {
                         entry.target.classList.add('card-focused');
+                        const innerBox = entry.target.querySelector('.gyro-3d-box');
+                        if (innerBox) innerBox.scrollTop = 0;
                     } else {
                         entry.target.classList.remove('card-focused');
                     }
@@ -7415,7 +7547,6 @@ stage.addEventListener('scroll', function () {
 
         /* ── PART 4: COMPILING DATABASES & GENERAL INITIALIZATION ── */
 
-        // Standing & Results database listeners
         onValue(ref(db, 'matches_archive/cricket'), snapshot => {
             const data = snapshot.val() || {};
             renderCricketTable(computeCricket(data, 'boys'), 'cricket-boys');
@@ -7470,7 +7601,22 @@ stage.addEventListener('scroll', function () {
             debouncedRender();
         });
 
-        // Local live refresh handler
+        const resultOnlySports = ['tug_of_war', 'ball_badminton']; 
+
+        onValue(ref(db, 'matches_archive'), snapshot => {
+            if (!snapshot.exists()) return;
+            const allData = snapshot.val();
+            Object.entries(allData).forEach(([sportKey, matches]) => {
+                const handled = ['cricket', 'basketball', 'badminton', 'volleyball', 'throwball'];
+                if (handled.includes(sportKey)) return;
+                const matchArr = Object.values(matches).sort((a, b) =>
+                    (b.lastUpdated || '').localeCompare(a.lastUpdated || '')
+                );
+                allMatchesCache[sportKey] = matchArr;
+            });
+            debouncedRender();
+        });
+
         window.addEventListener('liveRefreshRequested', () => {
             sports.forEach(sport => {
                 const dbRef = ref(db, `matches/${sport}/current`);
@@ -7489,7 +7635,6 @@ stage.addEventListener('scroll', function () {
             });
         });
 
-        // Initialize wave effects and events on Results
         document.addEventListener('DOMContentLoaded', () => {
             waveEl(el('resultsTitleBig'));
             waveEl(el('resultsTitleSmall'));
