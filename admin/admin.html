@@ -1,0 +1,3037 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <script type="module" src="https://www.gstatic.com/firebasejs/12.13.0/firebase-app.js"></script>
+    <script type="module" src="https://www.gstatic.com/firebasejs/12.13.0/firebase-firestore.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Sports Portal</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            width: 100%;
+            height: 100%;
+            background: #000000;
+            font-family: system-ui, sans-serif;
+            color: #fff;
+            touch-action: manipulation;
+        }
+
+        .app-container {
+            max-width: 480px;
+            margin: 0 auto;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            padding: 40px 14px;
+        }
+
+        .page-view {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+            animation: fIn 0.2s ease-in-out;
+        }
+
+        .page-view.active {
+            display: flex;
+        }
+
+        @keyframes fIn {
+            from {
+                opacity: 0;
+                transform: translateY(4px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .menu-box {
+            width: 100%;
+            background: #161920;
+            border: 1px solid #242936;
+            border-radius: 14px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+            margin-bottom: 16px;
+        }
+
+        .menu-box h1 {
+            font-size: 1.4rem;
+            margin-bottom: 20px;
+            color: #f1f3f5;
+        }
+
+        .sports-btn-group {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .sport-btn {
+            width: 100%;
+            padding: 14px;
+            font-weight: 600;
+            color: #fff;
+            background: #202430;
+            border: 1px solid #2d3345;
+            border-radius: 10px;
+            cursor: pointer;
+        }
+
+        .back-btn {
+            padding: 8px 16px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: #a0aec0;
+            background: transparent;
+            border: 1px solid #4a5568;
+            border-radius: 20px;
+            cursor: pointer;
+            margin-top: 16px;
+            align-self: center;
+        }
+
+        .page-view>*:first-child {
+            margin-top: 12px;
+        }
+
+        .hist-container {
+            width: 100%;
+            background: #111319;
+            border: 1px solid #1f232e;
+            border-radius: 14px;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .hist-title {
+            font-size: 0.9rem;
+            font-weight: 800;
+            color: #718096;
+            text-transform: uppercase;
+            border-bottom: 1px solid #1c202e;
+            padding-bottom: 6px;
+        }
+
+        .hist-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            max-height: 220px;
+            overflow-y: auto;
+        }
+
+        .hist-item {
+            background: #161920;
+            border: 1px solid #242936;
+            border-radius: 10px;
+            padding: 10px 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+        }
+
+        .hist-match-info {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .hist-teams {
+            font-size: 0.85rem;
+            font-weight: 700;
+        }
+
+        .hist-scores {
+            font-size: 0.75rem;
+            color: #a0aec0;
+        }
+
+        .hist-del-btn {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.2);
+            color: #ef4444;
+            font-size: 0.7rem;
+            font-weight: 700;
+            padding: 6px 10px;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        .top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            margin-bottom: 12px;
+        }
+
+        .page-title {
+            font-size: 1.15rem;
+            font-weight: 800;
+            color: #ffcc00;
+        }
+
+        .live-toggle-btn {
+            background: #161920;
+            border: 1px solid #242936;
+            color: #a0aec0;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            display: none; /* Hidden by default */
+            align-items: center;
+            gap: 5px;
+            cursor: pointer;
+        }
+
+        .live-toggle-btn::before {
+            content: '';
+            display: inline-block;
+            width: 6px;
+            height: 6px;
+            background: #a0aec0;
+            border-radius: 50%;
+        }
+
+        .live-toggle-btn.is-live {
+            background: rgba(239, 68, 68, 0.1);
+            border-color: #ef4444;
+            color: #ef4444;
+        }
+
+        .live-toggle-btn.is-live::before {
+            background: #ef4444;
+            animation: p 1.5s infinite;
+        }
+
+        @keyframes p {
+
+            0%,
+            100% {
+                opacity: 0.4;
+            }
+
+            50% {
+                opacity: 1;
+            }
+        }
+
+        .select-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            width: 100%;
+            margin-bottom: 12px;
+        }
+
+        .sel-wp {
+            width: 100%;
+            margin-bottom: 12px;
+        }
+
+        .select-grid .sel-wp {
+            margin-bottom: 0;
+        }
+
+        .sel-wp select {
+            width: 100%;
+            background: #161920;
+            border: 1px solid #242936;
+            color: #fff;
+            padding: 10px;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            outline: none;
+            appearance: none;
+            background: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%23a0aec0' viewBox='0 0 24 24'><path d='M7 10l5 5 5-5z'/></svg>") no-repeat right 10px center #161920;
+        }
+
+        /* ── GENDER TOGGLE ── */
+        .gender-toggle {
+            display: flex;
+            width: 100%;
+            background: #111319;
+            border: 1px solid #1f232e;
+            border-radius: 10px;
+            padding: 3px;
+            gap: 3px;
+            margin-bottom: 12px;
+        }
+
+        .g-btn {
+            flex: 1;
+            padding: 9px 0;
+            font-size: 0.82rem;
+            font-weight: 700;
+            border: none;
+            border-radius: 7px;
+            cursor: pointer;
+            background: transparent;
+            color: #718096;
+            letter-spacing: 0.5px;
+            transition: all 0.18s;
+        }
+
+        .g-btn.active {
+            background: #00ffcc;
+            color: #0d0e12;
+        }
+
+        .g-btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
+        .scorebox-card {
+            display: none;
+            width: 100%;
+            background: #090a0d;
+            border: 1.5px solid #d4af37;
+            border-radius: 12px;
+            padding: 10px 12px;
+            flex-direction: column;
+            gap: 4px;
+            margin-bottom: 14px;
+        }
+
+        .sb-hd {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #1c202e;
+            padding-bottom: 6px;
+            margin-bottom: 4px;
+        }
+
+        .sb-ttl {
+            font-size: 0.85rem;
+            font-weight: 800;
+            color: #ffcc00;
+        }
+
+        .sb-period-tag {
+            font-size: 0.7rem;
+            font-weight: 700;
+            background: #161920;
+            color: #a0aec0;
+            padding: 2px 6px;
+            border-radius: 4px;
+            text-transform: uppercase;
+        }
+
+        .badge {
+            font-size: 0.7rem;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            padding: 1px 6px;
+            border-radius: 10px;
+        }
+
+        .badge.st-lv {
+            color: #ef4444;
+        }
+
+        .badge.st-lv::before {
+            content: '•';
+            font-size: 1rem;
+            animation: p 1.5s infinite;
+        }
+
+        .badge.st-fn {
+            color: #00ffcc;
+            background: rgba(0, 255, 204, 0.1);
+            border: 1px solid rgba(0, 255, 204, 0.2);
+            text-transform: uppercase;
+        }
+
+        .tm-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 6px 8px;
+            border-radius: 6px;
+            border-left: 3px solid transparent;
+        }
+
+        .tm-row.b-act {
+            background: #0e1616;
+            border-left-color: #00ffcc;
+        }
+
+        .tm-inf {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .tm-logo {
+            width: 24px;
+            height: 24px;
+            object-fit: contain;
+        }
+
+        .tm-nm {
+            font-size: 0.95rem;
+            font-weight: 700;
+        }
+
+        .tm-sc {
+            font-size: 0.95rem;
+            font-weight: 700;
+        }
+
+        .ov-disp {
+            font-weight: 400;
+            color: #718096;
+            font-size: 0.8rem;
+            margin-left: 2px;
+        }
+
+        .bb-main-display {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 12px 4px 12px;
+            width: 100%;
+        }
+
+        .bb-side-block {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            width: 30%;
+        }
+
+        .bb-side-block img {
+            width: 32px;
+            height: 32px;
+            object-fit: contain;
+        }
+
+        .bb-side-block span {
+            font-size: 0.85rem;
+            font-weight: 800;
+            text-align: center;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            width: 100%;
+        }
+
+        .bb-side-block .sub-lbl {
+            font-size: 0.75rem;
+            font-weight: 500;
+            color: #a0aec0;
+            margin-top: -2px;
+        }
+
+        .bb-center-score {
+            font-size: 1.8rem;
+            font-weight: 900;
+            width: 40%;
+            text-align: center;
+        }
+
+        .bb-perf-board {
+            border-top: 1px solid #1c202e;
+            margin-top: 6px;
+            padding-top: 6px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .bb-team-col {
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+        }
+
+        .bb-team-col-hdr {
+            font-size: 0.75rem;
+            font-weight: 800;
+            color: #ffcc00;
+            text-transform: uppercase;
+        }
+
+        .bb-team-col-hdr.tr {
+            text-align: right;
+        }
+
+        .bb-p-stat-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: #a0aec0;
+        }
+
+        .bb-p-stat-row .p-nm {
+            color: #4299e1;
+        }
+
+        .bb-p-stat-row .p-pts {
+            color: #fff;
+            font-weight: 700;
+        }
+
+        .bb-team-col.right-side .bb-p-stat-row {
+            flex-direction: row-reverse;
+        }
+
+        .ctrl-grid {
+            display: none;
+            width: 100%;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 6px;
+        }
+
+        .m-ov .act-btn:not(.mn),
+        .m-ov .bb-mod-btn,
+        .m-ov .bd-add-btn,
+        .m-ov .bd-eg-btn {
+            opacity: 0.25;
+            pointer-events: none;
+        }
+
+        .act-btn,
+        .bb-mod-btn {
+            background: #13151a;
+            border: 1px solid #1f232e;
+            color: #fff;
+            font-weight: 700;
+            font-size: 0.85rem;
+            padding: 12px 0;
+            border-radius: 6px;
+            cursor: pointer;
+            text-align: center;
+        }
+
+        .act-btn.wk {
+            background: #241417;
+            border-color: #3d1d22;
+            color: #f56565;
+        }
+
+        .act-btn.mn {
+            background: #0f1c18;
+            border-color: #1a332a;
+            color: #00ffcc;
+            opacity: 1 !important;
+            pointer-events: auto !important;
+        }
+
+        .bb-control-layout {
+            display: none;
+            width: 100%;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .bb-selectors-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            width: 100%;
+        }
+
+        .bb-btn-matrix {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            width: 100%;
+        }
+
+        .bb-side-stack {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 4px;
+        }
+
+        .bb-mod-btn {
+            font-size: 0.8rem;
+            padding: 10px 0;
+        }
+
+        .bd-won-banner {
+            text-align: center;
+            font-size: 0.85rem;
+            font-weight: 800;
+            color: #a0aec0;
+            margin: 4px 0 8px 0;
+            letter-spacing: 0.5px;
+            width: 100%;
+        }
+
+        .bd-timeline {
+            background: #111319;
+            border-radius: 8px;
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-top: 4px;
+            width: 100%;
+        }
+
+        .bd-tl-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .bd-tl-team {
+            font-size: 0.8rem;
+            font-weight: 800;
+            width: 50px;
+        }
+
+        .bd-tl-setbox {
+            display: flex;
+            gap: 6px;
+        }
+
+        .bd-set-cell {
+            width: 34px;
+            height: 26px;
+            background: #181c26;
+            border: 1px solid #242b3a;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: #718096;
+        }
+
+        .bd-set-cell.c-act {
+            border-color: #00ffcc;
+            color: #00ffcc;
+            font-weight: 800;
+        }
+
+        .bd-set-cell.filled {
+            color: #fff;
+            background: #1e2433;
+        }
+
+        .bd-ctrl-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            width: 100%;
+        }
+
+        .bd-add-btn {
+            background: #161920;
+            border: 1px solid #282f40;
+            color: #00ffcc;
+            font-size: 0.9rem;
+            font-weight: 800;
+            padding: 6px 0;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        .bd-eg-btn {
+            width: 100%;
+            background: #241417;
+            border: 1px solid #3d1d22;
+            color: #f56565;
+            font-size: 0.8rem;
+            font-weight: 700;
+            padding: 8px 0;
+            border-radius: 6px;
+            cursor: pointer;
+            margin-top: 6px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .md-ov {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(5, 6, 8, 0.85);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            padding: 16px;
+        }
+
+        .md-bx {
+            background: #0d0e12;
+            width: 100%;
+            max-width: 380px;
+            border-radius: 12px;
+            padding: 16px;
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.7);
+        }
+
+        .md-ttl {
+            color: #00ffcc;
+            font-size: 0.85rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            text-align: center;
+            margin-bottom: 14px;
+        }
+
+        .md-lbl {
+            font-size: 0.7rem;
+            font-weight: 700;
+            color: #4a5568;
+            text-transform: uppercase;
+            margin-bottom: 4px;
+            display: block;
+        }
+
+        .md-ipt {
+            width: 100%;
+            background: #13151a;
+            border: 1px solid #1f232e;
+            color: #fff;
+            padding: 10px;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-weight: 700;
+            text-align: center;
+            outline: none;
+            margin-bottom: 12px;
+        }
+
+        .md-g-ipt {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 14px;
+        }
+
+        .md-split-sc {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 14px;
+        }
+
+        .md-split-sc .sc-box {
+            width: 70px;
+            background: #13151a;
+            border: 1px solid #1f232e;
+            color: #fff;
+            padding: 10px;
+            border-radius: 6px;
+            font-size: 1.2rem;
+            font-weight: 800;
+            text-align: center;
+            outline: none;
+        }
+
+        .md-split-sc span {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #4a5568;
+        }
+
+        .md-acts {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .md-btn {
+            padding: 12px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            border-radius: 6px;
+            cursor: pointer;
+            border: none;
+            text-transform: uppercase;
+            text-align: center;
+        }
+
+        .md-btn.cc {
+            background: #181a21;
+            color: #a0aec0;
+            border: 1px solid #242936;
+        }
+
+        .md-btn.ap {
+            background: #00ffcc;
+            color: #0d0e12;
+        }
+
+        .md-roster-split {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px;
+            max-height: 240px;
+            overflow-y: auto;
+            margin-bottom: 12px;
+            padding-right: 4px;
+        }
+
+        .md-team-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .md-p-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            background: #13151a;
+            border: 1px solid #1f232e;
+            padding: 5px 8px;
+            border-radius: 6px;
+        }
+
+        .md-p-item span {
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: #a0aec0;
+            text-overflow: ellipsis;
+            overflow: hidden;
+            white-space: nowrap;
+            flex-grow: 1;
+        }
+
+        .md-p-ipt {
+            width: 45px;
+            background: #090a0d;
+            border: 1px solid #2d3345;
+            color: #fff;
+            padding: 4px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            text-align: center;
+            outline: none;
+        }
+
+        .sb-hd {
+            display: flex !important;
+            align-items: center !important;
+            justify-content: flex-start !important;
+            gap: 10px !important;
+            width: 100% !important;
+        }
+
+        .sb-hd .badge {
+            margin-left: auto !important;
+        }
+
+        .bb-perf-board {
+            display: flex !important;
+            flex-direction: row !important;
+            justify-content: space-between !important;
+            width: 100% !important;
+            gap: 16px !important;
+            box-sizing: border-box !important;
+            padding: 0 4px !important;
+        }
+
+        .bb-team-col {
+            flex: 1 !important;
+            display: flex !important;
+            flex-direction: column !important;
+            text-align: left !important;
+        }
+
+        .bb-team-col.right-side {
+            text-align: right !important;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="app-container">
+        <div id="home-p" class="page-view active">
+            <div class="menu-box">
+                <h1>SPORTS PORTAL</h1>
+                <div class="sports-btn-group">
+                    <select id="sportsDropdown" onchange="nav(this.value)"
+                        style="width:100%;padding:14px;background-color:#1a1f2c;color:#ffffff;border:1px solid rgba(255,255,255,0.1);border-radius:8px;font-size:16px;font-weight:bold;cursor:pointer;outline:none;text-align-last:center;">
+                        <option value="" disabled selected hidden>Choose a Sport</option>
+                        <option value="cricket-p">Cricket</option>
+                        <option value="basket-p">Basketball</option>
+                        <option value="badmin-p">Badminton</option>
+                        <option value="volley-p">Volleyball (Boys)</option>
+                        <option value="throw-p">Throwball (Girls)</option>
+                    </select>
+                </div>
+            </div>
+            <div class="hist-container" style="width:100%;margin-top:4px;">
+                <div class="hist-title">- HISTORY -</div>
+                <div id="adminHistList" class="hist-list"></div>
+            </div>
+            <button onclick="openResultOnlyModal()"
+                style="width:100%;margin-top:10px;padding:12px;background:#161920;border:1px solid #242936;color:#00ffcc;font-weight:700;border-radius:10px;cursor:pointer;">
+                + Result Only Entry
+            </button>
+        </div>
+
+        <!-- ══════════════ CRICKET ══════════════ -->
+        <div id="cricket-p" class="page-view">
+            <div class="top-bar">
+                <span class="page-title">CRICKET</span>
+                <button class="live-toggle-btn" id="lvBtn" onclick="tglLv()">LIVE</button>
+            </div>
+            <!-- GENDER TOGGLE -->
+            <div class="gender-toggle" id="crGenderToggle">
+                <button class="g-btn active" id="crGirlsBtn" onclick="setGender('cr','G')">♀ Girls</button>
+                <button class="g-btn" id="crBoysBtn" onclick="setGender('cr','B')">♂ Boys</button>
+            </div>
+            <div class="select-grid">
+                <div class="sel-wp"><select id="t1Sel" onchange="chkTms()">
+                        <option value="" disabled selected>Team 1</option>
+                    </select></div>
+                <div class="sel-wp"><select id="t2Sel" onchange="chkTms()">
+                        <option value="" disabled selected>Team 2</option>
+                    </select></div>
+            </div>
+            <div class="sel-wp" id="tossWrap" style="width:100%;margin-bottom:12px;">
+                <select id="tossSel" onchange="onTossPick()" disabled style="opacity:0.5;">
+                    <option value="" disabled selected>🪙 Toss Won By</option>
+                </select>
+            </div>
+            <div class="scorebox-card" id="sbCard">
+                <div class="sb-hd"><span class="sb-ttl">CRICKET</span><span class="badge" id="cardSt"></span></div>
+                <div class="tm-row" id="t1Row">
+                    <div class="tm-inf"><img src="" alt="" class="tm-logo" id="t1Lg" style="display:none;"><span
+                            class="tm-nm" id="t1Lbl">TEAM 1</span></div>
+                    <div class="tm-sc"><span id="t1R">0</span>/<span id="t1W">0</span><span class="ov-disp">(<span
+                                id="t1O">0.0</span>)</span></div>
+                </div>
+                <div class="tm-row" id="t2Row">
+                    <div class="tm-inf"><img src="" alt="" class="tm-logo" id="t2Lg" style="display:none;"><span
+                            class="tm-nm" id="t2Lbl">TEAM 2</span></div>
+                    <div class="tm-sc"><span id="t2R">0</span>/<span id="t2W">0</span><span class="ov-disp">(<span
+                                id="t2O">0.0</span>)</span></div>
+                </div>
+            </div>
+            <div class="ctrl-grid" id="ctrlCont">
+                <button class="act-btn" onclick="sc(0,1)">0</button><button class="act-btn"
+                    onclick="sc(1,1)">+1</button><button class="act-btn" onclick="sc(2,1)">+2</button><button
+                    class="act-btn" onclick="sc(3,1)">+3</button><button class="act-btn" onclick="sc(4,1)">+4</button>
+                <button class="act-btn" onclick="sc(6,1)">+6</button><button class="act-btn wk"
+                    onclick="sc(0,1,1)">Wkt</button><button class="act-btn" onclick="sc(1,0)">Ext</button><button
+                    class="act-btn wk" onclick="sc(1,0,1)">Wd+Out</button><button class="act-btn mn"
+                    onclick="opMd()">Man</button>
+            </div>
+            <div class="panel-media-box"
+                style="display:flex;flex-direction:column;gap:10px;padding:14px;background:rgba(255,255,255,0.03);border:1px dashed rgba(255,255,255,0.12);border-radius:8px;margin:20px 0 12px 0;width:100%;box-sizing:border-box;">
+                <div style="display:flex;align-items:center;justify-content:space-between;">
+                    <div style="display:flex;flex-direction:column;gap:3px;min-width:0;">
+                        <span style="color:#ffffff;font-size:13px;font-weight:600;letter-spacing:0.3px;">Live Match
+                            Gallery</span>
+                        <span id="imgSlotLabel" style="color:rgba(255,255,255,0.45);font-size:11px;">0/3 slots
+                            used</span>
+                    </div>
+                    <label
+                        style="background:#ffffff;color:#000000;font-size:12px;font-weight:700;padding:8px 16px;border-radius:6px;cursor:pointer;white-space:nowrap;flex-shrink:0;box-shadow:0 2px 8px rgba(0,0,0,0.2);">
+                        Upload Files
+                        <input type="file" accept="image/*" multiple style="display:none;"
+                            onchange="handleMatchImageUpload(event)">
+                    </label>
+                </div>
+                <div id="imgThumbnailRow" style="display:flex;gap:8px;flex-wrap:wrap;"></div>
+            </div>
+            <div style="width:100%;margin-bottom:12px;">
+                <label
+                    style="font-size:0.7rem;font-weight:700;color:#4a5568;text-transform:uppercase;display:block;margin-bottom:4px;">Complete
+                    Scorecard Link</label>
+                <input type="url" id="scorecardLink" placeholder="Paste full scorecard link here..."
+                    style="width:100%;background:#161920;border:1px solid #242936;color:#fff;padding:10px;border-radius:8px;font-size:0.85rem;outline:none;"
+                    oninput="saveScorecardLink()">
+            </div>
+            <button class="back-btn" onclick="window.resetToHome()">← Back to Home</button>
+        </div>
+
+        <!-- ══════════════ BASKETBALL ══════════════ -->
+        <div id="basket-p" class="page-view">
+            <div class="top-bar">
+                <span class="page-title" style="color:#ff9900;">BASKETBALL</span>
+                <button class="live-toggle-btn" id="bbLvBtn" onclick="tglLv()">LIVE</button>
+            </div>
+            <!-- GENDER TOGGLE -->
+            <div class="gender-toggle" id="bbGenderToggle">
+                <button class="g-btn active" id="bbGirlsBtn" onclick="setGender('bb','G')">♀ Girls</button>
+                <button class="g-btn" id="bbBoysBtn" onclick="setGender('bb','B')">♂ Boys</button>
+            </div>
+            <div class="select-grid">
+                <div class="sel-wp"><select id="bbT1Sel" onchange="chkTmsBB()">
+                        <option value="" disabled selected>Team 1</option>
+                    </select></div>
+                <div class="sel-wp"><select id="bbT2Sel" onchange="chkTmsBB()">
+                        <option value="" disabled selected>Team 2</option>
+                    </select></div>
+            </div>
+            <div class="sel-wp">
+                <select id="bbPdSel" onchange="chkPdBB()">
+                    <option value="1st Quarter">1st Quarter</option>
+                    <option value="2nd Quarter">2nd Quarter</option>
+                    <option value="Half Time">Half Time</option>
+                    <option value="3rd Quarter">3rd Quarter</option>
+                    <option value="4th Quarter">4th Quarter</option>
+                    <option value="Full Time">Full Time</option>
+                </select>
+            </div>
+            <div class="scorebox-card" id="bbSbCard">
+                <div class="sb-hd">
+                    <span class="sb-ttl" style="color:#ff9900;">BASKETBALL</span><span class="sb-period-tag"
+                        id="bbCardPd">1st Quarter</span><span class="badge" id="bbCardSt"></span>
+                </div>
+                <div class="bb-main-display">
+                    <div class="bb-side-block"><img src="" id="bbT1Lg" alt=""><span id="bbT1Lbl">TEAM 1</span></div>
+                    <div class="bb-center-score"><span id="bbT1S">0</span> - <span id="bbT2S">0</span></div>
+                    <div class="bb-side-block"><img src="" id="bbT2Lg" alt=""><span id="bbT2Lbl">TEAM 2</span></div>
+                </div>
+                <div class="bb-perf-board">
+                    <div class="bb-team-col" id="bbT1StatCol"></div>
+                    <div class="bb-team-col right-side" id="bbT2StatCol"></div>
+                </div>
+            </div>
+            <div class="bb-control-layout" id="bbCtrlCont">
+                <div class="bb-selectors-row">
+                    <div class="sel-wp"><select id="bbP1Sel"></select></div>
+                    <div class="sel-wp"><select id="bbP2Sel"></select></div>
+                </div>
+                <div class="bb-btn-matrix">
+                    <div class="bb-side-stack"><button class="bb-mod-btn" onclick="scBB(1,1)">+1</button><button
+                            class="bb-mod-btn" onclick="scBB(1,2)">+2</button><button class="bb-mod-btn"
+                            onclick="scBB(1,3)">+3</button></div>
+                    <div class="bb-side-stack"><button class="bb-mod-btn" onclick="scBB(2,1)">+1</button><button
+                            class="bb-mod-btn" onclick="scBB(2,2)">+2</button><button class="bb-mod-btn"
+                            onclick="scBB(2,3)">+3</button></div>
+                </div>
+                <button class="act-btn mn" style="width:100%;margin-top:4px;" onclick="opMdBB()">Man</button>
+            </div>
+            <div class="panel-media-box"
+                style="display:flex;flex-direction:column;gap:10px;padding:14px;background:rgba(255,255,255,0.03);border:1px dashed rgba(255,255,255,0.12);border-radius:8px;margin:20px 0 12px 0;width:100%;box-sizing:border-box;">
+                <div style="display:flex;align-items:center;justify-content:space-between;">
+                    <div style="display:flex;flex-direction:column;gap:3px;min-width:0;">
+                        <span style="color:#ffffff;font-size:13px;font-weight:600;letter-spacing:0.3px;">Live Match
+                            Gallery</span>
+                        <span id="imgSlotLabel" style="color:rgba(255,255,255,0.45);font-size:11px;">0/3 slots
+                            used</span>
+                    </div>
+                    <label
+                        style="background:#ffffff;color:#000000;font-size:12px;font-weight:700;padding:8px 16px;border-radius:6px;cursor:pointer;white-space:nowrap;flex-shrink:0;box-shadow:0 2px 8px rgba(0,0,0,0.2);">
+                        Upload Files
+                        <input type="file" accept="image/*" multiple style="display:none;"
+                            onchange="handleMatchImageUpload(event)">
+                    </label>
+                </div>
+                <div id="imgThumbnailRow" style="display:flex;gap:8px;flex-wrap:wrap;"></div>
+            </div>
+            <button class="back-btn" onclick="window.resetToHome()">← Back to Home</button>
+        </div>
+
+        <!-- ══════════════ BADMINTON ══════════════ -->
+        <div id="badmin-p" class="page-view">
+            <div class="top-bar">
+                <span class="page-title" style="color:#00ffcc;">BADMINTON</span>
+                <button class="live-toggle-btn" id="bdLvBtn" onclick="tglLv()">LIVE</button>
+            </div>
+            <!-- GENDER TOGGLE -->
+            <div class="gender-toggle" id="bdGenderToggle">
+                <button class="g-btn active" id="bdGirlsBtn" onclick="setGender('bd','G')">♀ Girls</button>
+                <button class="g-btn" id="bdBoysBtn" onclick="setGender('bd','B')">♂ Boys</button>
+            </div>
+            <div class="select-grid">
+                <div class="sel-wp"><select id="bdT1Sel" onchange="chkTmsBD(true)">
+                        <option value="" disabled selected>Team 1</option>
+                    </select></div>
+                <div class="sel-wp"><select id="bdT2Sel" onchange="chkTmsBD(true)">
+                        <option value="" disabled selected>Team 2</option>
+                    </select></div>
+            </div>
+            <div class="select-grid">
+                <div class="sel-wp"><select id="bdP1Sel" onchange="chkTmsBD(false)">
+                        <option value="" disabled selected>Select Player 1</option>
+                    </select></div>
+                <div class="sel-wp"><select id="bdP2Sel" onchange="chkTmsBD(false)">
+                        <option value="" disabled selected>Select Player 2</option>
+                    </select></div>
+            </div>
+            <div class="scorebox-card" id="bdSbCard" style="border-color:#00ffcc;display:none;">
+                <div class="sb-hd">
+                    <span class="sb-ttl" style="color:#00ffcc;">BADMINTON</span><span class="sb-period-tag"
+                        id="bdCardPd" style="color:#00ffcc;background:rgba(0,255,204,0.1);">GAME 1</span><span
+                        class="badge" id="bdCardSt"></span>
+                </div>
+                <div class="bb-main-display">
+                    <div class="bb-side-block"><img src="" id="bdT1Lg" alt=""><span id="bdT1Txt">TEAM 1</span><span
+                            class="sub-lbl" id="bdP1Txt">Player</span></div>
+                    <div class="bb-center-score" style="font-size:2.2rem;"><span id="bdT1S">0</span> - <span
+                            id="bdT2S">0</span></div>
+                    <div class="bb-side-block"><img src="" id="bdT2Lg" alt=""><span id="bdT2Txt">TEAM 2</span><span
+                            class="sub-lbl" id="bdP2Txt">Player</span></div>
+                </div>
+                <div class="bd-won-banner" id="bdWonBanner">Games Won: 0 - 0</div>
+                <div class="bd-timeline" id="bdTimeline"></div>
+            </div>
+            <div class="bb-control-layout" id="bdCtrlCont">
+                <div class="bd-ctrl-row">
+                    <button class="bd-add-btn" onclick="scBD(1)">+1</button>
+                    <button class="bd-add-btn" onclick="scBD(2)">+1</button>
+                </div>
+                <button class="act-btn mn" style="width:100%;margin-top:6px;" onclick="opMdBD()">Man</button>
+                <button class="bd-eg-btn" id="bdEgBtn" onclick="instEndGameBD()">End Game</button>
+            </div>
+            <div class="panel-media-box"
+                style="display:flex;flex-direction:column;gap:10px;padding:14px;background:rgba(255,255,255,0.03);border:1px dashed rgba(255,255,255,0.12);border-radius:8px;margin:20px 0 12px 0;width:100%;box-sizing:border-box;">
+                <div style="display:flex;align-items:center;justify-content:space-between;">
+                    <div style="display:flex;flex-direction:column;gap:3px;min-width:0;">
+                        <span style="color:#ffffff;font-size:13px;font-weight:600;letter-spacing:0.3px;">Live Match
+                            Gallery</span>
+                        <span id="imgSlotLabel" style="color:rgba(255,255,255,0.45);font-size:11px;">0/3 slots
+                            used</span>
+                    </div>
+                    <label
+                        style="background:#ffffff;color:#000000;font-size:12px;font-weight:700;padding:8px 16px;border-radius:6px;cursor:pointer;white-space:nowrap;flex-shrink:0;box-shadow:0 2px 8px rgba(0,0,0,0.2);">
+                        Upload Files
+                        <input type="file" accept="image/*" multiple style="display:none;"
+                            onchange="handleMatchImageUpload(event)">
+                    </label>
+                </div>
+                <div id="imgThumbnailRow" style="display:flex;gap:8px;flex-wrap:wrap;"></div>
+            </div>
+            <button class="back-btn" onclick="window.resetToHome()">← Back to Home</button>
+        </div>
+
+        <!-- ══════════════ VOLLEYBALL (Boys only) ══════════════ -->
+        <div id="volley-p" class="page-view">
+            <div class="top-bar">
+                <span class="page-title" style="color:#4299e1;">VOLLEYBALL</span>
+                <button class="live-toggle-btn" id="vlLvBtn" onclick="tglLv()">LIVE</button>
+            </div>
+            <div
+                style="width:100%;text-align:center;font-size:0.75rem;font-weight:700;color:#4299e1;background:rgba(66,153,225,0.08);border:1px solid rgba(66,153,225,0.2);border-radius:8px;padding:6px;margin-bottom:12px;">
+                ♂ BOYS ONLY</div>
+            <div class="select-grid">
+                <div class="sel-wp"><select id="vlT1Sel" onchange="chkTmsCourt('vl')">
+                        <option value="" disabled selected>Team 1</option>
+                        <option value="ABH-B">ABH</option>
+                        <option value="VYV-B">VYV</option>
+                        <option value="ADH-B">ADH</option>
+                        <option value="PRJ-B">PRJ</option>
+                    </select></div>
+                <div class="sel-wp"><select id="vlT2Sel" onchange="chkTmsCourt('vl')">
+                        <option value="" disabled selected>Team 2</option>
+                        <option value="ABH-B">ABH</option>
+                        <option value="VYV-B">VYV</option>
+                        <option value="ADH-B">ADH</option>
+                        <option value="PRJ-B">PRJ</option>
+                    </select></div>
+            </div>
+            <div class="scorebox-card" id="vlSbCard" style="border-color:#4299e1;display:none;">
+                <div class="sb-hd">
+                    <span class="sb-ttl" style="color:#4299e1;">VOLLEYBALL</span><span class="sb-period-tag"
+                        id="vlCardPd" style="color:#4299e1;background:rgba(66,153,225,0.1);">SET 1</span><span
+                        class="badge" id="vlCardSt"></span>
+                </div>
+                <div class="bb-main-display">
+                    <div class="bb-side-block"><img src="" id="vlT1Lg" alt=""><span id="vlT1Txt">TEAM 1</span></div>
+                    <div class="bb-center-score" style="font-size:2.2rem;"><span id="vlT1S">0</span> - <span
+                            id="vlT2S">0</span></div>
+                    <div class="bb-side-block"><img src="" id="vlT2Lg" alt=""><span id="vlT2Txt">TEAM 2</span></div>
+                </div>
+                <div class="bd-won-banner" id="vlWonBanner">Sets Won: 0 - 0</div>
+                <div class="bd-timeline" id="vlTimeline"></div>
+            </div>
+            <div class="bb-control-layout" id="vlCtrlCont">
+                <div class="bd-ctrl-row">
+                    <button class="bd-add-btn" style="color:#4299e1;border-color:rgba(66,153,225,0.3);"
+                        onclick="scCourt('vl',1)">+1</button>
+                    <button class="bd-add-btn" style="color:#4299e1;border-color:rgba(66,153,225,0.3);"
+                        onclick="scCourt('vl',2)">+1</button>
+                </div>
+                <button class="act-btn mn" style="width:100%;margin-top:6px;" onclick="opMdCourt('vl')">Man</button>
+                <button class="bd-eg-btn" id="vlEgBtn" onclick="instEndSetCourt('vl')">End Set</button>
+            </div>
+            <div class="panel-media-box"
+                style="display:flex;flex-direction:column;gap:10px;padding:14px;background:rgba(255,255,255,0.03);border:1px dashed rgba(255,255,255,0.12);border-radius:8px;margin:20px 0 12px 0;width:100%;box-sizing:border-box;">
+                <div style="display:flex;align-items:center;justify-content:space-between;">
+                    <div style="display:flex;flex-direction:column;gap:3px;min-width:0;">
+                        <span style="color:#ffffff;font-size:13px;font-weight:600;letter-spacing:0.3px;">Live Match
+                            Gallery</span>
+                        <span id="imgSlotLabel" style="color:rgba(255,255,255,0.45);font-size:11px;">0/3 slots
+                            used</span>
+                    </div>
+                    <label
+                        style="background:#ffffff;color:#000000;font-size:12px;font-weight:700;padding:8px 16px;border-radius:6px;cursor:pointer;white-space:nowrap;flex-shrink:0;box-shadow:0 2px 8px rgba(0,0,0,0.2);">
+                        Upload Files
+                        <input type="file" accept="image/*" multiple style="display:none;"
+                            onchange="handleMatchImageUpload(event)">
+                    </label>
+                </div>
+                <div id="imgThumbnailRow" style="display:flex;gap:8px;flex-wrap:wrap;"></div>
+            </div>
+            <button class="back-btn" onclick="window.resetToHome()">← Back to Home</button>
+        </div>
+
+        <!-- ══════════════ THROWBALL (Girls only) ══════════════ -->
+        <div id="throw-p" class="page-view">
+            <div class="top-bar">
+                <span class="page-title" style="color:#ed64a6;">THROWBALL</span>
+                <button class="live-toggle-btn" id="thLvBtn" onclick="tglLv()">LIVE</button>
+            </div>
+            <div
+                style="width:100%;text-align:center;font-size:0.75rem;font-weight:700;color:#ed64a6;background:rgba(237,100,166,0.08);border:1px solid rgba(237,100,166,0.2);border-radius:8px;padding:6px;margin-bottom:12px;">
+                ♀ GIRLS ONLY</div>
+            <div class="select-grid">
+                <div class="sel-wp"><select id="thT1Sel" onchange="chkTmsCourt('th')">
+                        <option value="" disabled selected>Team 1</option>
+                        <option value="ABH-G">ABH</option>
+                        <option value="VYV-G">VYV</option>
+                        <option value="ADH-G">ADH</option>
+                        <option value="PRJ-G">PRJ</option>
+                    </select></div>
+                <div class="sel-wp"><select id="thT2Sel" onchange="chkTmsCourt('th')">
+                        <option value="" disabled selected>Team 2</option>
+                        <option value="ABH-G">ABH</option>
+                        <option value="VYV-G">VYV</option>
+                        <option value="ADH-G">ADH</option>
+                        <option value="PRJ-G">PRJ</option>
+                    </select></div>
+            </div>
+            <div class="scorebox-card" id="thSbCard" style="border-color:#ed64a6;display:none;">
+                <div class="sb-hd">
+                    <span class="sb-ttl" style="color:#ed64a6;">THROWBALL</span><span class="sb-period-tag"
+                        id="thCardPd" style="color:#ed64a6;background:rgba(237,100,166,0.1);">SET 1</span><span
+                        class="badge" id="thCardSt"></span>
+                </div>
+                <div class="bb-main-display">
+                    <div class="bb-side-block"><img src="" id="thT1Lg" alt=""><span id="thT1Txt">TEAM 1</span></div>
+                    <div class="bb-center-score" style="font-size:2.2rem;"><span id="thT1S">0</span> - <span
+                            id="thT2S">0</span></div>
+                    <div class="bb-side-block"><img src="" id="thT2Lg" alt=""><span id="thT2Txt">TEAM 2</span></div>
+                </div>
+                <div class="bd-won-banner" id="thWonBanner">Sets Won: 0 - 0</div>
+                <div class="bd-timeline" id="thTimeline"></div>
+            </div>
+            <div class="bb-control-layout" id="thCtrlCont">
+                <div class="bd-ctrl-row">
+                    <button class="bd-add-btn" style="color:#ed64a6;border-color:rgba(237,100,166,0.3);"
+                        onclick="scCourt('th',1)">+1</button>
+                    <button class="bd-add-btn" style="color:#ed64a6;border-color:rgba(237,100,166,0.3);"
+                        onclick="scCourt('th',2)">+1</button>
+                </div>
+                <button class="act-btn mn" style="width:100%;margin-top:6px;" onclick="opMdCourt('th')">Man</button>
+                <button class="bd-eg-btn" id="thEgBtn" onclick="instEndSetCourt('th')">End Set</button>
+            </div>
+            <div class="panel-media-box"
+                style="display:flex;flex-direction:column;gap:10px;padding:14px;background:rgba(255,255,255,0.03);border:1px dashed rgba(255,255,255,0.12);border-radius:8px;margin:20px 0 12px 0;width:100%;box-sizing:border-box;">
+                <div style="display:flex;align-items:center;justify-content:space-between;">
+                    <div style="display:flex;flex-direction:column;gap:3px;min-width:0;">
+                        <span style="color:#ffffff;font-size:13px;font-weight:600;letter-spacing:0.3px;">Live Match
+                            Gallery</span>
+                        <span id="imgSlotLabel" style="color:rgba(255,255,255,0.45);font-size:11px;">0/3 slots
+                            used</span>
+                    </div>
+                    <label
+                        style="background:#ffffff;color:#000000;font-size:12px;font-weight:700;padding:8px 16px;border-radius:6px;cursor:pointer;white-space:nowrap;flex-shrink:0;box-shadow:0 2px 8px rgba(0,0,0,0.2);">
+                        Upload Files
+                        <input type="file" accept="image/*" multiple style="display:none;"
+                            onchange="handleMatchImageUpload(event)">
+                    </label>
+                </div>
+                <div id="imgThumbnailRow" style="display:flex;gap:8px;flex-wrap:wrap;"></div>
+            </div>
+            <button class="back-btn" onclick="window.resetToHome()">← Back to Home</button>
+        </div>
+    </div>
+
+    <!-- MODALS -->
+    <div class="md-ov" id="adjMd">
+        <div class="md-bx">
+            <div class="md-ttl">Cricket Adjustments</div>
+            <label class="md-lbl">Active Innings</label>
+            <div class="sel-wp"><select id="mdInn">
+                    <option value="1">1st Innings</option>
+                    <option value="2">2nd Innings</option>
+                </select></div>
+            <div class="md-g-ipt">
+                <div><label class="md-lbl">Runs/Wkts</label><input type="text" id="mdSc" class="md-ipt"></div>
+                <div><label class="md-lbl">Overs</label><input type="text" id="mdOv" class="md-ipt"></div>
+            </div>
+            <div class="md-acts"><button class="md-btn cc" onclick="clMd()">Cancel</button><button class="md-btn ap"
+                    onclick="svMd()">Apply</button></div>
+        </div>
+    </div>
+    <div class="md-ov" id="bbAdjMd">
+        <div class="md-bx">
+            <div class="md-ttl">Basketball Adjustments</div>
+            <div class="md-roster-split" id="mdBbRosterCont"></div>
+            <div class="md-acts"><button class="md-btn cc" onclick="clMdBB()">Cancel</button><button class="md-btn ap"
+                    onclick="svMdBB()">Apply</button></div>
+        </div>
+    </div>
+    <div class="md-ov" id="bdAdjMd">
+        <div class="md-bx">
+            <div class="md-ttl">Badminton Adjustments</div>
+            <label class="md-lbl">Select Game Focus</label>
+            <div class="sel-wp"><select id="mdBdGameSel" onchange="syncMdBdGame()"></select></div>
+            <label class="md-lbl">Scoreline</label>
+            <div class="md-split-sc">
+                <input type="number" id="mdBdS1" class="sc-box"><span>-</span><input type="number" id="mdBdS2"
+                    class="sc-box">
+            </div>
+            <div class="md-acts"><button class="md-btn cc" onclick="clMdBD()">Cancel</button><button class="md-btn ap"
+                    onclick="svMdBD()">Apply</button></div>
+        </div>
+    </div>
+    <div class="md-ov" id="crtAdjMd">
+        <div class="md-bx">
+            <div class="md-ttl" id="mdCrtTtl">Court Adjustments</div>
+            <label class="md-lbl">Select Set Focus</label>
+            <div class="sel-wp"><select id="mdCrtSetSel" onchange="syncMdCrtSet()"></select></div>
+            <label class="md-lbl">Scoreline</label>
+            <div class="md-split-sc">
+                <input type="number" id="mdCrtS1" class="sc-box"><span>-</span><input type="number" id="mdCrtS2"
+                    class="sc-box">
+            </div>
+            <div class="md-acts"><button class="md-btn cc" onclick="clMdCourt()">Cancel</button><button
+                    class="md-btn ap" onclick="svMdCourt()">Apply</button></div>
+        </div>
+    </div>
+
+    <div class="md-ov" id="resultOnlyMd" style="z-index:1100;">
+        <div class="md-bx" style="max-height:90vh;overflow-y:auto;">
+
+            <!-- Sport Name -->
+            <div class="md-ttl" id="roModalTitle">Result Only Entry</div>
+            <label class="md-lbl">Sport Name</label>
+            <div class="sel-wp" style="margin-bottom:8px;">
+                <select id="roSportSel" onchange="handleRoSportChange()">
+                    <option value="tug_of_war">Tug of War</option>
+                    <option value="ball_badminton">Ball Badminton</option>
+                    <option value="custom">Custom...</option>
+                </select>
+            </div>
+            <input type="text" id="roCustomSport" class="md-ipt" placeholder="Type custom sport name..."
+                style="display:none;margin-bottom:12px;">
+
+            <!-- Gender Toggle -->
+            <label class="md-lbl">Gender</label>
+            <div class="gender-toggle" style="margin-bottom:12px;">
+                <button class="g-btn" id="roBoysBtn" onclick="setRoGender('B')"
+                    style="background:#00ffcc;color:#0d0e12;">♂ Boys</button>
+                <button class="g-btn" id="roGirlsBtn" onclick="setRoGender('G')">♀ Girls</button>
+            </div>
+
+            <!-- Team Selection -->
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;">
+                <div>
+                    <label class="md-lbl">Team 1</label>
+                    <select id="roT1Sel" class="sel-wp"
+                        style="width:100%;background:#161920;border:1px solid #242936;color:#fff;padding:10px;border-radius:8px;font-size:0.85rem;font-weight:600;outline:none;"></select>
+                </div>
+                <div>
+                    <label class="md-lbl">Team 2</label>
+                    <select id="roT2Sel" class="sel-wp"
+                        style="width:100%;background:#161920;border:1px solid #242936;color:#fff;padding:10px;border-radius:8px;font-size:0.85rem;font-weight:600;outline:none;"></select>
+                </div>
+            </div>
+
+            <!-- Score Boxes -->
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;">
+                <div>
+                    <label class="md-lbl" id="roT1ScoreLbl">Team 1 Score</label>
+                    <input type="text" id="roT1Score" class="md-ipt" placeholder="e.g. 21">
+                </div>
+                <div>
+                    <label class="md-lbl" id="roT2ScoreLbl">Team 2 Score</label>
+                    <input type="text" id="roT2Score" class="md-ipt" placeholder="e.g. 15">
+                </div>
+            </div>
+
+            <!-- Remarks -->
+            <label class="md-lbl">Remarks (optional)</label>
+            <textarea id="roRemarks" class="md-ipt" rows="3" placeholder="Extra info, context, details..."
+                style="resize:vertical;height:70px;"></textarea>
+
+            <!-- Image Upload -->
+            <label class="md-lbl" style="margin-top:8px;">Match Photos (max 3)</label>
+            <div
+                style="background:rgba(255,255,255,0.03);border:1px dashed rgba(255,255,255,0.12);border-radius:8px;padding:12px;margin-bottom:12px;">
+                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+                    <span id="roImgSlotLabel" style="color:rgba(255,255,255,0.45);font-size:11px;">0/3 slots used</span>
+                    <label
+                        style="background:#fff;color:#000;font-size:12px;font-weight:700;padding:6px 14px;border-radius:6px;cursor:pointer;">
+                        Upload
+                        <input type="file" accept="image/*" multiple style="display:none;"
+                            onchange="handleRoImageUpload(event)">
+                    </label>
+                </div>
+                <div id="roImgThumbs" style="display:flex;gap:8px;flex-wrap:wrap;"></div>
+            </div>
+
+            <!-- Buttons -->
+            <button class="md-btn ap" id="roPublishBtn" style="width:100%;margin-bottom:10px;font-size:0.95rem;"
+                onclick="publishResultOnly()">Publish Result</button>
+            <button class="md-btn cc" style="width:100%;" onclick="closeResultOnlyModal()">← Back to Home</button>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-app.js";
+        import { getDatabase, ref, set, onValue, get } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-database.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyCJZe4vPjiOjoMvJwf0xdRCZgkhLv1e9i8",
+            authDomain: "sports-week-26.firebaseapp.com",
+            databaseURL: "https://sports-week-26-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "sports-week-26",
+            storageBucket: "sports-week-26.firebasestorage.app",
+            messagingSenderId: "360831187032",
+            appId: "1:360831187032:web:b6ab5e0fa09108a710f22d"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+
+        // ─── GENDER STATE ─────────────────────────────────────────────────────────
+        const genderState = { cr: 'G', bb: 'G', bd: 'G' };
+
+        const ALL_TEAMS = {
+            B: ['ABH-B', 'VYV-B', 'ADH-B', 'PRJ-B'],
+            G: ['ABH-G', 'VYV-G', 'ADH-G', 'PRJ-G']
+        };
+
+        function teamLabel(key) {
+            return key.replace('-B', '').replace('-G', '');
+        }
+
+        function populateTeamDropdown(selId, gender) {
+            const sel = document.getElementById(selId);
+            if (!sel) return;
+            const wasValue = sel.value;
+            sel.innerHTML = `<option value="" disabled selected>Team</option>`;
+            ALL_TEAMS[gender].forEach(t => {
+                const opt = new Option(teamLabel(t), t);
+                sel.appendChild(opt);
+            });
+            if (ALL_TEAMS[gender].includes(wasValue)) sel.value = wasValue;
+        }
+
+        window.setGender = function (sport, gender) {
+            const sportKeyMap = { cr: 'crick', bb: 'bball', bd: 'badmin' };
+            const sk = sportKeyMap[sport];
+            if (st && st[sk] && st[sk].lv) return;
+
+            genderState[sport] = gender;
+
+            const girlsBtn = document.getElementById(`${sport}GirlsBtn`);
+            const boysBtn = document.getElementById(`${sport}BoysBtn`);
+            if (girlsBtn) girlsBtn.classList.toggle('active', gender === 'G');
+            if (boysBtn) boysBtn.classList.toggle('active', gender === 'B');
+
+            if (sport === 'cr') {
+                populateTeamDropdown('t1Sel', gender);
+                populateTeamDropdown('t2Sel', gender);
+                const tossSel = document.getElementById('tossSel');
+                tossSel.innerHTML = '<option value="" disabled selected>🪙 Toss Won By</option>';
+                tossSel.disabled = true; tossSel.style.opacity = '0.5';
+                document.getElementById('sbCard').style.display = 'none';
+                document.getElementById('ctrlCont').style.display = 'none';
+            } else if (sport === 'bb') {
+                populateTeamDropdown('bbT1Sel', gender);
+                populateTeamDropdown('bbT2Sel', gender);
+                document.getElementById('bbSbCard').style.display = 'none';
+                document.getElementById('bbCtrlCont').style.display = 'none';
+            } else if (sport === 'bd') {
+                populateTeamDropdown('bdT1Sel', gender);
+                populateTeamDropdown('bdT2Sel', gender);
+                document.getElementById('bdSbCard').style.display = 'none';
+                document.getElementById('bdCtrlCont').style.display = 'none';
+                document.getElementById('bdP1Sel').innerHTML = '<option value="" disabled selected>Select Player 1</option>';
+                document.getElementById('bdP2Sel').innerHTML = '<option value="" disabled selected>Select Player 2</option>';
+            }
+        };
+
+        // ─── LOGOS ───────────────────────────────────────────────────────────────
+        const logos = {
+            'ABH-B': 'https://i.ibb.co/s9rwCqqm/Untitled11-20260407001200.png',
+            'ABH-G': 'https://i.ibb.co/s9rwCqqm/Untitled11-20260407001200.png',
+            'VYV-B': 'https://i.ibb.co/HLPCDKFX/Untitled11-20260407153814.png',
+            'VYV-G': 'https://i.ibb.co/HLPCDKFX/Untitled11-20260407153814.png',
+            'ADH-B': 'https://i.ibb.co/VW9K2Sgx/Untitled11-20260406231015.png',
+            'ADH-G': 'https://i.ibb.co/VW9K2Sgx/Untitled11-20260406231015.png',
+            'PRJ-B': 'https://i.ibb.co/zW7wnwhG/Untitled11-20260406231026.png',
+            'PRJ-G': 'https://i.ibb.co/zW7wnwhG/Untitled11-20260406231026.png'
+        };
+
+        // ─── BASKETBALL ROSTERS ───────────────────────────────────────────────────
+        const basketballRostersBoys = {
+            'ABH-B': ['Arjun', 'Kiran', 'Rohan'],
+            'VYV-B': ['Vyas', 'Vikram', 'Rahul'],
+            'ADH-B': ['Aditya', 'Dev', 'Nikhil'],
+            'PRJ-B': ['Pranav', 'Raj', 'Suresh']
+        };
+        const basketballRostersGirls = {
+            'ABH-G': ['Ananya', 'Kavya', 'Riya'],
+            'VYV-G': ['Vidya', 'Yamini', 'Vaishnavi'],
+            'ADH-G': ['Aditi', 'Diya', 'Nisha'],
+            'PRJ-G': ['Priya', 'Rachna', 'Sneha']
+        };
+
+        // ─── BADMINTON ROSTERS ────────────────────────────────────────────────────
+        const badmintonRostersBoys = {
+            'ABH-B': ['Abhinav', 'Karthik', 'Rohit'],
+            'VYV-B': ['Vijay', 'Yash', 'Varun'],
+            'ADH-B': ['Akash', 'Dhruv', 'Neil'],
+            'PRJ-B': ['Parth', 'Rajan', 'Siddharth']
+        };
+        const badmintonRostersGirls = {
+            'ABH-G': ['Aarti', 'Bhavna', 'Harini'],
+            'VYV-G': ['Vandana', 'Yogita', 'Veena'],
+            'ADH-G': ['Anjali', 'Deepika', 'Nalini'],
+            'PRJ-G': ['Pallavi', 'Roshni', 'Sandhya']
+        };
+
+        // ─── SPORT NAME MAP ───────────────────────────────────────────────────────
+        const SPORT_LABEL = {
+            crick: 'cricket',
+            bball: 'basketball',
+            badmin: 'badminton',
+            vl: 'volleyball',
+            th: 'throwball'
+        };
+
+        let st, activeSport = 'crick';
+        const el = id => document.getElementById(id);
+
+        let completedResults = JSON.parse(localStorage.getItem('tournamentResults')) || [];
+
+        function initMatchState() {
+            st = {
+                sport: activeSport, id: Date.now(),
+                crick: { t1: { k: '', r: 0, w: 0, b: 0 }, t2: { k: '', r: 0, w: 0, b: 0 }, inn: 1, lv: false, fn: false, uploadedImages: [] },
+                bball: { t1: { k: '', s: 0, p: {} }, t2: { k: '', s: 0, p: {} }, pd: '1st Quarter', lv: false, fn: false, uploadedImages: [] },
+                badmin: { t1: { k: '', p: '' }, t2: { k: '', p: '' }, sets: [[0, 0]], cg: 0, w1: 0, w2: 0, lv: false, fn: false, uploadedImages: [] },
+                vl: { t1: { k: '' }, t2: { k: '' }, sets: [[0, 0]], cg: 0, w1: 0, w2: 0, lv: false, fn: false, uploadedImages: [] },
+                th: { t1: { k: '' }, t2: { k: '' }, sets: [[0, 0]], cg: 0, w1: 0, w2: 0, lv: false, fn: false, uploadedImages: [] }
+            };
+        }
+        initMatchState();
+
+        populateTeamDropdown('t1Sel', genderState.cr);
+        populateTeamDropdown('t2Sel', genderState.cr);
+        populateTeamDropdown('bbT1Sel', genderState.bb);
+        populateTeamDropdown('bbT2Sel', genderState.bb);
+        populateTeamDropdown('bdT1Sel', genderState.bd);
+        populateTeamDropdown('bdT2Sel', genderState.bd);
+
+        setTimeout(() => { if (typeof renderHistory === 'function') renderHistory(); }, 200);
+
+        // ─── MATCH ID ─────────────────────────────────────────────────────────────
+        function getNextMatchNumber(sportKey) {
+            const storageKey = `matchCount_${sportKey}`;
+            const current = parseInt(localStorage.getItem(storageKey) || '0', 10);
+            const next = current + 1;
+            localStorage.setItem(storageKey, String(next));
+            return next;
+        }
+
+        function buildMatchId(sportKey, team1, team2) {
+            const num = getNextMatchNumber(sportKey);
+            const sport = SPORT_LABEL[sportKey] || sportKey;
+            let gender = 'girls';
+            if (team1.endsWith('-B') || sportKey === 'vl') gender = 'boys';
+            else if (team1.endsWith('-G') || sportKey === 'th') gender = 'girls';
+            st[sportKey]._isFresh = true;
+            return `${sport}_${gender}_${num}_${team1}vs${team2}`;
+        }
+
+        function sportFolderFromId(matchId) {
+            if (matchId.startsWith('basketball')) return 'basketball';
+            if (matchId.startsWith('badminton')) return 'badminton';
+            if (matchId.startsWith('volleyball')) return 'volleyball';
+            if (matchId.startsWith('throwball')) return 'throwball';
+            return 'cricket';
+        }
+
+        // ─── FIREBASE SAVE ────────────────────────────────────────────────────────
+        async function saveMatchToFirebase(matchId, matchData, isLive) {
+            try {
+                const sportFolder = sportFolderFromId(matchId);
+                const existingImages = matchData.uploadedImages || [];
+
+                let createdAt = matchData.createdAt || null;
+                if (!createdAt) {
+                    try {
+                        const snap = await get(ref(db, `matches_archive/${sportFolder}/${matchId}/createdAt`));
+                        createdAt = (snap.exists() && snap.val()) ? snap.val() : new Date().toISOString();
+                    } catch (e) {
+                        createdAt = new Date().toISOString();
+                    }
+                    matchData.createdAt = createdAt;
+                }
+
+                const gender = matchId.includes('_boys_') ? 'boys' : 'girls';
+
+                let record = {
+                    matchId,
+                    sport: sportFolder,
+                    gender,
+                    createdAt,
+                    lastUpdated: new Date().toISOString(),
+                    status: matchData.lv ? 'LIVE' : '', 
+                    fn: matchData.fn || false,      
+                    team1: matchData.t1?.k || '',
+                    team2: matchData.t2?.k || '',
+                    team1Logo: logos[matchData.t1?.k] || '',
+                    team2Logo: logos[matchData.t2?.k] || '',
+                    uploadedImages: existingImages
+                };
+
+                if (sportFolder === 'cricket') {
+                    record.team1Score = `${matchData.t1.r}/${matchData.t1.w}`;
+                    record.team1Overs = `${Math.floor(matchData.t1.b / 6)}.${matchData.t1.b % 6}`;
+                    record.team2Score = `${matchData.t2.r}/${matchData.t2.w}`;
+                    record.team2Overs = `${Math.floor(matchData.t2.b / 6)}.${matchData.t2.b % 6}`;
+                    record.innings = matchData.inn || 1;
+                    record.toss = matchData.toss || '';
+                    record.scorecardLink = matchData.scorecardLink || '';
+                } else if (sportFolder === 'basketball') {
+                    record.team1Score = matchData.t1.s || 0;
+                    record.team2Score = matchData.t2.s || 0;
+                    record.period = matchData.pd || '';
+                    record.playerStats = {};
+                    Object.entries(matchData.t1.p || {}).forEach(([p, pts]) => { record.playerStats[`t1_${p.replace(/[.#$/[\]]/g, '_')}`] = { name: p, pts, team: matchData.t1.k }; });
+                    Object.entries(matchData.t2.p || {}).forEach(([p, pts]) => { record.playerStats[`t2_${p.replace(/[.#$/[\]]/g, '_')}`] = { name: p, pts, team: matchData.t2.k }; });
+                } else if (sportFolder === 'badminton') {
+                    record.team1Player = matchData.t1.p || '';
+                    record.team2Player = matchData.t2.p || '';
+                    record.gamesWon = `${matchData.w1 || 0}-${matchData.w2 || 0}`;
+                    record.sets = matchData.sets || [];
+                } else {
+                    record.setsWon = `${matchData.w1 || 0}-${matchData.w2 || 0}`;
+                    record.sets = matchData.sets || [];
+                }
+
+                await set(ref(db, `matches_archive/${sportFolder}/${matchId}`), record);
+
+                if (isLive) {
+                    await set(ref(db, `matches/${sportFolder}/current`), record);
+                } else {
+                    await set(ref(db, `matches/${sportFolder}/current/status`), record.status);
+                }
+
+            } catch (err) {
+                console.error("Firebase Save Error:", err);
+            }
+        }
+
+        // ─── NAV ──────────────────────────────────────────────────────────────────
+        window.nav = function (p) {
+            document.querySelectorAll('.page-view').forEach(v => v.classList.remove('active'));
+            el(p).classList.add('active'); window.scrollTo(0, 0);
+            if (p === 'cricket-p') activeSport = 'crick';
+            if (p === 'basket-p') activeSport = 'bball';
+            if (p === 'badmin-p') activeSport = 'badmin';
+            if (p === 'volley-p') activeSport = 'vl';
+            if (p === 'throw-p') activeSport = 'th';
+            if (p === 'home-p') renderHistory();
+            const dp = document.getElementById('sportsDropdown');
+            if (dp) dp.selectedIndex = 0;
+        };
+
+        const fmtOv = b => `${Math.floor(b / 6)}.${b % 6}`;
+
+        // ─── LIVE TOGGLE ──────────────────────────────────────────────────────────
+        window.tglLv = function () {
+            let s = st[activeSport];
+            s.lv = !s.lv;
+
+            if (!s.lv) {
+                let matchSnapshot = JSON.parse(JSON.stringify(s));
+                matchSnapshot.sportType = activeSport;
+                let existingIndex = completedResults.findIndex(m => m.currentMatchId === s.currentMatchId);
+                if (existingIndex !== -1) completedResults[existingIndex] = matchSnapshot;
+                else completedResults.push(matchSnapshot);
+                localStorage.setItem('tournamentResults', JSON.stringify(completedResults));
+            }
+
+            const activePage = document.querySelector('.page-view.active');
+            if (activePage) {
+                activePage.querySelectorAll('select').forEach(sel => {
+                    if (sel.id === 'bbPdSel' || sel.id === 'bbP1Sel' || sel.id === 'bbP2Sel') {
+                        sel.disabled = false; sel.style.opacity = "1";
+                    } else if (sel.id === 'bdP1Sel' || sel.id === 'bdP2Sel') {
+                        sel.disabled = s.lv; sel.style.opacity = s.lv ? "0.5" : "1";
+                    } else {
+                        sel.disabled = s.lv; sel.style.opacity = s.lv ? "0.5" : "1";
+                    }
+                });
+                const sportPrefixMap = { crick: 'cr', bball: 'bb', badmin: 'bd' };
+                const prefix = sportPrefixMap[activeSport];
+                if (prefix) {
+                    ['GirlsBtn', 'BoysBtn'].forEach(suf => {
+                        const btn = document.getElementById(`${prefix}${suf}`);
+                        if (btn) { btn.disabled = s.lv; }
+                    });
+                }
+            }
+
+            updUI(); saveToStorage();
+            if (s.currentMatchId) {
+                s._isFresh = false;
+                saveMatchToFirebase(s.currentMatchId, JSON.parse(JSON.stringify(s)), s.lv);
+            }
+        };
+
+        // ─── CRICKET ──────────────────────────────────────────────────────────────
+        window.chkTms = function () {
+            let v1 = el('t1Sel').value, v2 = el('t2Sel').value;
+            let tossSel = el('tossSel');
+
+            if (v1 && v2) {
+                let currentOpts = [...tossSel.options].map(o => o.value).filter(v => v);
+                if (currentOpts[0] !== v1 || currentOpts[1] !== v2) {
+                    let prevToss = tossSel.value;
+                    tossSel.innerHTML = '<option value="" disabled selected>🪙 Toss Won By</option>';
+                    tossSel.options[tossSel.options.length] = new Option(teamLabel(v1), v1);
+                    tossSel.options[tossSel.options.length] = new Option(teamLabel(v2), v2);
+                    if (prevToss === v1 || prevToss === v2) tossSel.value = prevToss;
+                    else if (st.crick.toss === v1 || st.crick.toss === v2) tossSel.value = st.crick.toss;
+                }
+                tossSel.disabled = false; tossSel.style.opacity = "1";
+            } else {
+                tossSel.innerHTML = '<option value="" disabled selected>🪙 Toss Won By</option>';
+                tossSel.disabled = true; tossSel.style.opacity = "0.5";
+                el('sbCard').style.display = 'none'; el('ctrlCont').style.display = 'none';
+                el('lvBtn').style.display = 'none';
+                return;
+            }
+
+            let toss = tossSel.value;
+            if (v1 && v2 && toss) {
+                let s = st.crick;
+                if (!s.currentMatchId) s.currentMatchId = buildMatchId('crick', v1, v2);
+                s.t1.k = v1; s.t2.k = v2; s.toss = toss;
+                el('t1Lbl').textContent = teamLabel(v1); el('t2Lbl').textContent = teamLabel(v2);
+                el('t1Lg').src = logos[v1]; el('t1Lg').style.display = 'inline-block';
+                el('t2Lg').src = logos[v2]; el('t2Lg').style.display = 'inline-block';
+                el('sbCard').style.display = 'flex'; el('ctrlCont').style.display = 'grid';
+                el('lvBtn').style.display = 'flex';
+                updUI(); saveToStorage();
+            } else {
+                el('sbCard').style.display = 'none'; el('ctrlCont').style.display = 'none';
+                el('lvBtn').style.display = 'none';
+            }
+        };
+
+        window.onTossPick = function () {
+            let tossSel = el('tossSel'), toss = tossSel.value;
+            if (!toss) return;
+            let v1 = el('t1Sel').value, v2 = el('t2Sel').value;
+            let s = st.crick;
+            if (!s.currentMatchId) s.currentMatchId = buildMatchId('crick', v1, v2);
+            s.t1.k = v1; s.t2.k = v2; s.toss = toss;
+            el('t1Lbl').textContent = teamLabel(v1); el('t2Lbl').textContent = teamLabel(v2);
+            el('t1Lg').src = logos[v1]; el('t1Lg').style.display = 'inline-block';
+            el('t2Lg').src = logos[v2]; el('t2Lg').style.display = 'inline-block';
+            el('sbCard').style.display = 'flex'; el('ctrlCont').style.display = 'grid';
+            el('lvBtn').style.display = 'flex';
+            updUI(); saveToStorage();
+        };
+
+        window.sc = function (r, b, w = 0) {
+            let c = st.crick, act = c.inn === 1 ? c.t1 : c.t2;
+            act.r += r; act.b += b; act.w += w;
+            if (c.inn === 1 && (act.b >= 60 || act.w >= 10)) c.inn = 2;
+            else if (c.inn === 2 && (c.t2.r > c.t1.r || act.b >= 60 || act.w >= 10)) c.fn = true;
+            updUI(); saveToStorage();
+            if (c.currentMatchId && !c._isFresh) saveMatchToFirebase(c.currentMatchId, JSON.parse(JSON.stringify(c)), c.lv);
+        };
+
+        window.opMd = function () {
+            let c = st.crick, act = c.inn === 1 ? c.t1 : c.t2;
+            el('mdInn').value = c.inn; el('mdSc').value = `${act.r}/${act.w}`; el('mdOv').value = fmtOv(act.b);
+            el('adjMd').style.display = 'flex';
+        };
+        window.clMd = () => el('adjMd').style.display = 'none';
+
+        window.svMd = function () {
+            let c = st.crick; c.inn = parseInt(el('mdInn').value);
+            let act = c.inn === 1 ? c.t1 : c.t2, s = el('mdSc').value.split('/'), o = el('mdOv').value.split('.');
+            act.r = parseInt(s[0]) || 0; act.w = parseInt(s[1]) || 0;
+            act.b = ((parseInt(o[0]) || 0) * 6) + (parseInt(o[1]) || 0);
+            if (c.t1.b >= 60 || c.t1.w >= 10) if (c.inn === 1) c.inn = 2;
+            c.fn = (c.inn === 2 && (c.t2.r > c.t1.r || c.t2.b >= 60 || c.t2.w >= 10));
+            updUI(); saveToStorage(); window.clMd();
+            if (c.currentMatchId && !c._isFresh) saveMatchToFirebase(c.currentMatchId, JSON.parse(JSON.stringify(c)), c.lv);
+        };
+
+        window.saveScorecardLink = function () {
+            let url = el('scorecardLink').value.trim();
+            st.crick.scorecardLink = url;
+            saveToStorage();
+            if (st.crick.currentMatchId && !st.crick._isFresh) {
+                set(ref(db, `matches_archive/cricket/${st.crick.currentMatchId}/scorecardLink`), url || null);
+                if (st.crick.lv) set(ref(db, `matches/cricket/current/scorecardLink`), url || null);
+            }
+        };
+
+        // ─── BASKETBALL ───────────────────────────────────────────────────────────
+        window.chkTmsBB = function () {
+            let v1 = el('bbT1Sel').value, v2 = el('bbT2Sel').value;
+            if (v1 && v2) {
+                let b = st.bball;
+                if (!b.currentMatchId) b.currentMatchId = buildMatchId('bball', v1, v2);
+                b.t1.k = v1; b.t2.k = v2;
+                const roster = genderState.bb === 'B' ? basketballRostersBoys : basketballRostersGirls;
+                let d1 = el('bbP1Sel'), d2 = el('bbP2Sel'); d1.innerHTML = ''; d2.innerHTML = '';
+                if (roster[v1]) roster[v1].forEach(p => { b.t1.p[p] = b.t1.p[p] || 0; d1.options[d1.options.length] = new Option(p, p); });
+                if (roster[v2]) roster[v2].forEach(p => { b.t2.p[p] = b.t2.p[p] || 0; d2.options[d2.options.length] = new Option(p, p); });
+                el('bbT1Lbl').textContent = teamLabel(v1); el('bbT2Lbl').textContent = teamLabel(v2);
+                el('bbT1Lg').src = logos[v1]; el('bbT2Lg').src = logos[v2];
+                el('bbSbCard').style.display = 'flex'; el('bbCtrlCont').style.display = 'flex';
+                el('bbLvBtn').style.display = 'flex';
+                updUI(); saveToStorage();
+            } else {
+                el('bbSbCard').style.display = 'none'; el('bbCtrlCont').style.display = 'none';
+                el('bbLvBtn').style.display = 'none';
+            }
+        };
+
+        window.chkPdBB = function () {
+            let b = st.bball;
+            b.pd = el('bbPdSel').value; b.fn = (b.pd === 'Full Time');
+            updUI(); saveToStorage();
+            if (b.currentMatchId && !b._isFresh) saveMatchToFirebase(b.currentMatchId, JSON.parse(JSON.stringify(b)), b.lv);
+        };
+
+        window.scBB = function (side, pts) {
+            let b = st.bball;
+            let p = el(side === 1 ? 'bbP1Sel' : 'bbP2Sel').value;
+            let t = side === 1 ? b.t1 : b.t2; t.p[p] = (t.p[p] || 0) + pts;
+            b.t1.s = Object.values(b.t1.p).reduce((x, y) => x + y, 0);
+            b.t2.s = Object.values(b.t2.p).reduce((x, y) => x + y, 0);
+            updUI(); saveToStorage();
+            if (b.currentMatchId && !b._isFresh) saveMatchToFirebase(b.currentMatchId, JSON.parse(JSON.stringify(b)), b.lv);
+        };
+
+        window.opMdBB = function () {
+            let b = st.bball, cont = el('mdBbRosterCont'); cont.innerHTML = '';
+            let c1 = document.createElement('div'), c2 = document.createElement('div');
+            c1.className = c2.className = 'md-team-panel';
+            c1.innerHTML = `<div class="md-lbl" style="color:#ff9900;">${teamLabel(b.t1.k)}</div>`;
+            c2.innerHTML = `<div class="md-lbl" style="color:#ff9900;text-align:right;">${teamLabel(b.t2.k)}</div>`;
+            const row = (p, v, s) => `<div class="md-p-item"><span>${p}</span><input type="number" class="md-p-ipt" data-side="${s}" data-name="${p}" value="${v}"></div>`;
+            Object.entries(b.t1.p).forEach(([p, v]) => c1.innerHTML += row(p, v, 1));
+            Object.entries(b.t2.p).forEach(([p, v]) => c2.innerHTML += row(p, v, 2));
+            cont.appendChild(c1); cont.appendChild(c2);
+            el('bbAdjMd').style.display = 'flex';
+        };
+        window.clMdBB = () => el('bbAdjMd').style.display = 'none';
+
+        window.svMdBB = function () {
+            let b = st.bball;
+            document.querySelectorAll('.md-p-ipt').forEach(i => {
+                let s = i.getAttribute('data-side'), n = i.getAttribute('data-name'), v = parseInt(i.value) || 0;
+                if (s === "1") b.t1.p[n] = v; else b.t2.p[n] = v;
+            });
+            b.t1.s = Object.values(b.t1.p).reduce((x, y) => x + y, 0);
+            b.t2.s = Object.values(b.t2.p).reduce((x, y) => x + y, 0);
+            updUI(); saveToStorage(); window.clMdBB();
+            if (b.currentMatchId && !b._isFresh) saveMatchToFirebase(b.currentMatchId, JSON.parse(JSON.stringify(b)), b.lv);
+        };
+
+        // ─── BADMINTON ────────────────────────────────────────────────────────────
+        function popBDPlayers(selId, teamKey) {
+            let d = el(selId); d.innerHTML = '<option value="" disabled selected>Select Player</option>';
+            const roster = genderState.bd === 'B' ? badmintonRostersBoys : badmintonRostersGirls;
+            if (roster[teamKey]) roster[teamKey].forEach(p => d.options[d.options.length] = new Option(p, p));
+        }
+
+        window.chkTmsBD = function (teamSwitched) {
+            let t1 = el('bdT1Sel').value, t2 = el('bdT2Sel').value;
+            if (teamSwitched) {
+                if (t1) popBDPlayers('bdP1Sel', t1);
+                if (t2) popBDPlayers('bdP2Sel', t2);
+            }
+            st.badmin.t1.k = t1; st.badmin.t2.k = t2;
+            st.badmin.t1.p = el('bdP1Sel').value; st.badmin.t2.p = el('bdP2Sel').value;
+            if (t1 && t2 && st.badmin.t1.p && st.badmin.t2.p) {
+                if (!st.badmin.currentMatchId) st.badmin.currentMatchId = buildMatchId('badmin', t1, t2);
+                el('bdT1Txt').textContent = teamLabel(t1); el('bdT2Txt').textContent = teamLabel(t2);
+                el('bdP1Txt').textContent = st.badmin.t1.p; el('bdP2Txt').textContent = st.badmin.t2.p;
+                el('bdT1Lg').src = logos[t1] || ''; el('bdT2Lg').src = logos[t2] || '';
+                el('bdSbCard').style.display = 'flex'; el('bdCtrlCont').style.display = 'flex';
+                el('bdLvBtn').style.display = 'flex';
+                updUI(); saveToStorage();
+            } else {
+                el('bdSbCard').style.display = 'none'; el('bdCtrlCont').style.display = 'none';
+                el('bdLvBtn').style.display = 'none';
+            }
+        };
+
+        function checkGameEndBD(s1, s2) {
+            if (s1 >= 21 || s2 >= 21) {
+                if (Math.abs(s1 - s2) >= 2) return true;
+                if (s1 === 30 || s2 === 30) return true;
+            }
+            return false;
+        }
+
+        window.scBD = function (side) {
+            let b = st.badmin, s = b.sets[b.cg];
+            if (side === 1) s[0]++; else s[1]++;
+            if (checkGameEndBD(s[0], s[1])) processSetWinBD();
+            updUI(); saveToStorage();
+            if (b.currentMatchId && !b._isFresh) saveMatchToFirebase(b.currentMatchId, JSON.parse(JSON.stringify(b)), b.lv);
+        };
+
+        window.instEndGameBD = function () {
+            let b = st.badmin, s = b.sets[b.cg];
+            if (s[0] === s[1]) s[0]++;
+            processSetWinBD();
+            updUI(); saveToStorage();
+            if (b.currentMatchId && !b._isFresh) saveMatchToFirebase(b.currentMatchId, JSON.parse(JSON.stringify(b)), b.lv);
+        };
+
+        function processSetWinBD() {
+            let b = st.badmin, s = b.sets[b.cg];
+            if (s[0] > s[1]) b.w1++; else b.w2++;
+            if (b.w1 === 2 || b.w2 === 2) b.fn = true;
+            else { b.sets.push([0, 0]); b.cg++; }
+        }
+
+        window.opMdBD = function () {
+            let b = st.badmin, d = el('mdBdGameSel'); d.innerHTML = '';
+            b.sets.forEach((_, i) => d.options[d.options.length] = new Option(`Game ${i + 1}`, i));
+            d.value = b.cg; syncMdBdGame();
+            el('bdAdjMd').style.display = 'flex';
+        };
+        window.clMdBD = () => el('bdAdjMd').style.display = 'none';
+        window.syncMdBdGame = function () {
+            let idx = parseInt(el('mdBdGameSel').value), s = st.badmin.sets[idx];
+            el('mdBdS1').value = s[0]; el('mdBdS2').value = s[1];
+        };
+        window.svMdBD = function () {
+            let b = st.badmin, idx = parseInt(el('mdBdGameSel').value);
+            b.sets[idx] = [parseInt(el('mdBdS1').value) || 0, parseInt(el('mdBdS2').value) || 0];
+            b.w1 = 0; b.w2 = 0; b.fn = false;
+            b.sets.forEach(s => { if (s[0] > s[1]) b.w1++; else if (s[1] > s[0]) b.w2++; });
+            if (b.w1 >= 2 || b.w2 >= 2) b.fn = true;
+            else {
+                let last = b.sets[b.sets.length - 1];
+                if (checkGameEndBD(last[0], last[1])) { b.sets.push([0, 0]); b.cg = b.sets.length - 1; }
+                else { b.cg = b.sets.length - 1; }
+            }
+            updUI(); saveToStorage(); window.clMdBD();
+            if (b.currentMatchId && !b._isFresh) saveMatchToFirebase(b.currentMatchId, JSON.parse(JSON.stringify(b)), b.lv);
+        };
+
+        // ─── VOLLEYBALL & THROWBALL ───────────────────────────────────────────────
+        window.chkTmsCourt = function (sportKey) {
+            let t1 = el(`${sportKey}T1Sel`).value, t2 = el(`${sportKey}T2Sel`).value;
+            st[sportKey].t1.k = t1; st[sportKey].t2.k = t2;
+            if (t1 && t2) {
+                if (!st[sportKey].currentMatchId) st[sportKey].currentMatchId = buildMatchId(sportKey, t1, t2);
+                el(`${sportKey}T1Txt`).textContent = teamLabel(t1); el(`${sportKey}T2Txt`).textContent = teamLabel(t2);
+                el(`${sportKey}T1Lg`).src = logos[t1] || ''; el(`${sportKey}T1Lg`).style.display = 'inline-block';
+                el(`${sportKey}T2Lg`).src = logos[t2] || ''; el(`${sportKey}T2Lg`).style.display = 'inline-block';
+                el(`${sportKey}SbCard`).style.display = 'flex'; el(`${sportKey}CtrlCont`).style.display = 'flex';
+                el(`${sportKey}LvBtn`).style.display = 'flex';
+                updUI(); saveToStorage();
+            } else {
+                el(`${sportKey}SbCard`).style.display = 'none'; el(`${sportKey}CtrlCont`).style.display = 'none';
+                el(`${sportKey}LvBtn`).style.display = 'none';
+            }
+        };
+
+        function checkCourtSetEnd(s1, s2) {
+            if (s1 >= 25 || s2 >= 25) {
+                if (Math.abs(s1 - s2) >= 2) return true;
+                if (s1 === 30 || s2 === 30) return true;
+            }
+            return false;
+        }
+
+        window.scCourt = function (sportKey, side) {
+            let b = st[sportKey], s = b.sets[b.cg];
+            if (side === 1) s[0]++; else s[1]++;
+            if (checkCourtSetEnd(s[0], s[1])) processCourtSetWin(sportKey);
+            updUI(); saveToStorage();
+            if (b.currentMatchId && !b._isFresh) saveMatchToFirebase(b.currentMatchId, JSON.parse(JSON.stringify(b)), b.lv);
+        };
+
+        window.instEndSetCourt = function (sportKey) {
+            let b = st[sportKey], s = b.sets[b.cg];
+            if (s[0] === s[1]) s[0]++;
+            processCourtSetWin(sportKey);
+            updUI(); saveToStorage();
+            if (b.currentMatchId && !b._isFresh) saveMatchToFirebase(b.currentMatchId, JSON.parse(JSON.stringify(b)), b.lv);
+        };
+
+        function processCourtSetWin(sportKey) {
+            let b = st[sportKey], s = b.sets[b.cg];
+            if (s[0] > s[1]) b.w1++; else b.w2++;
+            if (b.w1 === 2 || b.w2 === 2) b.fn = true;
+            else { b.sets.push([0, 0]); b.cg++; }
+        }
+
+        window.opMdCourt = function (sportKey) {
+            let b = st[sportKey], d = el('mdCrtSetSel'); d.innerHTML = '';
+            el('mdCrtTtl').textContent = sportKey === 'vl' ? 'Volleyball Adjustments' : 'Throwball Adjustments';
+            d.setAttribute('data-sport', sportKey);
+            b.sets.forEach((_, i) => d.options[d.options.length] = new Option(`Set ${i + 1}`, i));
+            d.value = b.cg; syncMdCrtSet();
+            el('crtAdjMd').style.display = 'flex';
+        };
+        window.clMdCourt = () => el('crtAdjMd').style.display = 'none';
+        window.syncMdCrtSet = function () {
+            let d = el('mdCrtSetSel'), sportKey = d.getAttribute('data-sport');
+            let idx = parseInt(d.value), s = st[sportKey].sets[idx];
+            el('mdCrtS1').value = s[0]; el('mdCrtS2').value = s[1];
+        };
+        window.svMdCourt = function () {
+            let d = el('mdCrtSetSel'), sportKey = d.getAttribute('data-sport'), idx = parseInt(d.value);
+            let b = st[sportKey];
+            b.sets[idx] = [parseInt(el('mdCrtS1').value) || 0, parseInt(el('mdCrtS2').value) || 0];
+            b.w1 = 0; b.w2 = 0; b.fn = false;
+            b.sets.forEach(s => { if (s[0] > s[1]) b.w1++; else if (s[1] > s[0]) b.w2++; });
+            if (b.w1 >= 2 || b.w2 >= 2) {
+                b.fn = true;
+            } else {
+                let lastIdx = b.sets.length - 1, lastSet = b.sets[lastIdx];
+                if (checkCourtSetEnd(lastSet[0], lastSet[1])) b.sets.push([0, 0]);
+                b.cg = b.sets.length - 1;
+            }
+            updUI(); saveToStorage(); window.clMdCourt();
+            if (b.currentMatchId && !b._isFresh) saveMatchToFirebase(b.currentMatchId, JSON.parse(JSON.stringify(b)), b.lv);
+        };
+
+        // ─── UI SYNC ──────────────────────────────────────────────────────────────
+        function syncCourtUI(sportKey) {
+            let d = st[sportKey], sCrt = d.sets[d.cg] || [0, 0];
+            if (!el(`${sportKey}T1S`)) return;
+            el(`${sportKey}T1S`).textContent = sCrt[0]; el(`${sportKey}T2S`).textContent = sCrt[1];
+            el(`${sportKey}CardPd`).textContent = `SET ${d.cg + 1}`;
+            el(`${sportKey}WonBanner`).textContent = `Sets Won: ${d.w1} - ${d.w2}`;
+            let dBd = el(`${sportKey}CardSt`); dBd.className = 'badge';
+            if (d.fn) { dBd.textContent = 'FINISHED'; dBd.classList.add('st-fn'); el(`${sportKey}CtrlCont`).classList.add('m-ov'); }
+            else { el(`${sportKey}CtrlCont`).classList.remove('m-ov'); if (d.lv) { dBd.textContent = 'LIVE'; dBd.classList.add('st-lv'); } else dBd.textContent = ''; }
+            el(`${sportKey}LvBtn`).classList.toggle('is-live', d.lv);
+            let tl = el(`${sportKey}Timeline`); tl.innerHTML = '';
+            let r1 = document.createElement('div'), r2 = document.createElement('div');
+            r1.className = r2.className = 'bd-tl-row';
+            r1.innerHTML = `<div class="bd-tl-team">${teamLabel(d.t1.k) || 'T1'}</div>`;
+            r2.innerHTML = `<div class="bd-tl-team">${teamLabel(d.t2.k) || 'T2'}</div>`;
+            let b1 = document.createElement('div'), b2 = document.createElement('div');
+            b1.className = b2.className = 'bd-tl-setbox';
+            for (let i = 0; i < Math.max(3, d.sets.length); i++) {
+                let cellData = d.sets[i], isAct = (i === d.cg && !d.fn);
+                let c1Str = cellData ? cellData[0] : '-';
+                let c2Str = cellData ? cellData[1] : '-';
+                b1.innerHTML += `<div class="bd-set-cell ${isAct ? 'c-act' : ''} ${cellData ? 'filled' : ''}">${c1Str}</div>`;
+                b2.innerHTML += `<div class="bd-set-cell ${isAct ? 'c-act' : ''} ${cellData ? 'filled' : ''}">${c2Str}</div>`;
+            }
+            r1.appendChild(b1); r2.appendChild(b2); tl.appendChild(r1); tl.appendChild(r2);
+        }
+
+        function updUI() {
+            let c = st.crick, b = st.bball, d = st.badmin;
+
+            if (el('t1R')) {
+                el('t1R').textContent = c.t1.r; el('t1W').textContent = c.t1.w; el('t1O').textContent = fmtOv(c.t1.b);
+                el('t2R').textContent = c.t2.r; el('t2W').textContent = c.t2.w; el('t2O').textContent = fmtOv(c.t2.b);
+                el('t1Row').classList.toggle('b-act', !c.fn && c.inn === 1);
+                el('t2Row').classList.toggle('b-act', !c.fn && c.inn === 2);
+                let bd = el('cardSt'); bd.className = 'badge';
+                if (c.fn) { bd.textContent = 'FINISHED'; bd.classList.add('st-fn'); el('ctrlCont').classList.add('m-ov'); }
+                else { el('ctrlCont').classList.remove('m-ov'); if (c.lv) { bd.textContent = 'LIVE'; bd.classList.add('st-lv'); } else bd.textContent = ''; }
+                el('lvBtn').classList.toggle('is-live', c.lv);
+            }
+
+            if (el('bbT1S')) {
+                el('bbT1S').textContent = b.t1.s; el('bbT2S').textContent = b.t2.s;
+                el('bbCardPd').textContent = b.pd; el('bbPdSel').value = b.pd;
+                let bBd = el('bbCardSt'); bBd.className = 'badge';
+                if (b.fn) { bBd.textContent = 'FINISHED'; bBd.classList.add('st-fn'); el('bbCtrlCont').classList.add('m-ov'); }
+                else { el('bbCtrlCont').classList.remove('m-ov'); if (b.lv) { bBd.textContent = 'LIVE'; bBd.classList.add('st-lv'); } else bBd.textContent = ''; }
+                el('bbLvBtn').classList.toggle('is-live', b.lv);
+                let c1 = el('bbT1StatCol'), c2 = el('bbT2StatCol');
+                c1.innerHTML = `<div class="bb-team-col-hdr">${teamLabel(b.t1.k) || 'TEAM 1'}</div>`;
+                c2.innerHTML = `<div class="bb-team-col-hdr tr">${teamLabel(b.t2.k) || 'TEAM 2'}</div>`;
+                Object.entries(b.t1.p).forEach(([p, pts]) => { if (pts > 0) c1.innerHTML += `<div class="bb-p-stat-row"><span class="p-nm">${p}</span><span class="p-pts">${pts}</span></div>`; });
+                Object.entries(b.t2.p).forEach(([p, pts]) => { if (pts > 0) c2.innerHTML += `<div class="bb-p-stat-row"><span class="p-nm">${p}</span><span class="p-pts">${pts}</span></div>`; });
+            }
+
+            if (el('bdT1S')) {
+                let sBD = d.sets[d.cg] || [0, 0];
+                el('bdT1S').textContent = sBD[0]; el('bdT2S').textContent = sBD[1];
+                el('bdCardPd').textContent = `GAME ${d.cg + 1}`;
+                el('bdWonBanner').textContent = `Games Won: ${d.w1} - ${d.w2}`;
+                let dBd = el('bdCardSt'); dBd.className = 'badge';
+                if (d.fn) { dBd.textContent = 'FINISHED'; dBd.classList.add('st-fn'); el('bdCtrlCont').classList.add('m-ov'); }
+                else { el('bdCtrlCont').classList.remove('m-ov'); if (d.lv) { dBd.textContent = 'LIVE'; dBd.classList.add('st-lv'); } else dBd.textContent = ''; }
+                el('bdLvBtn').classList.toggle('is-live', d.lv);
+                let tl = el('bdTimeline'); tl.innerHTML = '';
+                let br1 = document.createElement('div'), br2 = document.createElement('div');
+                br1.className = br2.className = 'bd-tl-row';
+                br1.innerHTML = `<div class="bd-tl-team">${teamLabel(d.t1.k) || 'T1'}</div>`;
+                br2.innerHTML = `<div class="bd-tl-team">${teamLabel(d.t2.k) || 'T2'}</div>`;
+                let bb1 = document.createElement('div'), bb2 = document.createElement('div');
+                bb1.className = bb2.className = 'bd-tl-setbox';
+                for (let i = 0; i < Math.max(3, d.sets.length); i++) {
+                    let cellData = d.sets[i], isAct = (i === d.cg && !d.fn);
+                    let c1Str = cellData ? cellData[0] : '-';
+                    let c2Str = cellData ? cellData[1] : '-';
+                    bb1.innerHTML += `<div class="bd-set-cell ${isAct ? 'c-act' : ''} ${cellData ? 'filled' : ''}">${c1Str}</div>`;
+                    bb2.innerHTML += `<div class="bd-set-cell ${isAct ? 'c-act' : ''} ${cellData ? 'filled' : ''}">${c2Str}</div>`;
+                }
+                br1.appendChild(bb1); br2.appendChild(bb2); tl.appendChild(br1); tl.appendChild(br2);
+            }
+
+            syncCourtUI('vl');
+            syncCourtUI('th');
+        }
+
+        function saveToStorage() {
+            let activeObj = st[activeSport];
+            if (!activeObj || !activeObj.t1 || !activeObj.t2 || !activeObj.t1.k || !activeObj.t2.k) return;
+            if (activeSport === 'badmin' && (!activeObj.t1.p || !activeObj.t2.p)) return;
+            let h = JSON.parse(localStorage.getItem('portal_hist') || '[]');
+            let idx = h.findIndex(m => m.id === st.id);
+            let deepCopy = JSON.parse(JSON.stringify(st));
+            if (idx !== -1) h[idx] = deepCopy; else h.push(deepCopy);
+            localStorage.setItem('portal_hist', JSON.stringify(h));
+        }
+
+        // ─── DELETE ───────────────────────────────────────────────────────────────
+        window.deleteMatchArchive = function (dbFolder, matchId) {
+            if (!confirm(`Permanently delete this match from the database?`)) return;
+            set(ref(db, `matches_archive/${dbFolder}/${matchId}`), null)
+                .then(() => {
+                    return get(ref(db, `matches/${dbFolder}/current/matchId`)).then(snap => {
+                        if (snap.exists() && snap.val() === matchId) {
+                            return set(ref(db, `matches/${dbFolder}/current`), null);
+                        }
+                    });
+                })
+                .then(() => { alert("Match deleted."); window.renderHistory(); })
+                .catch(e => alert("Error deleting: " + e.message));
+        };
+
+        // ─── RESET TO HOME ────────────────────────────────────────────────────────
+        window.resetToHome = function () {
+            if (typeof activeSport !== 'undefined' && typeof st !== 'undefined' && st[activeSport]) {
+                let s = st[activeSport];
+                if (s.lv) {
+                    s.lv = false;
+                    const folderMap = { 'crick': 'cricket', 'bball': 'basketball', 'badmin': 'badminton', 'vl': 'volleyball', 'th': 'throwball' };
+                    let sportFolder = folderMap[activeSport];
+                    if (sportFolder) {
+                        try {
+                            set(ref(db, "matches/" + sportFolder + "/current/status"), "");
+                            if (s.currentMatchId) set(ref(db, "matches_archive/" + sportFolder + "/" + s.currentMatchId + "/status"), "");
+                        } catch (e) { console.log(e); }
+                    }
+                }
+            }
+
+            try { initMatchState(); } catch (e) { console.log(e); }
+
+            genderState.cr = 'G'; genderState.bb = 'G'; genderState.bd = 'G';
+            ['cr', 'bb', 'bd'].forEach(prefix => {
+                const gb = document.getElementById(`${prefix}GirlsBtn`);
+                const bb2 = document.getElementById(`${prefix}BoysBtn`);
+                if (gb) { gb.classList.add('active'); gb.disabled = false; }
+                if (bb2) { bb2.classList.remove('active'); bb2.disabled = false; }
+            });
+            populateTeamDropdown('t1Sel', 'G');
+            populateTeamDropdown('t2Sel', 'G');
+            populateTeamDropdown('bbT1Sel', 'G');
+            populateTeamDropdown('bbT2Sel', 'G');
+            populateTeamDropdown('bdT1Sel', 'G');
+            populateTeamDropdown('bdT2Sel', 'G');
+
+            try {
+                const dropdowns = ['sportsDropdown', 't1Sel', 'tossSel', 't2Sel', 'bbT1Sel', 'bbT2Sel', 'bdT1Sel', 'bdT2Sel', 'bdP1Sel', 'bdP2Sel', 'vlT1Sel', 'vlT2Sel', 'thT1Sel', 'thT2Sel'];
+                dropdowns.forEach(id => {
+                    const elem = document.getElementById(id);
+                    if (elem) { elem.selectedIndex = 0; elem.disabled = false; elem.style.opacity = "1"; elem.style.pointerEvents = "auto"; }
+                });
+
+                const resetEl = (id, val) => { const e = document.getElementById(id); if (e) e.innerText = val; };
+                resetEl('t1R', '0'); resetEl('t1W', '0'); resetEl('t1O', '0.0');
+                resetEl('t2R', '0'); resetEl('t2W', '0'); resetEl('t2O', '0.0');
+                resetEl('t1Lbl', 'TEAM 1'); resetEl('t2Lbl', 'TEAM 2');
+                resetEl('bbT1S', '0'); resetEl('bbT2S', '0');
+                resetEl('bbT1Lbl', 'TEAM 1'); resetEl('bbT2Lbl', 'TEAM 2');
+                if (el('scorecardLink')) { el('scorecardLink').value = ''; el('scorecardLink').disabled = false; }
+
+                ['sbCard', 'bbSbCard', 'bdSbCard', 'vlSbCard', 'thSbCard'].forEach(id => { const e = document.getElementById(id); if (e) e.style.display = 'none'; });
+                ['ctrlCont', 'bbCtrlCont', 'bdCtrlCont', 'vlCtrlCont', 'thCtrlCont'].forEach(id => { const e = document.getElementById(id); if (e) e.style.display = 'none'; });
+                ['lvBtn', 'bbLvBtn', 'bdLvBtn', 'vlLvBtn', 'thLvBtn'].forEach(id => { const e = document.getElementById(id); if (e) e.style.display = 'none'; });
+                document.querySelectorAll('[id^="imgThumbnailRow"]').forEach(row => row.innerHTML = '');
+                document.querySelectorAll('[id^="imgSlotLabel"]').forEach(lbl => lbl.textContent = '0/3 slots used');
+            } catch (htmlError) { console.log(htmlError); }
+
+            try { updUI(); } catch (e) { console.log(e); }
+
+            document.querySelectorAll('.page-view').forEach(v => v.classList.remove('active'));
+            document.getElementById('home-p').classList.add('active');
+            window.scrollTo(0, 0);
+            try { renderHistory(); } catch (e) { console.log(e); }
+        };
+
+        // ─── IMAGE UPLOAD ─────────────────────────────────────────────────────────
+        window.handleMatchImageUpload = async function (event) {
+            const IMGBB_API_KEY = 'a5ca90326606c5c5f0ca1854b1109064';
+            const files = event.target.files;
+            if (!files || files.length === 0) return;
+
+            const currentObj = st[activeSport];
+            if (!currentObj || !currentObj.currentMatchId) {
+                alert("Please set up the match teams first before uploading images.");
+                event.target.value = ""; return;
+            }
+
+            const matchId = currentObj.currentMatchId;
+            const folderMap = { 'crick': 'cricket', 'bball': 'basketball', 'badmin': 'badminton', 'vl': 'volleyball', 'th': 'throwball' };
+            const sportFolder = folderMap[activeSport] || 'general';
+
+            const activePage = document.querySelector('.page-view.active');
+            const mediaBox = activePage ? activePage.querySelector('.panel-media-box') : null;
+
+            let statusBar = document.getElementById('uploadInlineStatus');
+            if (statusBar) statusBar.remove();
+            if (mediaBox) {
+                statusBar = document.createElement('div');
+                statusBar.id = 'uploadInlineStatus';
+                statusBar.style.cssText = `width:100%;margin-top:10px;display:flex;flex-direction:column;gap:6px;`;
+                statusBar.innerHTML = `<div style="width:100%;height:4px;background:#1f232e;border-radius:2px;overflow:hidden;"><div id="uploadProgressBar" style="height:100%;width:5%;background:#00ffcc;border-radius:2px;transition:width 0.4s ease;"></div></div><div id="uploadStatusText" style="color:#a0aec0;font-size:0.75rem;font-weight:600;text-align:center;"></div>`;
+                mediaBox.appendChild(statusBar);
+            }
+
+            const setStatus = (msg, pct) => {
+                const txt = document.getElementById('uploadStatusText');
+                const bar = document.getElementById('uploadProgressBar');
+                if (txt) txt.textContent = msg;
+                if (bar && pct !== undefined) bar.style.width = pct + '%';
+            };
+            const removeStatus = (delay = 3000) => {
+                setTimeout(() => { const s = document.getElementById('uploadInlineStatus'); if (s) s.remove(); }, delay);
+            };
+
+            function compressImage(file) {
+                return new Promise((resolve) => {
+                    const MAX_DIM = 1200;
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        const img = new Image();
+                        img.onload = () => {
+                            let { width, height } = img;
+                            if (width <= MAX_DIM && height <= MAX_DIM) { resolve(file); return; }
+                            if (width > height) { height = Math.round(height * MAX_DIM / width); width = MAX_DIM; }
+                            else { width = Math.round(width * MAX_DIM / height); height = MAX_DIM; }
+                            const canvas = document.createElement('canvas');
+                            canvas.width = width; canvas.height = height;
+                            canvas.getContext('2d').drawImage(img, 0, 0, width, height);
+                            canvas.toBlob((blob) => resolve(blob || file), 'image/jpeg', 0.78);
+                        };
+                        img.onerror = () => resolve(file);
+                        img.src = e.target.result;
+                    };
+                    reader.onerror = () => resolve(file);
+                    reader.readAsDataURL(file);
+                });
+            }
+
+            async function uploadToImgBB(blob) {
+                const formData = new FormData();
+                const base64 = await new Promise((resolve) => {
+                    const reader = new FileReader();
+                    reader.onload = () => resolve(reader.result.split(',')[1]);
+                    reader.readAsDataURL(blob);
+                });
+                formData.append('image', base64);
+                const response = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`, { method: 'POST', body: formData });
+                if (!response.ok) throw new Error(`ImgBB error: ${response.status}`);
+                const data = await response.json();
+                if (!data.success) throw new Error('ImgBB upload rejected');
+                return data.data.url;
+            }
+
+            const archivePath = `matches_archive/${sportFolder}/${matchId}/uploadedImages`;
+            const livePath = `matches/${sportFolder}/current/uploadedImages`;
+            let currentImages = currentObj.uploadedImages || [];
+            const totalFiles = Math.min(files.length, 3);
+            let uploadedCount = 0;
+
+            for (let i = 0; i < totalFiles; i++) {
+                const file = files[i];
+                setStatus(`Compressing ${i + 1}/${totalFiles}...`, 10 + (i * 30));
+                let blob;
+                try { blob = await compressImage(file); } catch (e) { blob = file; }
+                if (currentImages.length >= 3) currentImages.shift();
+                setStatus(`Uploading ${i + 1}/${totalFiles} · ${(blob.size / 1024).toFixed(0)} KB`, 20 + (i * 35));
+                try {
+                    const url = await uploadToImgBB(blob);
+                    currentImages.push(url);
+                    uploadedCount++;
+                    setStatus(`Done ${uploadedCount}/${totalFiles} ✓`, 60 + (uploadedCount * 15));
+                } catch (uploadErr) {
+                    console.error("ImgBB upload failed:", uploadErr);
+                    setStatus(`✗ Failed: ${uploadErr.message}`, 100);
+                    removeStatus(4000);
+                    event.target.value = ""; return;
+                }
+            }
+
+            currentObj.uploadedImages = currentImages;
+            saveToStorage();
+            const isHistoryEdit = !!(currentObj.currentMatchId && !currentObj._isFresh);
+            if (currentObj.lv || isHistoryEdit) {
+                try {
+                    setStatus("Saving to database...", 95);
+                    await set(ref(db, archivePath), currentImages);
+                    if (currentObj.lv) await set(ref(db, livePath), currentImages);
+                    setStatus(`✓ Saved · ${currentImages.length}/3 slots`, 100);
+                } catch (dbErr) {
+                    console.error("DB write failed:", dbErr);
+                    setStatus("✗ DB save failed", 100);
+                }
+            } else {
+                setStatus(`Local Preview · ${currentImages.length}/3 slots`, 100);
+            }
+            removeStatus(3000);
+            refreshImageThumbnails(currentImages);
+            event.target.value = "";
+        };
+
+        window.removeMatchImage = async function (index) {
+            const currentObj = st[activeSport];
+            if (!currentObj || !currentObj.uploadedImages) return;
+            currentObj.uploadedImages.splice(index, 1);
+            saveToStorage();
+            const matchId = currentObj.currentMatchId;
+            const folderMap = { 'crick': 'cricket', 'bball': 'basketball', 'badmin': 'badminton', 'vl': 'volleyball', 'th': 'throwball' };
+            const sportFolder = folderMap[activeSport] || 'general';
+            const isHistoryEdit = !!(currentObj.currentMatchId && !currentObj._isFresh);
+            if (currentObj.lv || isHistoryEdit) {
+                try {
+                    await set(ref(db, `matches_archive/${sportFolder}/${matchId}/uploadedImages`), currentObj.uploadedImages);
+                    if (currentObj.lv) await set(ref(db, `matches/${sportFolder}/current/uploadedImages`), currentObj.uploadedImages);
+                } catch (dbErr) { console.error("Failed to sync image removal:", dbErr); }
+            }
+            refreshImageThumbnails(currentObj.uploadedImages);
+        };
+
+        // ─── EDIT FROM HISTORY ────────────────────────────────────────────────────
+        window.editMatchFromHistory = function (sportFolder, matchId) {
+            const sportPageMap = { cricket: 'cricket-p', basketball: 'basket-p', badminton: 'badmin-p', volleyball: 'volley-p', throwball: 'throw-p' };
+            const sportKeyMap = { cricket: 'crick', basketball: 'bball', badminton: 'badmin', volleyball: 'vl', throwball: 'th' };
+
+            get(ref(db, `matches_archive/${sportFolder}/${matchId}`)).then(snapshot => {
+                if (!snapshot.exists()) { alert("Match not found."); return; }
+
+                const rec = snapshot.val();
+
+                // ─── ROUTE RESULT ONLY MATCHES TO RESULT ONLY MODAL ───
+                if (rec.resultOnly || !sportPageMap[sportFolder]) {
+                    window.openResultOnlyModalInEditMode(rec, sportFolder, matchId);
+                    return;
+                }
+
+                const sportKey = sportKeyMap[sportFolder];
+
+                const genderFromId = matchId.includes('_boys_') ? 'B' : 'G';
+                const sportPrefixMap = { cricket: 'cr', basketball: 'bb', badminton: 'bd' };
+                const prefix = sportPrefixMap[sportFolder];
+                if (prefix) {
+                    genderState[prefix] = genderFromId;
+                    const gb = document.getElementById(`${prefix}GirlsBtn`);
+                    const bb2 = document.getElementById(`${prefix}BoysBtn`);
+                    if (gb) { gb.classList.toggle('active', genderFromId === 'G'); gb.disabled = false; }
+                    if (bb2) { bb2.classList.toggle('active', genderFromId === 'B'); bb2.disabled = false; }
+                    if (sportFolder === 'cricket') { populateTeamDropdown('t1Sel', genderFromId); populateTeamDropdown('t2Sel', genderFromId); }
+                    if (sportFolder === 'basketball') { populateTeamDropdown('bbT1Sel', genderFromId); populateTeamDropdown('bbT2Sel', genderFromId); }
+                    if (sportFolder === 'badminton') { populateTeamDropdown('bdT1Sel', genderFromId); populateTeamDropdown('bdT2Sel', genderFromId); }
+                }
+
+                st[sportKey].t1.k = rec.team1 || '';
+                st[sportKey].t2.k = rec.team2 || '';
+                st[sportKey].lv = false;
+                st[sportKey].fn = rec.fn === true || rec.status === 'FINAL'; 
+                st[sportKey].currentMatchId = matchId;
+                st[sportKey]._isFresh = false;
+                st[sportKey].uploadedImages = rec.uploadedImages || [];
+                st[sportKey].createdAt = rec.createdAt || null;
+
+                if (sportFolder === 'cricket') {
+                    const s1 = (rec.team1Score || '0/0').split('/');
+                    const s2 = (rec.team2Score || '0/0').split('/');
+                    const o1 = (rec.team1Overs || '0.0').split('.');
+                    const o2 = (rec.team2Overs || '0.0').split('.');
+                    st.crick.t1.r = parseInt(s1[0]) || 0; st.crick.t1.w = parseInt(s1[1]) || 0;
+                    st.crick.t1.b = (parseInt(o1[0]) || 0) * 6 + (parseInt(o1[1]) || 0);
+                    st.crick.t2.r = parseInt(s2[0]) || 0; st.crick.t2.w = parseInt(s2[1]) || 0;
+                    st.crick.t2.b = (parseInt(o2[0]) || 0) * 6 + (parseInt(o2[1]) || 0);
+                    st.crick.inn = rec.innings || 1;
+                    st.crick.toss = rec.toss || '';
+                    st.crick.scorecardLink = rec.scorecardLink || '';
+                    setTimeout(() => {
+                        if (rec.toss) el('tossSel').value = rec.toss;
+                        if (rec.scorecardLink) el('scorecardLink').value = rec.scorecardLink;
+                    }, 60);
+                } else if (sportFolder === 'basketball') {
+                    st.bball.t1.s = rec.team1Score || 0;
+                    st.bball.t2.s = rec.team2Score || 0;
+                    st.bball.pd = rec.period || '1st Quarter';
+                    st.bball.t1.p = {}; st.bball.t2.p = {};
+                    Object.values(rec.playerStats || {}).forEach(p => {
+                        if (p.team === rec.team1) st.bball.t1.p[p.name] = p.pts;
+                        else st.bball.t2.p[p.name] = p.pts;
+                    });
+                } else if (sportFolder === 'badminton') {
+                    st.badmin.sets = rec.sets || [[0, 0]];
+                    st.badmin.cg = (rec.sets || []).length - 1;
+                    st.badmin.t1.p = rec.team1Player || '';
+                    st.badmin.t2.p = rec.team2Player || '';
+                    const w = (rec.gamesWon || '0-0').split('-');
+                    st.badmin.w1 = parseInt(w[0]) || 0;
+                    st.badmin.w2 = parseInt(w[1]) || 0;
+                } else {
+                    st[sportKey].sets = rec.sets || [[0, 0]];
+                    st[sportKey].cg = (rec.sets || []).length - 1;
+                    const w = (rec.setsWon || '0-0').split('-');
+                    st[sportKey].w1 = parseInt(w[0]) || 0;
+                    st[sportKey].w2 = parseInt(w[1]) || 0;
+                }
+
+                activeSport = sportKey;
+                document.querySelectorAll('.page-view').forEach(v => v.classList.remove('active'));
+                document.getElementById(sportPageMap[sportFolder]).classList.add('active');
+                window.scrollTo(0, 0);
+
+                const t1k = rec.team1, t2k = rec.team2;
+                if (sportFolder === 'cricket' && t1k && t2k) {
+                    el('t1Sel').value = t1k; el('t2Sel').value = t2k;
+                    el('t1Lbl').textContent = teamLabel(t1k); el('t2Lbl').textContent = teamLabel(t2k);
+                    el('t1Lg').src = logos[t1k] || ''; el('t1Lg').style.display = 'inline-block';
+                    el('t2Lg').src = logos[t2k] || ''; el('t2Lg').style.display = 'inline-block';
+                    el('sbCard').style.display = 'flex'; el('ctrlCont').style.display = 'grid';
+                } else if (sportFolder === 'basketball' && t1k && t2k) {
+                    el('bbT1Sel').value = t1k; el('bbT2Sel').value = t2k; chkTmsBB();
+                } else if (sportFolder === 'badminton' && t1k && t2k) {
+                    el('bdT1Sel').value = t1k; el('bdT2Sel').value = t2k;
+                    chkTmsBD(true);
+                    setTimeout(() => {
+                        if (rec.team1Player) el('bdP1Sel').value = rec.team1Player;
+                        if (rec.team2Player) el('bdP2Sel').value = rec.team2Player;
+                        chkTmsBD(false);
+                    }, 50);
+                } else if (sportFolder === 'volleyball' && t1k && t2k) {
+                    el('vlT1Sel').value = t1k; el('vlT2Sel').value = t2k; chkTmsCourt('vl');
+                } else if (sportFolder === 'throwball' && t1k && t2k) {
+                    el('thT1Sel').value = t1k; el('thT2Sel').value = t2k; chkTmsCourt('th');
+                }
+                updUI();
+
+                get(ref(db, `matches_archive/${sportFolder}/${matchId}/uploadedImages`)).then(snap => {
+                    if (snap.exists() && Array.isArray(snap.val())) {
+                        st[sportKey].uploadedImages = snap.val();
+                        refreshImageThumbnails(snap.val());
+                    } else {
+                        st[sportKey].uploadedImages = [];
+                        refreshImageThumbnails([]);
+                    }
+                }).catch(() => { st[sportKey].uploadedImages = []; refreshImageThumbnails([]); });
+
+            }).catch(() => alert("Could not load match for editing."));
+        };
+
+        // ─── RENDER HISTORY ───────────────────────────────────────────────────────
+        window.renderHistory = function () {
+            const histBox = document.getElementById('adminHistList');
+            if (!histBox) return;
+            histBox.innerHTML = `<div style="color:#718096;font-size:0.8rem;text-align:center;padding:8px;">Loading...</div>`;
+
+            get(ref(db, "matches_archive")).then((snapshot) => {
+                if (!snapshot.exists()) {
+                    histBox.innerHTML = `<div style="color:#718096;font-size:0.8rem;text-align:center;padding:8px;">No history yet.</div>`;
+                    return;
+                }
+
+                let allMatches = [];
+                Object.entries(snapshot.val()).forEach(([sportFolder, matches]) => {
+                    Object.entries(matches).forEach(([matchId, rec]) => {
+                        allMatches.push({ matchId, sportFolder, rec });
+                    });
+                });
+
+                allMatches.sort((a, b) => {
+                    const aTime = a.rec.createdAt || a.rec.lastUpdated || '';
+                    const bTime = b.rec.createdAt || b.rec.lastUpdated || '';
+                    return bTime.localeCompare(aTime);
+                });
+
+                if (!allMatches.length) {
+                    histBox.innerHTML = `<div style="color:#718096;font-size:0.8rem;text-align:center;padding:8px;">No history yet.</div>`;
+                    return;
+                }
+
+                const sportColors = { cricket: '#ffcc00', basketball: '#ff9900', badminton: '#00ffcc', volleyball: '#4299e1', throwball: '#ed64a6' };
+                histBox.innerHTML = '';
+
+                allMatches.forEach(({ matchId, sportFolder, rec }) => {
+                    const color = sportColors[sportFolder] || '#a0aec0';
+                    const t1 = teamLabel(rec.team1 || '?'), t2 = teamLabel(rec.team2 || '?');
+
+                    const gender = rec.gender || (matchId.includes('_boys_') ? 'boys' : 'girls');
+                    const genderBadge = gender === 'boys'
+                        ? `<span style="font-size:0.6rem;background:rgba(66,153,225,0.15);border:1px solid rgba(66,153,225,0.3);color:#4299e1;padding:1px 5px;border-radius:4px;margin-left:4px;">♂ Boys</span>`
+                        : `<span style="font-size:0.6rem;background:rgba(237,100,166,0.15);border:1px solid rgba(237,100,166,0.3);color:#ed64a6;padding:1px 5px;border-radius:4px;margin-left:4px;">♀ Girls</span>`;
+
+                    let scoreLine = '';
+                    if (rec.resultOnly) {
+                        scoreLine = `${rec.team1Score ?? 0} — ${rec.team2Score ?? 0}`;
+                        if (rec.remarks) scoreLine += ` · ${rec.remarks}`;
+                    } else if (sportFolder === 'cricket') {
+                        scoreLine = `${rec.team1Score || '0/0'} (${rec.team1Overs || '0.0'}) — ${rec.team2Score || '0/0'} (${rec.team2Overs || '0.0'})`;
+                    } else if (sportFolder === 'basketball') {
+                        scoreLine = `${rec.team1Score ?? 0} — ${rec.team2Score ?? 0}${rec.period ? ' · ' + rec.period : ''}`;
+                    } else if (sportFolder === 'badminton') {
+                        const sets = (rec.sets || []).map(s => `${s[0]}-${s[1]}`).join(', ');
+                        scoreLine = sets || `Games: ${rec.gamesWon || '0-0'}`;
+                    } else {
+                        const sets = (rec.sets || []).map(s => `${s[0]}-${s[1]}`).join(', ');
+                        scoreLine = sets || `Sets: ${rec.setsWon || '0-0'}`;
+                    }
+
+                    const isFinal = rec.fn === true || rec.status === 'FINAL';
+                    const statusBadge = isFinal
+                        ? `<span style="font-size:0.6rem;background:rgba(0,255,204,0.1);border:1px solid rgba(0,255,204,0.2);color:#00ffcc;padding:1px 5px;border-radius:4px;margin-left:4px;">FINAL</span>`
+                        : rec.status === 'LIVE'
+                            ? `<span style="font-size:0.6rem;color:#ef4444;margin-left:4px;">● LIVE</span>` : '';
+
+                    let timeStr = '';
+                    if (rec.createdAt || rec.lastUpdated) {
+                        timeStr = new Date(rec.createdAt || rec.lastUpdated).toLocaleString('en-IN', {
+                            day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit', hour12: true
+                        });
+                    }
+
+                    const item = document.createElement('div');
+                    item.className = 'hist-item';
+                    item.innerHTML = `
+                    <div class="hist-match-info">
+                        <div class="hist-teams" style="color:${color};">
+                            <span style="font-size:0.62rem;font-weight:700;opacity:0.7;text-transform:uppercase;letter-spacing:0.5px;">${sportFolder.replace('_', ' ')}</span>
+                            ${genderBadge}&nbsp;${t1} vs ${t2}${statusBadge}
+                        </div>
+                        <div class="hist-scores">${scoreLine}</div>
+                        ${timeStr ? `<div style="font-size:0.68rem;color:#4a5568;margin-top:1px;">${timeStr}</div>` : ''}
+                    </div>
+                    <div style="display:flex;gap:6px;flex-shrink:0;">
+                        <button onclick="editMatchFromHistory('${sportFolder}','${matchId}')"
+                            style="background:rgba(66,153,225,0.1);border:1px solid rgba(66,153,225,0.3);color:#4299e1;font-size:0.7rem;font-weight:700;padding:6px 10px;border-radius:6px;cursor:pointer;">Edit</button>
+                        <button onclick="deleteMatchArchive('${sportFolder}','${matchId}')" class="hist-del-btn">Del</button>
+                    </div>`;
+                    histBox.appendChild(item);
+                });
+            }).catch(err => {
+                histBox.innerHTML = `<div style="color:#ef4444;font-size:0.8rem;text-align:center;padding:8px;">Error loading history.</div>`;
+            });
+        };
+
+        // ─── IMAGE THUMBNAILS ─────────────────────────────────────────────────────
+        function refreshImageThumbnails(images) {
+            const activePage = document.querySelector('.page-view.active');
+            if (!activePage) return;
+            const row = activePage.querySelector('#imgThumbnailRow');
+            const label = activePage.querySelector('#imgSlotLabel');
+            if (label) label.textContent = `${images.length}/3 slots used`;
+            if (!row) return;
+            row.innerHTML = '';
+            images.forEach((url, i) => {
+                const wrap = document.createElement('div');
+                wrap.style.cssText = `position:relative;width:72px;height:72px;border-radius:6px;overflow:hidden;border:1px solid #242936;flex-shrink:0;`;
+                wrap.innerHTML = `
+                <img src="${url}" style="width:100%;height:100%;object-fit:cover;" loading="lazy">
+                <div style="position:absolute;bottom:2px;left:2px;background:rgba(0,0,0,0.6);color:#fff;font-size:9px;font-weight:700;padding:1px 4px;border-radius:3px;">${i + 1}</div>
+                <button onclick="removeMatchImage(${i})" style="position:absolute;top:2px;right:2px;background:rgba(239,68,68,0.85);color:#fff;border:none;border-radius:50%;width:18px;height:18px;font-size:11px;font-weight:900;display:flex;align-items:center;justify-content:center;cursor:pointer;line-height:1;z-index:5;">×</button>
+            `;
+                row.appendChild(wrap);
+            });
+        }
+
+        // ─── RESULT ONLY MODAL ────────────────────────────────────────────────────────
+
+        let roGender = 'B';
+        let roImages = [];
+        let editingRoMatchId = null;
+        let editingRoCreatedAt = null;
+
+        const RO_TEAMS = {
+            B: [
+                { label: 'ABH', value: 'ABH-B' },
+                { label: 'VYV', value: 'VYV-B' },
+                { label: 'ADH', value: 'ADH-B' },
+                { label: 'PRJ', value: 'PRJ-B' },
+                { label: 'Custom...', value: 'custom' }
+            ],
+            G: [
+                { label: 'ABH', value: 'ABH-G' },
+                { label: 'VYV', value: 'VYV-G' },
+                { label: 'ADH', value: 'ADH-G' },
+                { label: 'PRJ', value: 'PRJ-G' },
+                { label: 'Custom...', value: 'custom' }
+            ]
+        };
+
+        function populateRoTeams() {
+            ['roT1Sel', 'roT2Sel'].forEach((selId, idx) => {
+                const sel = document.getElementById(selId);
+                const prev = sel.value;
+                sel.innerHTML = '';
+                RO_TEAMS[roGender].forEach(t => {
+                    const opt = new Option(t.label, t.value);
+                    sel.appendChild(opt);
+                });
+                if ([...sel.options].some(o => o.value === prev)) sel.value = prev;
+
+                const customId = idx === 0 ? 'roT1Custom' : 'roT2Custom';
+                let customBox = document.getElementById(customId);
+                if (!customBox) {
+                    customBox = document.createElement('input');
+                    customBox.type = 'text';
+                    customBox.id = customId;
+                    customBox.className = 'md-ipt';
+                    customBox.placeholder = 'Custom team name';
+                    customBox.style.display = 'none';
+                    customBox.style.marginTop = '6px';
+                    sel.parentNode.appendChild(customBox);
+                }
+                sel.onchange = () => {
+                    customBox.style.display = sel.value === 'custom' ? 'block' : 'none';
+                    updateRoScoreLabels();
+                };
+            });
+            updateRoScoreLabels();
+        }
+
+        function updateRoScoreLabels() {
+            const getLabel = (selId, customId) => {
+                const sel = document.getElementById(selId);
+                if (!sel) return 'Team';
+                if (sel.value === 'custom') {
+                    const c = document.getElementById(customId);
+                    return (c && c.value.trim()) ? c.value.trim() : 'Custom Team';
+                }
+                return sel.options[sel.selectedIndex]?.text || 'Team';
+            };
+            const lbl1 = document.getElementById('roT1ScoreLbl');
+            const lbl2 = document.getElementById('roT2ScoreLbl');
+            if (lbl1) lbl1.textContent = getLabel('roT1Sel', 'roT1Custom') + ' Score';
+            if (lbl2) lbl2.textContent = getLabel('roT2Sel', 'roT2Custom') + ' Score';
+        }
+
+        window.setRoGender = function (gender) {
+            roGender = gender;
+            document.getElementById('roBoysBtn').style.background = gender === 'B' ? '#00ffcc' : 'transparent';
+            document.getElementById('roBoysBtn').style.color = gender === 'B' ? '#0d0e12' : '#718096';
+            document.getElementById('roGirlsBtn').style.background = gender === 'G' ? '#00ffcc' : 'transparent';
+            document.getElementById('roGirlsBtn').style.color = gender === 'G' ? '#0d0e12' : '#718096';
+            populateRoTeams();
+        };
+
+        window.handleRoSportChange = function () {
+            const sel = document.getElementById('roSportSel');
+            const customBox = document.getElementById('roCustomSport');
+            customBox.style.display = sel.value === 'custom' ? 'block' : 'none';
+        };
+
+        window.openResultOnlyModal = function () {
+            editingRoMatchId = null;
+            editingRoCreatedAt = null;
+
+            const titleEl = document.getElementById('roModalTitle');
+            if (titleEl) titleEl.textContent = 'Result Only Entry';
+            const btnEl = document.getElementById('roPublishBtn');
+            if (btnEl) btnEl.textContent = '🏆 Publish Result';
+
+            roGender = 'B';
+            roImages = [];
+            document.getElementById('roImgThumbs').innerHTML = '';
+            document.getElementById('roImgSlotLabel').textContent = '0/3 slots used';
+            document.getElementById('roSportSel').value = 'tug_of_war';
+            document.getElementById('roCustomSport').style.display = 'none';
+            document.getElementById('roCustomSport').value = '';
+            document.getElementById('roT1Score').value = '';
+            document.getElementById('roT2Score').value = '';
+            document.getElementById('roRemarks').value = '';
+            document.getElementById('roBoysBtn').style.background = '#00ffcc';
+            document.getElementById('roBoysBtn').style.color = '#0d0e12';
+            document.getElementById('roGirlsBtn').style.background = 'transparent';
+            document.getElementById('roGirlsBtn').style.color = '#718096';
+            populateRoTeams();
+            document.getElementById('resultOnlyMd').style.display = 'flex';
+        };
+
+        window.openResultOnlyModalInEditMode = function (rec, sportFolder, matchId) {
+            editingRoMatchId = matchId;
+            editingRoCreatedAt = rec.createdAt || new Date().toISOString();
+            roImages = rec.uploadedImages || [];
+
+            const titleEl = document.getElementById('roModalTitle');
+            if (titleEl) titleEl.textContent = 'Edit Result Entry';
+            const btnEl = document.getElementById('roPublishBtn');
+            if (btnEl) btnEl.textContent = '🏆 Update Result';
+
+            const sportSel = document.getElementById('roSportSel');
+            const customSportInput = document.getElementById('roCustomSport');
+            if (sportFolder === 'tug_of_war' || sportFolder === 'ball_badminton') {
+                sportSel.value = sportFolder;
+                customSportInput.style.display = 'none';
+                customSportInput.value = '';
+            } else {
+                sportSel.value = 'custom';
+                customSportInput.style.display = 'block';
+                customSportInput.value = sportFolder;
+            }
+
+            roGender = rec.gender === 'boys' ? 'B' : 'G';
+            document.getElementById('roBoysBtn').style.background = roGender === 'B' ? '#00ffcc' : 'transparent';
+            document.getElementById('roBoysBtn').style.color = roGender === 'B' ? '#0d0e12' : '#718096';
+            document.getElementById('roGirlsBtn').style.background = roGender === 'G' ? '#00ffcc' : 'transparent';
+            document.getElementById('roGirlsBtn').style.color = roGender === 'G' ? '#0d0e12' : '#718096';
+
+            populateRoTeams();
+
+            const setTeamVal = (selId, customId, val) => {
+                const sel = document.getElementById(selId);
+                const customInput = document.getElementById(customId);
+                const standardValues = RO_TEAMS[roGender].map(t => t.value);
+                if (standardValues.includes(val)) {
+                    sel.value = val;
+                    if (customInput) customInput.style.display = 'none';
+                } else {
+                    sel.value = 'custom';
+                    if (customInput) {
+                        customInput.style.display = 'block';
+                        customInput.value = val;
+                    }
+                }
+            };
+            setTeamVal('roT1Sel', 'roT1Custom', rec.team1);
+            setTeamVal('roT2Sel', 'roT2Custom', rec.team2);
+
+            document.getElementById('roT1Score').value = rec.team1Score || '';
+            document.getElementById('roT2Score').value = rec.team2Score || '';
+            document.getElementById('roRemarks').value = rec.remarks || '';
+
+            updateRoScoreLabels();
+
+            document.getElementById('roImgSlotLabel').textContent = `${roImages.length}/3 slots used`;
+            refreshRoThumbs();
+
+            document.getElementById('resultOnlyMd').style.display = 'flex';
+        };
+
+        window.closeResultOnlyModal = function () {
+            editingRoMatchId = null;
+            editingRoCreatedAt = null;
+            document.getElementById('resultOnlyMd').style.display = 'none';
+        };
+
+        window.handleRoImageUpload = async function (event) {
+            const IMGBB_API_KEY = 'a5ca90326606c5c5f0ca1854b1109064';
+            const files = event.target.files;
+            if (!files || files.length === 0) return;
+            const remaining = 3 - roImages.length;
+            const toUpload = Math.min(files.length, remaining);
+            if (toUpload <= 0) { alert('Max 3 images allowed.'); event.target.value = ''; return; }
+
+            const label = document.getElementById('roImgSlotLabel');
+            label.textContent = 'Uploading...';
+
+            for (let i = 0; i < toUpload; i++) {
+                const file = files[i];
+                try {
+                    const blob = await new Promise(resolve => {
+                        const MAX_DIM = 1200;
+                        const reader = new FileReader();
+                        reader.onload = e => {
+                            const img = new Image();
+                            img.onload = () => {
+                                let { width, height } = img;
+                                if (width <= MAX_DIM && height <= MAX_DIM) { resolve(file); return; }
+                                if (width > height) { height = Math.round(height * MAX_DIM / width); width = MAX_DIM; }
+                                else { width = Math.round(width * MAX_DIM / height); height = MAX_DIM; }
+                                const canvas = document.createElement('canvas');
+                                canvas.width = width; canvas.height = height;
+                                canvas.getContext('2d').drawImage(img, 0, 0, width, height);
+                                canvas.toBlob(b => resolve(b || file), 'image/jpeg', 0.78);
+                            };
+                            img.src = e.target.result;
+                        };
+                        reader.readAsDataURL(file);
+                    });
+
+                    const base64 = await new Promise(res => {
+                        const r = new FileReader();
+                        r.onload = () => res(r.result.split(',')[1]);
+                        r.readAsDataURL(blob);
+                    });
+                    const fd = new FormData(); fd.append('image', base64);
+                    const resp = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`, { method: 'POST', body: fd });
+                    const data = await resp.json();
+                    if (data.success) roImages.push(data.data.url);
+                } catch (e) { console.error('Upload failed:', e); }
+            }
+
+            label.textContent = `${roImages.length}/3 slots used`;
+            refreshRoThumbs();
+            event.target.value = '';
+        };
+
+        function refreshRoThumbs() {
+            const row = document.getElementById('roImgThumbs');
+            row.innerHTML = '';
+            roImages.forEach((url, i) => {
+                const wrap = document.createElement('div');
+                wrap.style.cssText = 'position:relative;width:64px;height:64px;border-radius:6px;overflow:hidden;border:1px solid #242936;flex-shrink:0;';
+                wrap.innerHTML = `
+      <img src="${url}" style="width:100%;height:100%;object-fit:cover;">
+      <button onclick="removeRoImage(${i})" style="position:absolute;top:2px;right:2px;background:rgba(239,68,68,0.85);color:#fff;border:none;border-radius:50%;width:18px;height:18px;font-size:11px;font-weight:900;cursor:pointer;">×</button>
+    `;
+                row.appendChild(wrap);
+            });
+        }
+
+        window.removeRoImage = function (idx) {
+            roImages.splice(idx, 1);
+            document.getElementById('roImgSlotLabel').textContent = `${roImages.length}/3 slots used`;
+            refreshRoThumbs();
+        };
+
+        window.publishResultOnly = async function () {
+            const sportSel = document.getElementById('roSportSel');
+            let sportName = sportSel.value === 'custom'
+                ? (document.getElementById('roCustomSport').value.trim() || 'custom')
+                : sportSel.value;
+
+            const getTeamValue = (selId, customId) => {
+                const sel = document.getElementById(selId);
+                if (sel.value === 'custom') {
+                    return document.getElementById(customId)?.value.trim() || 'Custom';
+                }
+                return sel.value;
+            };
+            const t1 = getTeamValue('roT1Sel', 'roT1Custom');
+            const t2 = getTeamValue('roT2Sel', 'roT2Custom');
+
+            if (!t1 || !t2 || t1 === t2) { alert('Please select two different teams.'); return; }
+
+            const score1 = document.getElementById('roT1Score').value.trim() || '0';
+            const score2 = document.getElementById('roT2Score').value.trim() || '0';
+            const remarks = document.getElementById('roRemarks').value.trim();
+
+            const now = new Date().toISOString();
+            const gender = roGender === 'B' ? 'boys' : 'girls';
+
+            let matchId = editingRoMatchId;
+            let createdAt = editingRoCreatedAt || now;
+
+            if (!matchId) {
+                const matchNum = getNextMatchNumber(sportName);
+                matchId = `${sportName}_${gender}_${matchNum}_${t1}vs${t2}`;
+            }
+
+            const record = {
+                matchId,
+                sport: sportName,
+                gender,
+                createdAt: createdAt,
+                lastUpdated: now,
+                status: 'FINAL',
+                fn: true,
+                team1: t1,
+                team2: t2,
+                team1Logo: logos[t1] || '',
+                team2Logo: logos[t2] || '',
+                team1Score: score1,
+                team2Score: score2,
+                remarks: remarks || '',
+                uploadedImages: roImages,
+                resultOnly: true  
+            };
+
+            try {
+                await set(ref(db, `matches_archive/${sportName}/${matchId}`), record);
+                alert(editingRoMatchId ? 'Result updated successfully!' : 'Result published successfully!');
+                closeResultOnlyModal();
+                renderHistory();
+            } catch (e) {
+                alert('Failed to publish: ' + e.message);
+            }
+        };
+
+        // ─── CRICKET ──────────────────────────────────────────────────────────────
+        window.chkTms = function () {
+            let v1 = el('t1Sel').value, v2 = el('t2Sel').value;
+            let tossSel = el('tossSel');
+
+            if (v1 && v2) {
+                let currentOpts = [...tossSel.options].map(o => o.value).filter(v => v);
+                if (currentOpts[0] !== v1 || currentOpts[1] !== v2) {
+                    let prevToss = tossSel.value;
+                    tossSel.innerHTML = '<option value="" disabled selected>🪙 Toss Won By</option>';
+                    tossSel.options[tossSel.options.length] = new Option(teamLabel(v1), v1);
+                    tossSel.options[tossSel.options.length] = new Option(teamLabel(v2), v2);
+                    if (prevToss === v1 || prevToss === v2) tossSel.value = prevToss;
+                    else if (st.crick.toss === v1 || st.crick.toss === v2) tossSel.value = st.crick.toss;
+                }
+                tossSel.disabled = false; tossSel.style.opacity = "1";
+            } else {
+                tossSel.innerHTML = '<option value="" disabled selected>🪙 Toss Won By</option>';
+                tossSel.disabled = true; tossSel.style.opacity = "0.5";
+                el('sbCard').style.display = 'none'; el('ctrlCont').style.display = 'none';
+                el('lvBtn').style.display = 'none';
+                return;
+            }
+
+            let toss = tossSel.value;
+            if (v1 && v2 && toss) {
+                let s = st.crick;
+                if (!s.currentMatchId) s.currentMatchId = buildMatchId('crick', v1, v2);
+                s.t1.k = v1; s.t2.k = v2; s.toss = toss;
+                el('t1Lbl').textContent = teamLabel(v1); el('t2Lbl').textContent = teamLabel(v2);
+                el('t1Lg').src = logos[v1]; el('t1Lg').style.display = 'inline-block';
+                el('t2Lg').src = logos[v2]; el('t2Lg').style.display = 'inline-block';
+                el('sbCard').style.display = 'flex'; el('ctrlCont').style.display = 'grid';
+                el('lvBtn').style.display = 'flex';
+                updUI(); saveToStorage();
+            } else {
+                el('sbCard').style.display = 'none'; el('ctrlCont').style.display = 'none';
+                el('lvBtn').style.display = 'none';
+            }
+        };
+
+        window.onTossPick = function () {
+            let tossSel = el('tossSel'), toss = tossSel.value;
+            if (!toss) return;
+            let v1 = el('t1Sel').value, v2 = el('t2Sel').value;
+            let s = st.crick;
+            if (!s.currentMatchId) s.currentMatchId = buildMatchId('crick', v1, v2);
+            s.t1.k = v1; s.t2.k = v2; s.toss = toss;
+            el('t1Lbl').textContent = teamLabel(v1); el('t2Lbl').textContent = teamLabel(v2);
+            el('t1Lg').src = logos[v1]; el('t1Lg').style.display = 'inline-block';
+            el('t2Lg').src = logos[v2]; el('t2Lg').style.display = 'inline-block';
+            el('sbCard').style.display = 'flex'; el('ctrlCont').style.display = 'grid';
+            el('lvBtn').style.display = 'flex';
+            updUI(); saveToStorage();
+        };
+
+        // ─── BASKETBALL ───────────────────────────────────────────────────────────
+        window.chkTmsBB = function () {
+            let v1 = el('bbT1Sel').value, v2 = el('bbT2Sel').value;
+            if (v1 && v2) {
+                let b = st.bball;
+                if (!b.currentMatchId) b.currentMatchId = buildMatchId('bball', v1, v2);
+                b.t1.k = v1; b.t2.k = v2;
+                const roster = genderState.bb === 'B' ? basketballRostersBoys : basketballRostersGirls;
+                let d1 = el('bbP1Sel'), d2 = el('bbP2Sel'); d1.innerHTML = ''; d2.innerHTML = '';
+                if (roster[v1]) roster[v1].forEach(p => { b.t1.p[p] = b.t1.p[p] || 0; d1.options[d1.options.length] = new Option(p, p); });
+                if (roster[v2]) roster[v2].forEach(p => { b.t2.p[p] = b.t2.p[p] || 0; d2.options[d2.options.length] = new Option(p, p); });
+                el('bbT1Lbl').textContent = teamLabel(v1); el('bbT2Lbl').textContent = teamLabel(v2);
+                el('bbT1Lg').src = logos[v1]; el('bbT2Lg').src = logos[v2];
+                el('bbSbCard').style.display = 'flex'; el('bbCtrlCont').style.display = 'flex';
+                el('bbLvBtn').style.display = 'flex';
+                updUI(); saveToStorage();
+            } else {
+                el('bbSbCard').style.display = 'none'; el('bbCtrlCont').style.display = 'none';
+                el('bbLvBtn').style.display = 'none';
+            }
+        };
+
+        // ─── BADMINTON ────────────────────────────────────────────────────────────
+        window.chkTmsBD = function (teamSwitched) {
+            let t1 = el('bdT1Sel').value, t2 = el('bdT2Sel').value;
+            if (teamSwitched) {
+                if (t1) popBDPlayers('bdP1Sel', t1);
+                if (t2) popBDPlayers('bdP2Sel', t2);
+            }
+            st.badmin.t1.k = t1; st.badmin.t2.k = t2;
+            st.badmin.t1.p = el('bdP1Sel').value; st.badmin.t2.p = el('bdP2Sel').value;
+            if (t1 && t2 && st.badmin.t1.p && st.badmin.t2.p) {
+                if (!st.badmin.currentMatchId) st.badmin.currentMatchId = buildMatchId('badmin', t1, t2);
+                el('bdT1Txt').textContent = teamLabel(t1); el('bdT2Txt').textContent = teamLabel(t2);
+                el('bdP1Txt').textContent = st.badmin.t1.p; el('bdP2Txt').textContent = st.badmin.t2.p;
+                el('bdT1Lg').src = logos[t1] || ''; el('bdT2Lg').src = logos[t2] || '';
+                el('bdSbCard').style.display = 'flex'; el('bdCtrlCont').style.display = 'flex';
+                el('bdLvBtn').style.display = 'flex';
+                updUI(); saveToStorage();
+            } else {
+                el('bdSbCard').style.display = 'none'; el('bdCtrlCont').style.display = 'none';
+                el('bdLvBtn').style.display = 'none';
+            }
+        };
+
+        // ─── VOLLEYBALL & THROWBALL ───────────────────────────────────────────────
+        window.chkTmsCourt = function (sportKey) {
+            let t1 = el(`${sportKey}T1Sel`).value, t2 = el(`${sportKey}T2Sel`).value;
+            st[sportKey].t1.k = t1; st[sportKey].t2.k = t2;
+            if (t1 && t2) {
+                if (!st[sportKey].currentMatchId) st[sportKey].currentMatchId = buildMatchId(sportKey, t1, t2);
+                el(`${sportKey}T1Txt`).textContent = teamLabel(t1); el(`${sportKey}T2Txt`).textContent = teamLabel(t2);
+                el(`${sportKey}T1Lg`).src = logos[t1] || ''; el(`${sportKey}T1Lg`).style.display = 'inline-block';
+                el(`${sportKey}T2Lg`).src = logos[t2] || ''; el(`${sportKey}T2Lg`).style.display = 'inline-block';
+                el(`${sportKey}SbCard`).style.display = 'flex'; el(`${sportKey}CtrlCont`).style.display = 'flex';
+                el(`${sportKey}LvBtn`).style.display = 'flex';
+                updUI(); saveToStorage();
+            } else {
+                el(`${sportKey}SbCard`).style.display = 'none'; el(`${sportKey}CtrlCont`).style.display = 'none';
+                el(`${sportKey}LvBtn`).style.display = 'none';
+            }
+        };
+
+        renderHistory();
+
+    </script>
+</body>
+
+</html>
