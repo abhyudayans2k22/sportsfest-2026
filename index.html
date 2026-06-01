@@ -8,15 +8,13 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="format-detection" content="telephone=no">
-    <title>Sports Fest</title>
+    <title>Abhyudayans Sports Fest App</title>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
         href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Anton&family=Oswald:wght@400;500;600;700&display=swap"
         rel="stylesheet">
-    <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#000000">
 
     <style>
         /* ============================================================
@@ -73,31 +71,6 @@
             background: radial-gradient(circle at 20% 80%, #201a10 0%, #000000 70%);
             overflow: hidden;
             overscroll-behavior: none;
-        }
-
-        /* ============================================================
-   SAFE AREA / NOTCH / DYNAMIC ISLAND / HOME INDICATOR FIX
-============================================================ */
-        html {
-            background-color: #000000 !important;
-        }
-
-        :root {
-            --sat: env(safe-area-inset-top, 0px);
-            --sar: env(safe-area-inset-right, 0px);
-            --sab: env(safe-area-inset-bottom, 0px);
-            --sal: env(safe-area-inset-left, 0px);
-        }
-
-        html,
-        body {
-            /* Push entire app below the notch/Dynamic Island */
-            padding-top: env(safe-area-inset-top, 0px);
-            padding-right: env(safe-area-inset-right, 0px);
-            padding-bottom: env(safe-area-inset-bottom, 0px);
-            padding-left: env(safe-area-inset-left, 0px);
-            background-color: #000000;
-            /* fills the safe area edges with black instead of white */
         }
 
         /* ============================================================
@@ -159,8 +132,8 @@
         /* Dynamic Navigation Header Box - High End Default (No Box) */
         .header-box {
             position: absolute;
-            right: max(24px, env(safe-area-inset-right, 0px));
-            top: max(15px, calc(env(safe-area-inset-top, 0px) + 5px));
+            right: 24px;
+            top: 15px;
             z-index: 9999;
             display: flex;
             align-items: center;
@@ -732,7 +705,6 @@
             max-width: 500px;
             background: #000000;
             padding: 45px 28px 140px 28px;
-            padding-bottom: max(140px, calc(140px + env(safe-area-inset-bottom, 0px)));
             margin-top: 0;
             z-index: 3;
         }
@@ -912,7 +884,7 @@
             align-items: center;
             width: 100%;
             gap: 40px;
-            padding-bottom: max(160px, calc(160px + env(safe-area-inset-bottom, 0px)));
+            padding-bottom: 160px;
             z-index: 1;
         }
 
@@ -1698,7 +1670,6 @@
             overflow-x: auto;
             overflow-y: hidden;
             padding: 20px 10vw 55px 10vw;
-            padding-bottom: max(55px, calc(55px + env(safe-area-inset-bottom, 0px)));
             scroll-snap-type: x mandatory;
             -webkit-overflow-scrolling: touch;
             margin-top: 195px;
@@ -2742,7 +2713,6 @@
             overflow-x: hidden;
             -webkit-overflow-scrolling: touch;
             padding: 90px 20px 120px 20px;
-            padding-bottom: max(120px, calc(120px + env(safe-area-inset-bottom, 0px)));
             box-sizing: border-box;
             scrollbar-width: none !important;
             -ms-overflow-style: none !important;
@@ -3028,8 +2998,8 @@
 
         #gallery .floating-hud-trigger {
             position: absolute;
-            bottom: max(25px, calc(env(safe-area-inset-bottom, 0px) + 15px));
-            left: max(25px, env(safe-area-inset-left, 0px));
+            bottom: 25px;
+            left: 25px;
             z-index: 999;
             background: rgba(20, 20, 20, 0.75);
             backdrop-filter: blur(12px);
@@ -3261,8 +3231,8 @@
 
         .page-title-label {
             position: absolute;
-            left: max(24px, env(safe-area-inset-left, 0px));
-            top: max(15px, calc(env(safe-area-inset-top, 0px) + 5px));
+            left: 24px;
+            top: 15px;
             z-index: 9999;
             font-family: 'Oswald', 'Impact', 'Arial Narrow', sans-serif;
             font-size: 22px;
@@ -3446,7 +3416,7 @@
 
         #teams .scroll-indicator {
             position: absolute;
-            bottom: max(6dvh, calc(env(safe-area-inset-bottom, 0px) + 20px));
+            bottom: 6dvh;
             left: 50%;
             transform: translateX(-50%);
             z-index: 15;
@@ -7532,28 +7502,6 @@
             setTimeout(initFocusObserver, 800);
         });
     </script>
-    <script>
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('sw.js').then(reg => {
-                    console.log('SW registered');
-                }).catch(err => {
-                    console.log('SW failed:', err);
-                });
-            });
-        }
-
-        // Save this event somewhere, call .prompt() whenever you want
-        let deferredPrompt;
-        window.addEventListener('beforeinstallprompt', e => {
-            e.preventDefault();
-            deferredPrompt = e;
-            // show your custom button, then later:
-            // deferredPrompt.prompt();
-        });
-
-    </script>
-
 
 </body>
 
