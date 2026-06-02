@@ -821,9 +821,9 @@
         }
 
         #home .showcase-item.logo-gems {
-            width: 110px;
-            height: 110px;
-        }
+    width: 75px;
+    height: 75px;
+}
 
         @keyframes scrollForward {
             0% {
@@ -869,7 +869,7 @@
             width: 100%;
             height: 100%;
             background-image: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.381)),
-                url('https://i.pinimg.com/1200x/ad/10/71/ad107168e5a856dd85b44d014ddde6f1.jpg');
+                url('https://i.ibb.co/4gPMHpHC/ad107168e5a856dd85b44d014ddde6f1.jpg');
             background-position: center center;
             background-size: cover;
             background-repeat: no-repeat;
@@ -1071,7 +1071,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            margin-left: -90px;
+            margin-left: -40px;
             flex-shrink: 0;
         }
 
@@ -4115,38 +4115,19 @@
 
                                 <div class="showcase-carousel-wrapper">
                                     <div class="showcase-track">
-                                        <div class="showcase-item logo-gems"><img
-                                                src="https://i.ibb.co/VWdJm7SR/gems-removebg-preview.png"
-                                                alt="GEMS College"></div>
-                                        <div class="showcase-item"><img
-                                                src="https://i.ibb.co/s9rwCqqm/Untitled11-20260407001200.png"
-                                                alt="Team 1"></div>
-                                        <div class="showcase-item"><img
-                                                src="https://i.ibb.co/HLPCDKFX/Untitled11-20260407153814.png"
-                                                alt="Team 2"></div>
-                                        <div class="showcase-item"><img
-                                                src="https://i.ibb.co/VW9K2Sgx/Untitled11-20260406231015.png"
-                                                alt="Team 3"></div>
-                                        <div class="showcase-item"><img
-                                                src="https://i.ibb.co/zW7wnwhG/Untitled11-20260406231026.png"
-                                                alt="Team 4"></div>
-                                        <div class="showcase-item logo-gems"><img
-                                                src="https://i.ibb.co/VWdJm7SR/gems-removebg-preview.png"
-                                                alt="GEMS College"></div>
-                                        <div class="showcase-item"><img
-                                                src="https://i.ibb.co/s9rwCqqm/Untitled11-20260407001200.png"
-                                                alt="Team 1"></div>
-                                        <div class="showcase-item"><img
-                                                src="https://i.ibb.co/HLPCDKFX/Untitled11-20260407153814.png"
-                                                alt="Team 2"></div>
-                                        <div class="showcase-item"><img
-                                                src="https://i.ibb.co/VW9K2Sgx/Untitled11-20260406231015.png"
-                                                alt="Team 3"></div>
-                                        <div class="showcase-item"><img
-                                                src="https://i.ibb.co/zW7wnwhG/Untitled11-20260406231026.png"
-                                                alt="Team 4"></div>
-                                    </div>
+    <div class="showcase-item logo-gems" onclick="navigateToPage(4)" style="cursor:pointer;"><img src="https://i.ibb.co/VWdJm7SR/gems-removebg-preview.png" alt="GEMS College"></div>
+    <div class="showcase-item" onclick="navigateToPage(4); setTimeout(()=>{ document.getElementById('teamsLogoSlider').scrollTo({left:0,behavior:'smooth'}); },400);" style="cursor:pointer;"><img src="https://i.ibb.co/s9rwCqqm/Untitled11-20260407001200.png" alt="ABH"></div>
+    <div class="showcase-item" onclick="navigateToPage(4); setTimeout(()=>{ const s=document.getElementById('teamsLogoSlider'); s.scrollTo({left:s.offsetWidth,behavior:'smooth'}); },400);" style="cursor:pointer;"><img src="https://i.ibb.co/HLPCDKFX/Untitled11-20260407153814.png" alt="VYV"></div>
+    <div class="showcase-item" onclick="navigateToPage(4); setTimeout(()=>{ const s=document.getElementById('teamsLogoSlider'); s.scrollTo({left:s.offsetWidth*2,behavior:'smooth'}); },400);" style="cursor:pointer;"><img src="https://i.ibb.co/VW9K2Sgx/Untitled11-20260406231015.png" alt="ADH"></div>
+    <div class="showcase-item" onclick="navigateToPage(4); setTimeout(()=>{ const s=document.getElementById('teamsLogoSlider'); s.scrollTo({left:s.offsetWidth*3,behavior:'smooth'}); },400);" style="cursor:pointer;"><img src="https://i.ibb.co/zW7wnwhG/Untitled11-20260406231026.png" alt="PRJ"></div>
+    <div class="showcase-item logo-gems" onclick="navigateToPage(4)" style="cursor:pointer;"><img src="https://i.ibb.co/VWdJm7SR/gems-removebg-preview.png" alt="GEMS College"></div>
+    <div class="showcase-item" onclick="navigateToPage(4); setTimeout(()=>{ document.getElementById('teamsLogoSlider').scrollTo({left:0,behavior:'smooth'}); },400);" style="cursor:pointer;"><img src="https://i.ibb.co/s9rwCqqm/Untitled11-20260407001200.png" alt="ABH"></div>
+    <div class="showcase-item" onclick="navigateToPage(4); setTimeout(()=>{ const s=document.getElementById('teamsLogoSlider'); s.scrollTo({left:s.offsetWidth,behavior:'smooth'}); },400);" style="cursor:pointer;"><img src="https://i.ibb.co/HLPCDKFX/Untitled11-20260407153814.png" alt="VYV"></div>
+    <div class="showcase-item" onclick="navigateToPage(4); setTimeout(()=>{ const s=document.getElementById('teamsLogoSlider'); s.scrollTo({left:s.offsetWidth*2,behavior:'smooth'}); },400);" style="cursor:pointer;"><img src="https://i.ibb.co/VW9K2Sgx/Untitled11-20260406231015.png" alt="ADH"></div>
+    <div class="showcase-item" onclick="navigateToPage(4); setTimeout(()=>{ const s=document.getElementById('teamsLogoSlider'); s.scrollTo({left:s.offsetWidth*3,behavior:'smooth'}); },400);" style="cursor:pointer;"><img src="https://i.ibb.co/zW7wnwhG/Untitled11-20260406231026.png" alt="PRJ"></div>
+</div>
                                 </div>
+                                <p style="text-align:center; color:rgba(255,255,255,0.18); font-size:0.72rem; letter-spacing:2.5px; text-transform:uppercase; margin-top:50px; font-family:system-ui,sans-serif; font-weight:500;">website made by abhyudayans</p>
                             </div>
                         </div>
                     </div>
