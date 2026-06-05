@@ -821,9 +821,9 @@
         }
 
         #home .showcase-item.logo-gems {
-    width: 75px;
-    height: 75px;
-}
+            width: 75px;
+            height: 75px;
+        }
 
         @keyframes scrollForward {
             0% {
@@ -1111,22 +1111,24 @@
         }
 
         .match-type-badge {
-    font-size: 10px;
-    font-weight: 700;
-    letter-spacing: 1px;
-    text-transform: uppercase;
-    color: rgba(255, 255, 255, 0.45);
-    text-shadow: 0 0 8px rgba(255, 255, 255, 0.25);
-    white-space: nowrap;
-}
-.match-type-badge.grand-final {
-    color: rgba(212, 175, 55, 0.85);
-    text-shadow: 0 0 10px rgba(212, 175, 55, 0.5);
-}
-.match-type-badge.semi-final {
-    color: rgba(0, 255, 204, 0.75);
-    text-shadow: 0 0 10px rgba(0, 255, 204, 0.4);
-}
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            color: rgba(255, 255, 255, 0.45);
+            text-shadow: 0 0 8px rgba(255, 255, 255, 0.25);
+            white-space: nowrap;
+        }
+
+        .match-type-badge.grand-final {
+            color: rgba(212, 175, 55, 0.85);
+            text-shadow: 0 0 10px rgba(212, 175, 55, 0.5);
+        }
+
+        .match-type-badge.semi-final {
+            color: rgba(0, 255, 204, 0.75);
+            text-shadow: 0 0 10px rgba(0, 255, 204, 0.4);
+        }
 
         #live .live-tag-text {
             color: #ff3b30;
@@ -1668,10 +1670,12 @@
             align-items: flex-start;
             gap: 16px;
             width: 100%;
-            height: calc(100% - 195px); /* Constrained height to keep scroll container on screen */
+            height: calc(100% - 195px);
+            /* Constrained height to keep scroll container on screen */
             overflow-x: auto;
             overflow-y: hidden;
-            padding: 10px 10vw 40px 10vw; /* Refined padding for maximum viewport economy */
+            padding: 10px 10vw 40px 10vw;
+            /* Refined padding for maximum viewport economy */
             scroll-snap-type: x mandatory;
             -webkit-overflow-scrolling: touch;
             margin-top: 195px;
@@ -2340,7 +2344,8 @@
 
         /* Results focused card — allow inner scroll and prevent screen boundary overflow */
         #results .gyro-3d-box-container.card-focused .gyro-3d-box {
-            max-height: calc(100dvh - 250px); /* Explicit limit to prevent offscreen bleeding */
+            max-height: calc(100dvh - 250px);
+            /* Explicit limit to prevent offscreen bleeding */
             overflow-y: auto;
             overflow-x: hidden;
             -webkit-overflow-scrolling: touch;
@@ -3850,7 +3855,8 @@
         }
 
         body.perf-mode #results .gyro-3d-box {
-            max-height: calc(100dvh - 250px) !important; /* Unified boundary containment */
+            max-height: calc(100dvh - 250px) !important;
+            /* Unified boundary containment */
             overflow-y: auto;
             overflow-x: hidden;
             -webkit-overflow-scrolling: touch;
@@ -3893,11 +3899,25 @@
 
         /* Carousel animations —  perf mode */
         @keyframes perfSimpleFade {
-            0%   { opacity: 1; }
-            30%  { opacity: 1; }
-            40%  { opacity: 0; }
-            90%  { opacity: 0; }
-            100% { opacity: 1; }
+            0% {
+                opacity: 1;
+            }
+
+            30% {
+                opacity: 1;
+            }
+
+            40% {
+                opacity: 0;
+            }
+
+            90% {
+                opacity: 0;
+            }
+
+            100% {
+                opacity: 1;
+            }
         }
 
         body.perf-mode #live .carousel-section-box img,
@@ -4133,19 +4153,59 @@
 
                                 <div class="showcase-carousel-wrapper">
                                     <div class="showcase-track">
-    <div class="showcase-item logo-gems" onclick="navigateToPage(4)" style="cursor:pointer;"><img src="https://i.ibb.co/VWdJm7SR/gems-removebg-preview.png" alt="GEMS College"></div>
-    <div class="showcase-item" onclick="navigateToPage(4); setTimeout(()=>{ document.getElementById('teamsLogoSlider').scrollTo({left:0,behavior:'smooth'}); },400);" style="cursor:pointer;"><img src="https://i.ibb.co/s9rwCqqm/Untitled11-20260407001200.png" alt="ABH"></div>
-    <div class="showcase-item" onclick="navigateToPage(4); setTimeout(()=>{ const s=document.getElementById('teamsLogoSlider'); s.scrollTo({left:s.offsetWidth,behavior:'smooth'}); },400);" style="cursor:pointer;"><img src="https://i.ibb.co/HLPCDKFX/Untitled11-20260407153814.png" alt="VYV"></div>
-    <div class="showcase-item" onclick="navigateToPage(4); setTimeout(()=>{ const s=document.getElementById('teamsLogoSlider'); s.scrollTo({left:s.offsetWidth*2,behavior:'smooth'}); },400);" style="cursor:pointer;"><img src="https://i.ibb.co/VW9K2Sgx/Untitled11-20260406231015.png" alt="ADH"></div>
-    <div class="showcase-item" onclick="navigateToPage(4); setTimeout(()=>{ const s=document.getElementById('teamsLogoSlider'); s.scrollTo({left:s.offsetWidth*3,behavior:'smooth'}); },400);" style="cursor:pointer;"><img src="https://i.ibb.co/zW7wnwhG/Untitled11-20260406231026.png" alt="PRJ"></div>
-    <div class="showcase-item logo-gems" onclick="navigateToPage(4)" style="cursor:pointer;"><img src="https://i.ibb.co/VWdJm7SR/gems-removebg-preview.png" alt="GEMS College"></div>
-    <div class="showcase-item" onclick="navigateToPage(4); setTimeout(()=>{ document.getElementById('teamsLogoSlider').scrollTo({left:0,behavior:'smooth'}); },400);" style="cursor:pointer;"><img src="https://i.ibb.co/s9rwCqqm/Untitled11-20260407001200.png" alt="ABH"></div>
-    <div class="showcase-item" onclick="navigateToPage(4); setTimeout(()=>{ const s=document.getElementById('teamsLogoSlider'); s.scrollTo({left:s.offsetWidth,behavior:'smooth'}); },400);" style="cursor:pointer;"><img src="https://i.ibb.co/HLPCDKFX/Untitled11-20260407153814.png" alt="VYV"></div>
-    <div class="showcase-item" onclick="navigateToPage(4); setTimeout(()=>{ const s=document.getElementById('teamsLogoSlider'); s.scrollTo({left:s.offsetWidth*2,behavior:'smooth'}); },400);" style="cursor:pointer;"><img src="https://i.ibb.co/VW9K2Sgx/Untitled11-20260406231015.png" alt="ADH"></div>
-    <div class="showcase-item" onclick="navigateToPage(4); setTimeout(()=>{ const s=document.getElementById('teamsLogoSlider'); s.scrollTo({left:s.offsetWidth*3,behavior:'smooth'}); },400);" style="cursor:pointer;"><img src="https://i.ibb.co/zW7wnwhG/Untitled11-20260406231026.png" alt="PRJ"></div>
-</div>
+                                        <div class="showcase-item logo-gems" onclick="navigateToPage(4)"
+                                            style="cursor:pointer;"><img
+                                                src="https://i.ibb.co/VWdJm7SR/gems-removebg-preview.png"
+                                                alt="GEMS College"></div>
+                                        <div class="showcase-item"
+                                            onclick="navigateToPage(4); setTimeout(()=>{ document.getElementById('teamsLogoSlider').scrollTo({left:0,behavior:'smooth'}); },400);"
+                                            style="cursor:pointer;"><img
+                                                src="https://i.ibb.co/s9rwCqqm/Untitled11-20260407001200.png" alt="ABH">
+                                        </div>
+                                        <div class="showcase-item"
+                                            onclick="navigateToPage(4); setTimeout(()=>{ const s=document.getElementById('teamsLogoSlider'); s.scrollTo({left:s.offsetWidth,behavior:'smooth'}); },400);"
+                                            style="cursor:pointer;"><img
+                                                src="https://i.ibb.co/HLPCDKFX/Untitled11-20260407153814.png" alt="VYV">
+                                        </div>
+                                        <div class="showcase-item"
+                                            onclick="navigateToPage(4); setTimeout(()=>{ const s=document.getElementById('teamsLogoSlider'); s.scrollTo({left:s.offsetWidth*2,behavior:'smooth'}); },400);"
+                                            style="cursor:pointer;"><img
+                                                src="https://i.ibb.co/VW9K2Sgx/Untitled11-20260406231015.png" alt="ADH">
+                                        </div>
+                                        <div class="showcase-item"
+                                            onclick="navigateToPage(4); setTimeout(()=>{ const s=document.getElementById('teamsLogoSlider'); s.scrollTo({left:s.offsetWidth*3,behavior:'smooth'}); },400);"
+                                            style="cursor:pointer;"><img
+                                                src="https://i.ibb.co/zW7wnwhG/Untitled11-20260406231026.png" alt="PRJ">
+                                        </div>
+                                        <div class="showcase-item logo-gems" onclick="navigateToPage(4)"
+                                            style="cursor:pointer;"><img
+                                                src="https://i.ibb.co/VWdJm7SR/gems-removebg-preview.png"
+                                                alt="GEMS College"></div>
+                                        <div class="showcase-item"
+                                            onclick="navigateToPage(4); setTimeout(()=>{ document.getElementById('teamsLogoSlider').scrollTo({left:0,behavior:'smooth'}); },400);"
+                                            style="cursor:pointer;"><img
+                                                src="https://i.ibb.co/s9rwCqqm/Untitled11-20260407001200.png" alt="ABH">
+                                        </div>
+                                        <div class="showcase-item"
+                                            onclick="navigateToPage(4); setTimeout(()=>{ const s=document.getElementById('teamsLogoSlider'); s.scrollTo({left:s.offsetWidth,behavior:'smooth'}); },400);"
+                                            style="cursor:pointer;"><img
+                                                src="https://i.ibb.co/HLPCDKFX/Untitled11-20260407153814.png" alt="VYV">
+                                        </div>
+                                        <div class="showcase-item"
+                                            onclick="navigateToPage(4); setTimeout(()=>{ const s=document.getElementById('teamsLogoSlider'); s.scrollTo({left:s.offsetWidth*2,behavior:'smooth'}); },400);"
+                                            style="cursor:pointer;"><img
+                                                src="https://i.ibb.co/VW9K2Sgx/Untitled11-20260406231015.png" alt="ADH">
+                                        </div>
+                                        <div class="showcase-item"
+                                            onclick="navigateToPage(4); setTimeout(()=>{ const s=document.getElementById('teamsLogoSlider'); s.scrollTo({left:s.offsetWidth*3,behavior:'smooth'}); },400);"
+                                            style="cursor:pointer;"><img
+                                                src="https://i.ibb.co/zW7wnwhG/Untitled11-20260406231026.png" alt="PRJ">
+                                        </div>
+                                    </div>
                                 </div>
-                                <p style="text-align:center; color:rgba(255,255,255,0.18); font-size:0.72rem; letter-spacing:2.5px; text-transform:uppercase; margin-top:50px; font-family:system-ui,sans-serif; font-weight:500;">website made by abhyudayans</p>
+                                <p
+                                    style="text-align:center; color:rgba(255,255,255,0.18); font-size:0.72rem; letter-spacing:2.5px; text-transform:uppercase; margin-top:50px; font-family:system-ui,sans-serif; font-weight:500;">
+                                    website made by abhyudayans</p>
                             </div>
                         </div>
                     </div>
@@ -4181,9 +4241,9 @@
                                             <span class="sport-label-text">Cricket</span>
                                         </div>
                                         <div class="innings-status-badge">
-    <span id="cricketInningsText">--</span>
-</div>
-<span class="match-type-badge" id="cricketMatchTypeBadge"></span>
+                                            <span id="cricketInningsText">--</span>
+                                        </div>
+                                        <span class="match-type-badge" id="cricketMatchTypeBadge"></span>
                                         <div id="cricketStatusBadge" class="live-broadcast-indicator">
                                             <div class="pulsating-indicator-dot"></div>
                                             <span class="live-tag-text">Live</span>
@@ -4261,9 +4321,9 @@
                                             <span class="sport-label-text">Basketball</span>
                                         </div>
                                         <div class="innings-status-badge">
-    <span id="basketballPeriodText">--</span>
-</div>
-<span class="match-type-badge" id="basketballMatchTypeBadge"></span>
+                                            <span id="basketballPeriodText">--</span>
+                                        </div>
+                                        <span class="match-type-badge" id="basketballMatchTypeBadge"></span>
                                         <div id="basketballStatusBadge" class="live-broadcast-indicator">
                                             <div class="pulsating-indicator-dot"></div>
                                             <span class="live-tag-text">Live</span>
@@ -4316,9 +4376,9 @@
                                             <span class="sport-label-text">Badminton</span>
                                         </div>
                                         <div class="innings-status-badge">
-    <span id="badmintonPeriodText">--</span>
-</div>
-<span class="match-type-badge" id="badmintonMatchTypeBadge"></span>
+                                            <span id="badmintonPeriodText">--</span>
+                                        </div>
+                                        <span class="match-type-badge" id="badmintonMatchTypeBadge"></span>
                                         <div id="badmintonStatusBadge" class="live-broadcast-indicator">
                                             <div class="pulsating-indicator-dot"></div>
                                             <span class="live-tag-text">Live</span>
@@ -4370,9 +4430,9 @@
                                             <span class="sport-label-text">Volleyball</span>
                                         </div>
                                         <div class="innings-status-badge">
-    <span id="volleyballPeriodText">--</span>
-</div>
-<span class="match-type-badge" id="volleyballMatchTypeBadge"></span>
+                                            <span id="volleyballPeriodText">--</span>
+                                        </div>
+                                        <span class="match-type-badge" id="volleyballMatchTypeBadge"></span>
                                         <div id="volleyballStatusBadge" class="live-broadcast-indicator">
                                             <div class="pulsating-indicator-dot"></div>
                                             <span class="live-tag-text">Live</span>
@@ -4422,9 +4482,9 @@
                                             <span class="sport-label-text">Throwball</span>
                                         </div>
                                         <div class="innings-status-badge">
-    <span id="throwballPeriodText">--</span>
-</div>
-<span class="match-type-badge" id="throwballMatchTypeBadge"></span>
+                                            <span id="throwballPeriodText">--</span>
+                                        </div>
+                                        <span class="match-type-badge" id="throwballMatchTypeBadge"></span>
                                         <div id="throwballStatusBadge" class="live-broadcast-indicator">
                                             <div class="pulsating-indicator-dot"></div>
                                             <span class="live-tag-text">Live</span>
@@ -6292,11 +6352,11 @@
         const el = id => document.getElementById(id);
 
         function matchTypeBadgeHTML(matchType) {
-    if (!matchType || matchType === 'league') return '<span class="match-type-badge">League</span>';
-    if (matchType === 'semi_final') return '<span class="match-type-badge semi-final">Semi-Final</span>';
-    if (matchType === 'grand_final') return '<span class="match-type-badge grand-final">Grand Final</span>';
-    return `<span class="match-type-badge">${matchType}</span>`;
-}
+            if (!matchType || matchType === 'league') return '<span class="match-type-badge">League</span>';
+            if (matchType === 'semi_final') return '<span class="match-type-badge semi-final">Semi-Final</span>';
+            if (matchType === 'grand_final') return '<span class="match-type-badge grand-final">Grand Final</span>';
+            return `<span class="match-type-badge">${matchType}</span>`;
+        }
 
 
         /* ── PART 1: REAL-TIME LIVE SCORES MODULE ── */
@@ -6397,13 +6457,13 @@
             el('cricketTeam2Overs').textContent = `(${formatOvers(b2)})`;
             el('cricketInningsText').textContent = inn === 1 ? '1st Innings' : '2nd Innings';
             const crBadge = el('cricketMatchTypeBadge');
-if (crBadge) {
-    const mt = rec.matchType || 'league';
-    crBadge.textContent = mt === 'league' ? 'League' : mt === 'semi_final' ? 'Semi-Final' : 'Grand Final';
-    crBadge.className = 'match-type-badge' + (mt === 'grand_final' ? ' grand-final' : mt === 'semi_final' ? ' semi-final' : '');
-}
+            if (crBadge) {
+                const mt = rec.matchType || 'league';
+                crBadge.textContent = mt === 'league' ? 'League' : mt === 'semi_final' ? 'Semi-Final' : 'Grand Final';
+                crBadge.className = 'match-type-badge' + (mt === 'grand_final' ? ' grand-final' : mt === 'semi_final' ? ' semi-final' : '');
+            }
             const crMTBadge = el('cricketMatchTypeBadge');
-if (crMTBadge) crMTBadge.outerHTML = matchTypeBadgeHTML(rec.matchType);
+            if (crMTBadge) crMTBadge.outerHTML = matchTypeBadgeHTML(rec.matchType);
             const toss = rec.toss || '';
             el('team1TossCoin').style.display = (toss === t1) ? 'inline-block' : 'none';
             el('team2TossCoin').style.display = (toss === t2) ? 'inline-block' : 'none';
@@ -6497,11 +6557,11 @@ if (crMTBadge) crMTBadge.outerHTML = matchTypeBadgeHTML(rec.matchType);
             el('basketballTeam1Score').textContent = sc1; el('basketballTeam2Score').textContent = sc2;
             el('basketballPeriodText').textContent = rec.period || '';
             const bbBadge = el('basketballMatchTypeBadge');
-if (bbBadge) {
-    const mt = rec.matchType || 'league';
-    bbBadge.textContent = mt === 'league' ? 'League' : mt === 'semi_final' ? 'Semi-Final' : 'Grand Final';
-    bbBadge.className = 'match-type-badge' + (mt === 'grand_final' ? ' grand-final' : mt === 'semi_final' ? ' semi-final' : '');
-}
+            if (bbBadge) {
+                const mt = rec.matchType || 'league';
+                bbBadge.textContent = mt === 'league' ? 'League' : mt === 'semi_final' ? 'Semi-Final' : 'Grand Final';
+                bbBadge.className = 'match-type-badge' + (mt === 'grand_final' ? ' grand-final' : mt === 'semi_final' ? ' semi-final' : '');
+            }
             setStatusBadge('basketballStatusBadge', rec.status);
             const matchOver = (rec.period === 'Full Time') || isFinal;
             const banner = el('basketballWinnerBanner');
@@ -6549,11 +6609,11 @@ if (bbBadge) {
             el('badmintonTeam2Score').textContent = curSet[1];
             el('badmintonPeriodText').textContent = `Game ${cg + 1}`;
             const bdBadge = el('badmintonMatchTypeBadge');
-if (bdBadge) {
-    const mt = rec.matchType || 'league';
-    bdBadge.textContent = mt === 'league' ? 'League' : mt === 'semi_final' ? 'Semi-Final' : 'Grand Final';
-    bdBadge.className = 'match-type-badge' + (mt === 'grand_final' ? ' grand-final' : mt === 'semi_final' ? ' semi-final' : '');
-}
+            if (bdBadge) {
+                const mt = rec.matchType || 'league';
+                bdBadge.textContent = mt === 'league' ? 'League' : mt === 'semi_final' ? 'Semi-Final' : 'Grand Final';
+                bdBadge.className = 'match-type-badge' + (mt === 'grand_final' ? ' grand-final' : mt === 'semi_final' ? ' semi-final' : '');
+            }
             el('badmintonInsightText').textContent = `Games won: ${w1} - ${w2}`;
             const matchOver = (w1 >= 2 || w2 >= 2) || isFinal;
             const banner = el('badmintonWinnerBanner');
@@ -6608,11 +6668,11 @@ if (bdBadge) {
             el(`${sport}Team1Score`).textContent = curSet[0]; el(`${sport}Team2Score`).textContent = curSet[1];
             el(`${sport}PeriodText`).textContent = `Set ${cg + 1}`;
             const courtBadge = el(`${sport}MatchTypeBadge`);
-if (courtBadge) {
-    const mt = rec.matchType || 'league';
-    courtBadge.textContent = mt === 'league' ? 'League' : mt === 'semi_final' ? 'Semi-Final' : 'Grand Final';
-    courtBadge.className = 'match-type-badge' + (mt === 'grand_final' ? ' grand-final' : mt === 'semi_final' ? ' semi-final' : '');
-}
+            if (courtBadge) {
+                const mt = rec.matchType || 'league';
+                courtBadge.textContent = mt === 'league' ? 'League' : mt === 'semi_final' ? 'Semi-Final' : 'Grand Final';
+                courtBadge.className = 'match-type-badge' + (mt === 'grand_final' ? ' grand-final' : mt === 'semi_final' ? ' semi-final' : '');
+            }
             el(`${sport}InsightText`).textContent = `Sets won: ${w1} - ${w2}`;
             const matchOver = (w1 >= 2 || w2 >= 2) || isFinal;
             const banner = el(`${sport}WinnerBanner`);
@@ -7250,9 +7310,12 @@ ${matchTypeBadgeHTML(rec.matchType)}
         }
 
         function getResultOnlyCardHTML(rec, cardId) {
-            const t1 = rec.team1 || '--', t2 = rec.team2 || '--';
-            const logo1 = rec.team1Logo || getLogo(t1, rec);
-            const logo2 = rec.team2Logo || getLogo(t2, rec);
+            const t1Base = rec.team1 || '--';
+            const t2Base = rec.team2 || '--';
+            const t1 = rec.team1DisplayName ? `${t1Base} ${rec.team1DisplayName}` : t1Base;
+            const t2 = rec.team2DisplayName ? `${t2Base} ${rec.team2DisplayName}` : t2Base;
+            const logo1 = rec.team1Logo || getLogo(t1Base, rec);
+            const logo2 = rec.team2Logo || getLogo(t2Base, rec);
             const sc1 = rec.team1Score ?? '0';
             const sc2 = rec.team2Score ?? '0';
             const sportLabel = rec.sport
@@ -7643,7 +7706,7 @@ ${matchTypeBadgeHTML(rec.matchType)}
             debouncedRender();
         });
 
-        const resultOnlySports = ['tug_of_war', 'ball_badminton']; 
+        const resultOnlySports = ['tug_of_war', 'ball_badminton'];
 
         onValue(ref(db, 'matches_archive'), snapshot => {
             if (!snapshot.exists()) return;
