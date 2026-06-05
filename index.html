@@ -8,7 +8,7 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="format-detection" content="telephone=no">
-    <title>Sports Fest</title>
+    <title>Abhyudayans Sports Fest App</title>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -1109,6 +1109,24 @@
             border-radius: 50%;
             animation: liveIndicatorPulse 1.8s ease-out infinite;
         }
+
+        .match-type-badge {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.45);
+    text-shadow: 0 0 8px rgba(255, 255, 255, 0.25);
+    white-space: nowrap;
+}
+.match-type-badge.grand-final {
+    color: rgba(212, 175, 55, 0.85);
+    text-shadow: 0 0 10px rgba(212, 175, 55, 0.5);
+}
+.match-type-badge.semi-final {
+    color: rgba(0, 255, 204, 0.75);
+    text-shadow: 0 0 10px rgba(0, 255, 204, 0.4);
+}
 
         #live .live-tag-text {
             color: #ff3b30;
@@ -4163,8 +4181,9 @@
                                             <span class="sport-label-text">Cricket</span>
                                         </div>
                                         <div class="innings-status-badge">
-                                            <span id="cricketInningsText">--</span>
-                                        </div>
+    <span id="cricketInningsText">--</span>
+</div>
+<span class="match-type-badge" id="cricketMatchTypeBadge"></span>
                                         <div id="cricketStatusBadge" class="live-broadcast-indicator">
                                             <div class="pulsating-indicator-dot"></div>
                                             <span class="live-tag-text">Live</span>
@@ -4242,8 +4261,9 @@
                                             <span class="sport-label-text">Basketball</span>
                                         </div>
                                         <div class="innings-status-badge">
-                                            <span id="basketballPeriodText">--</span>
-                                        </div>
+    <span id="basketballPeriodText">--</span>
+</div>
+<span class="match-type-badge" id="basketballMatchTypeBadge"></span>
                                         <div id="basketballStatusBadge" class="live-broadcast-indicator">
                                             <div class="pulsating-indicator-dot"></div>
                                             <span class="live-tag-text">Live</span>
@@ -4296,8 +4316,9 @@
                                             <span class="sport-label-text">Badminton</span>
                                         </div>
                                         <div class="innings-status-badge">
-                                            <span id="badmintonPeriodText">--</span>
-                                        </div>
+    <span id="badmintonPeriodText">--</span>
+</div>
+<span class="match-type-badge" id="badmintonMatchTypeBadge"></span>
                                         <div id="badmintonStatusBadge" class="live-broadcast-indicator">
                                             <div class="pulsating-indicator-dot"></div>
                                             <span class="live-tag-text">Live</span>
@@ -4349,8 +4370,9 @@
                                             <span class="sport-label-text">Volleyball</span>
                                         </div>
                                         <div class="innings-status-badge">
-                                            <span id="volleyballPeriodText">--</span>
-                                        </div>
+    <span id="volleyballPeriodText">--</span>
+</div>
+<span class="match-type-badge" id="volleyballMatchTypeBadge"></span>
                                         <div id="volleyballStatusBadge" class="live-broadcast-indicator">
                                             <div class="pulsating-indicator-dot"></div>
                                             <span class="live-tag-text">Live</span>
@@ -4400,8 +4422,9 @@
                                             <span class="sport-label-text">Throwball</span>
                                         </div>
                                         <div class="innings-status-badge">
-                                            <span id="throwballPeriodText">--</span>
-                                        </div>
+    <span id="throwballPeriodText">--</span>
+</div>
+<span class="match-type-badge" id="throwballMatchTypeBadge"></span>
                                         <div id="throwballStatusBadge" class="live-broadcast-indicator">
                                             <div class="pulsating-indicator-dot"></div>
                                             <span class="live-tag-text">Live</span>
@@ -6268,6 +6291,13 @@
 
         const el = id => document.getElementById(id);
 
+        function matchTypeBadgeHTML(matchType) {
+    if (!matchType || matchType === 'league') return '<span class="match-type-badge">League</span>';
+    if (matchType === 'semi_final') return '<span class="match-type-badge semi-final">Semi-Final</span>';
+    if (matchType === 'grand_final') return '<span class="match-type-badge grand-final">Grand Final</span>';
+    return `<span class="match-type-badge">${matchType}</span>`;
+}
+
 
         /* ── PART 1: REAL-TIME LIVE SCORES MODULE ── */
 
@@ -6366,6 +6396,14 @@
             el('cricketTeam2Score').textContent = `${s2.r}/${s2.w}`;
             el('cricketTeam2Overs').textContent = `(${formatOvers(b2)})`;
             el('cricketInningsText').textContent = inn === 1 ? '1st Innings' : '2nd Innings';
+            const crBadge = el('cricketMatchTypeBadge');
+if (crBadge) {
+    const mt = rec.matchType || 'league';
+    crBadge.textContent = mt === 'league' ? 'League' : mt === 'semi_final' ? 'Semi-Final' : 'Grand Final';
+    crBadge.className = 'match-type-badge' + (mt === 'grand_final' ? ' grand-final' : mt === 'semi_final' ? ' semi-final' : '');
+}
+            const crMTBadge = el('cricketMatchTypeBadge');
+if (crMTBadge) crMTBadge.outerHTML = matchTypeBadgeHTML(rec.matchType);
             const toss = rec.toss || '';
             el('team1TossCoin').style.display = (toss === t1) ? 'inline-block' : 'none';
             el('team2TossCoin').style.display = (toss === t2) ? 'inline-block' : 'none';
@@ -6458,6 +6496,12 @@
             const sc1 = rec.team1Score ?? 0, sc2 = rec.team2Score ?? 0;
             el('basketballTeam1Score').textContent = sc1; el('basketballTeam2Score').textContent = sc2;
             el('basketballPeriodText').textContent = rec.period || '';
+            const bbBadge = el('basketballMatchTypeBadge');
+if (bbBadge) {
+    const mt = rec.matchType || 'league';
+    bbBadge.textContent = mt === 'league' ? 'League' : mt === 'semi_final' ? 'Semi-Final' : 'Grand Final';
+    bbBadge.className = 'match-type-badge' + (mt === 'grand_final' ? ' grand-final' : mt === 'semi_final' ? ' semi-final' : '');
+}
             setStatusBadge('basketballStatusBadge', rec.status);
             const matchOver = (rec.period === 'Full Time') || isFinal;
             const banner = el('basketballWinnerBanner');
@@ -6504,6 +6548,12 @@
             el('badmintonTeam1Score').textContent = curSet[0];
             el('badmintonTeam2Score').textContent = curSet[1];
             el('badmintonPeriodText').textContent = `Game ${cg + 1}`;
+            const bdBadge = el('badmintonMatchTypeBadge');
+if (bdBadge) {
+    const mt = rec.matchType || 'league';
+    bdBadge.textContent = mt === 'league' ? 'League' : mt === 'semi_final' ? 'Semi-Final' : 'Grand Final';
+    bdBadge.className = 'match-type-badge' + (mt === 'grand_final' ? ' grand-final' : mt === 'semi_final' ? ' semi-final' : '');
+}
             el('badmintonInsightText').textContent = `Games won: ${w1} - ${w2}`;
             const matchOver = (w1 >= 2 || w2 >= 2) || isFinal;
             const banner = el('badmintonWinnerBanner');
@@ -6557,6 +6607,12 @@
             const cg = sets.length - 1, curSet = sets[cg] || [0, 0];
             el(`${sport}Team1Score`).textContent = curSet[0]; el(`${sport}Team2Score`).textContent = curSet[1];
             el(`${sport}PeriodText`).textContent = `Set ${cg + 1}`;
+            const courtBadge = el(`${sport}MatchTypeBadge`);
+if (courtBadge) {
+    const mt = rec.matchType || 'league';
+    courtBadge.textContent = mt === 'league' ? 'League' : mt === 'semi_final' ? 'Semi-Final' : 'Grand Final';
+    courtBadge.className = 'match-type-badge' + (mt === 'grand_final' ? ' grand-final' : mt === 'semi_final' ? ' semi-final' : '');
+}
             el(`${sport}InsightText`).textContent = `Sets won: ${w1} - ${w2}`;
             const matchOver = (w1 >= 2 || w2 >= 2) || isFinal;
             const banner = el(`${sport}WinnerBanner`);
@@ -6898,8 +6954,9 @@
                             <span class="sport-label-text">Cricket</span>
                         </div>
                         <div class="innings-status-badge">
-                            <span>${inn === 1 ? '1st Innings' : '2nd Innings'}</span>
-                        </div>
+    <span>${inn === 1 ? '1st Innings' : '2nd Innings'}</span>
+</div>
+${matchTypeBadgeHTML(rec.matchType)}
                         <div class="finished-broadcast-indicator">
                             <span class="finished-tag-text">FINISHED</span>
                         </div>
@@ -6975,8 +7032,9 @@
                             <span class="sport-label-text">Basketball</span>
                         </div>
                         <div class="innings-status-badge">
-                            <span>${period}</span>
-                        </div>
+    <span>${period}</span>
+</div>
+${matchTypeBadgeHTML(rec.matchType)}
                         <div class="finished-broadcast-indicator">
                             <span class="finished-tag-text">FINISHED</span>
                         </div>
@@ -7061,8 +7119,9 @@
                             <span class="sport-label-text">Badminton</span>
                         </div>
                         <div class="innings-status-badge">
-                            <span>Game ${cg + 1}</span>
-                        </div>
+    <span>Game ${cg + 1}</span>
+</div>
+${matchTypeBadgeHTML(rec.matchType)}
                         <div class="finished-broadcast-indicator">
                             <span class="finished-tag-text">FINISHED</span>
                         </div>
@@ -7146,8 +7205,9 @@
                             <span class="sport-label-text">${sportLabel}</span>
                         </div>
                         <div class="innings-status-badge">
-                            <span>Set ${cg + 1}</span>
-                        </div>
+    <span>Set ${cg + 1}</span>
+</div>
+${matchTypeBadgeHTML(rec.matchType)}
                         <div class="finished-broadcast-indicator">
                             <span class="finished-tag-text">FINISHED</span>
                         </div>
@@ -7220,9 +7280,10 @@
         <div class="sport-brand-identity">
           <span class="sport-label-text">${sportLabel}</span>
         </div>
-        <div class="finished-broadcast-indicator">
-          <span class="finished-tag-text">FINISHED</span>
-        </div>
+        ${matchTypeBadgeHTML(rec.matchType)}
+<div class="finished-broadcast-indicator">
+    <span class="finished-tag-text">FINISHED</span>
+</div>
       </div>
       <div class="scorecard-header-divider"></div>
       <div class="match-field-arena">
