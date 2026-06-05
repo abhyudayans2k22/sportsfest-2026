@@ -1416,25 +1416,41 @@
                 <option value="grand_final">Grand Final</option>
             </select>
 
-            <!-- Gender Toggle -->
-            <label class="md-lbl">Gender</label>
-            <div class="gender-toggle" style="margin-bottom:12px;">
-                <button class="g-btn" id="roBoysBtn" onclick="setRoGender('B')"
-                    style="background:#00ffcc;color:#0d0e12;">♂ Boys</button>
-                <button class="g-btn" id="roGirlsBtn" onclick="setRoGender('G')">♀ Girls</button>
-            </div>
+
 
             <!-- Team Selection -->
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;">
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:8px;">
                 <div>
                     <label class="md-lbl">Team 1</label>
-                    <select id="roT1Sel" class="sel-wp"
-                        style="width:100%;background:#161920;border:1px solid #242936;color:#fff;padding:10px;border-radius:8px;font-size:0.85rem;font-weight:600;outline:none;"></select>
+                    <select id="roT1Sel"
+                        style="width:100%;background:#161920;border:1px solid #242936;color:#fff;padding:10px;border-radius:8px;font-size:0.85rem;font-weight:600;outline:none;appearance:none;">
+                        <option value="ABH-B">ABH Boys</option>
+                        <option value="ABH-G">ABH Girls</option>
+                        <option value="VYV-B">VYV Boys</option>
+                        <option value="VYV-G">VYV Girls</option>
+                        <option value="ADH-B">ADH Boys</option>
+                        <option value="ADH-G">ADH Girls</option>
+                        <option value="PRJ-B">PRJ Boys</option>
+                        <option value="PRJ-G">PRJ Girls</option>
+                    </select>
+                    <input type="text" id="roT1Name" class="md-ipt" placeholder="Custom player/team name (optional)"
+                        style="margin-top:6px;margin-bottom:0;font-size:0.8rem;">
                 </div>
                 <div>
                     <label class="md-lbl">Team 2</label>
-                    <select id="roT2Sel" class="sel-wp"
-                        style="width:100%;background:#161920;border:1px solid #242936;color:#fff;padding:10px;border-radius:8px;font-size:0.85rem;font-weight:600;outline:none;"></select>
+                    <select id="roT2Sel"
+                        style="width:100%;background:#161920;border:1px solid #242936;color:#fff;padding:10px;border-radius:8px;font-size:0.85rem;font-weight:600;outline:none;appearance:none;">
+                        <option value="ABH-B">ABH Boys</option>
+                        <option value="ABH-G">ABH Girls</option>
+                        <option value="VYV-B">VYV Boys</option>
+                        <option value="VYV-G">VYV Girls</option>
+                        <option value="ADH-B">ADH Boys</option>
+                        <option value="ADH-G">ADH Girls</option>
+                        <option value="PRJ-B">PRJ Boys</option>
+                        <option value="PRJ-G">PRJ Girls</option>
+                    </select>
+                    <input type="text" id="roT2Name" class="md-ipt" placeholder="Custom player/team name (optional)"
+                        style="margin-top:6px;margin-bottom:0;font-size:0.8rem;">
                 </div>
             </div>
 
@@ -2566,6 +2582,17 @@
                 }
                 updUI();
 
+                // Restore live button visibility and state
+                const lvBtnMap = { cricket: 'lvBtn', basketball: 'bbLvBtn', badminton: 'bdLvBtn', volleyball: 'vlLvBtn', throwball: 'thLvBtn' };
+                const lvBtnId = lvBtnMap[sportFolder];
+                if (lvBtnId) {
+                    const lvBtnEl = document.getElementById(lvBtnId);
+                    if (lvBtnEl) {
+                        lvBtnEl.style.display = 'flex';
+                        lvBtnEl.classList.toggle('is-live', st[sportKey].lv);
+                    }
+                }
+
                 // Restore match type dropdown
                 const mtSelMap = { cricket: 'crMatchType', basketball: 'bbMatchType', badminton: 'bdMatchType', volleyball: 'vlMatchType', throwball: 'thMatchType' };
                 const mtSelId = mtSelMap[sportFolder];
@@ -2645,6 +2672,11 @@
                         scoreLine = sets || `Sets: ${rec.setsWon || '0-0'}`;
                     }
 
+                    const matchTypeLabel = { league: 'League', semi_final: 'Semi-Final', grand_final: 'Grand Final' };
+                    const matchTypeBadge = rec.matchType && rec.matchType !== 'league'
+                        ? `<span style="font-size:0.6rem;background:rgba(255,204,0,0.12);border:1px solid rgba(255,204,0,0.3);color:#ffcc00;padding:1px 5px;border-radius:4px;margin-left:4px;">${matchTypeLabel[rec.matchType] || rec.matchType}</span>`
+                        : '';
+
                     const isFinal = rec.fn === true || rec.status === 'FINAL';
                     const statusBadge = isFinal
                         ? `<span style="font-size:0.6rem;background:rgba(0,255,204,0.1);border:1px solid rgba(0,255,204,0.2);color:#00ffcc;padding:1px 5px;border-radius:4px;margin-left:4px;">FINAL</span>`
@@ -2664,7 +2696,7 @@
                     <div class="hist-match-info">
                         <div class="hist-teams" style="color:${color};">
                             <span style="font-size:0.62rem;font-weight:700;opacity:0.7;text-transform:uppercase;letter-spacing:0.5px;">${sportFolder.replace('_', ' ')}</span>
-                            ${genderBadge}&nbsp;${t1} vs ${t2}${statusBadge}
+                            ${genderBadge}${matchTypeBadge}&nbsp;${t1} vs ${t2}${statusBadge}
                         </div>
                         <div class="hist-scores">${scoreLine}</div>
                         ${timeStr ? `<div style="font-size:0.68rem;color:#4a5568;margin-top:1px;">${timeStr}</div>` : ''}
@@ -2709,78 +2741,28 @@
         let editingRoMatchId = null;
         let editingRoCreatedAt = null;
 
-        const RO_TEAMS = {
-            B: [
-                { label: 'ABH', value: 'ABH-B' },
-                { label: 'VYV', value: 'VYV-B' },
-                { label: 'ADH', value: 'ADH-B' },
-                { label: 'PRJ', value: 'PRJ-B' },
-                { label: 'Custom...', value: 'custom' }
-            ],
-            G: [
-                { label: 'ABH', value: 'ABH-G' },
-                { label: 'VYV', value: 'VYV-G' },
-                { label: 'ADH', value: 'ADH-G' },
-                { label: 'PRJ', value: 'PRJ-G' },
-                { label: 'Custom...', value: 'custom' }
-            ]
-        };
-
-        function populateRoTeams() {
-            ['roT1Sel', 'roT2Sel'].forEach((selId, idx) => {
-                const sel = document.getElementById(selId);
-                const prev = sel.value;
-                sel.innerHTML = '';
-                RO_TEAMS[roGender].forEach(t => {
-                    const opt = new Option(t.label, t.value);
-                    sel.appendChild(opt);
-                });
-                if ([...sel.options].some(o => o.value === prev)) sel.value = prev;
-
-                const customId = idx === 0 ? 'roT1Custom' : 'roT2Custom';
-                let customBox = document.getElementById(customId);
-                if (!customBox) {
-                    customBox = document.createElement('input');
-                    customBox.type = 'text';
-                    customBox.id = customId;
-                    customBox.className = 'md-ipt';
-                    customBox.placeholder = 'Custom team name';
-                    customBox.style.display = 'none';
-                    customBox.style.marginTop = '6px';
-                    sel.parentNode.appendChild(customBox);
-                }
-                sel.onchange = () => {
-                    customBox.style.display = sel.value === 'custom' ? 'block' : 'none';
-                    updateRoScoreLabels();
-                };
-            });
-            updateRoScoreLabels();
-        }
-
         function updateRoScoreLabels() {
-            const getLabel = (selId, customId) => {
+            const getLabel = (selId, nameId) => {
                 const sel = document.getElementById(selId);
-                if (!sel) return 'Team';
-                if (sel.value === 'custom') {
-                    const c = document.getElementById(customId);
-                    return (c && c.value.trim()) ? c.value.trim() : 'Custom Team';
-                }
-                return sel.options[sel.selectedIndex]?.text || 'Team';
+                const nameBox = document.getElementById(nameId);
+                const baseName = sel ? sel.options[sel.selectedIndex]?.text : 'Team';
+                const custom = nameBox ? nameBox.value.trim() : '';
+                return (custom ? baseName + ' ' + custom : baseName) + ' Score';
             };
             const lbl1 = document.getElementById('roT1ScoreLbl');
             const lbl2 = document.getElementById('roT2ScoreLbl');
-            if (lbl1) lbl1.textContent = getLabel('roT1Sel', 'roT1Custom') + ' Score';
-            if (lbl2) lbl2.textContent = getLabel('roT2Sel', 'roT2Custom') + ' Score';
+            if (lbl1) lbl1.textContent = getLabel('roT1Sel', 'roT1Name');
+            if (lbl2) lbl2.textContent = getLabel('roT2Sel', 'roT2Name');
         }
 
-        window.setRoGender = function (gender) {
-            roGender = gender;
-            document.getElementById('roBoysBtn').style.background = gender === 'B' ? '#00ffcc' : 'transparent';
-            document.getElementById('roBoysBtn').style.color = gender === 'B' ? '#0d0e12' : '#718096';
-            document.getElementById('roGirlsBtn').style.background = gender === 'G' ? '#00ffcc' : 'transparent';
-            document.getElementById('roGirlsBtn').style.color = gender === 'G' ? '#0d0e12' : '#718096';
-            populateRoTeams();
-        };
+        // Wire up live label updates when selections or names change
+        document.addEventListener('DOMContentLoaded', () => {
+            ['roT1Sel', 'roT2Sel', 'roT1Name', 'roT2Name'].forEach(id => {
+                const el2 = document.getElementById(id);
+                if (el2) el2.addEventListener('input', updateRoScoreLabels);
+                if (el2) el2.addEventListener('change', updateRoScoreLabels);
+            });
+        });
 
         window.handleRoSportChange = function () {
             const sel = document.getElementById('roSportSel');
@@ -2797,22 +2779,11 @@
             const btnEl = document.getElementById('roPublishBtn');
             if (btnEl) btnEl.textContent = '🏆 Publish Result';
 
-            roGender = 'B';
-            roImages = [];
-            document.getElementById('roMatchType').value = 'league';
-            document.getElementById('roImgThumbs').innerHTML = '';
-            document.getElementById('roImgSlotLabel').textContent = '0/3 slots used';
-            document.getElementById('roSportSel').value = 'tug_of_war';
-            document.getElementById('roCustomSport').style.display = 'none';
-            document.getElementById('roCustomSport').value = '';
-            document.getElementById('roT1Score').value = '';
-            document.getElementById('roT2Score').value = '';
-            document.getElementById('roRemarks').value = '';
-            document.getElementById('roBoysBtn').style.background = '#00ffcc';
-            document.getElementById('roBoysBtn').style.color = '#0d0e12';
-            document.getElementById('roGirlsBtn').style.background = 'transparent';
-            document.getElementById('roGirlsBtn').style.color = '#718096';
-            populateRoTeams();
+            document.getElementById('roT1Sel').selectedIndex = 0;
+            document.getElementById('roT2Sel').selectedIndex = 0;
+            document.getElementById('roT1Name').value = '';
+            document.getElementById('roT2Name').value = '';
+            updateRoScoreLabels();
             document.getElementById('resultOnlyMd').style.display = 'flex';
         };
 
@@ -2838,32 +2809,21 @@
                 customSportInput.value = sportFolder;
             }
 
-            roGender = rec.gender === 'boys' ? 'B' : 'G';
             document.getElementById('roMatchType').value = rec.matchType || 'league';
-            document.getElementById('roBoysBtn').style.background = roGender === 'B' ? '#00ffcc' : 'transparent';
-            document.getElementById('roBoysBtn').style.color = roGender === 'B' ? '#0d0e12' : '#718096';
-            document.getElementById('roGirlsBtn').style.background = roGender === 'G' ? '#00ffcc' : 'transparent';
-            document.getElementById('roGirlsBtn').style.color = roGender === 'G' ? '#0d0e12' : '#718096';
 
-            populateRoTeams();
-
-            const setTeamVal = (selId, customId, val) => {
+            const allVals = ['ABH-B', 'ABH-G', 'VYV-B', 'VYV-G', 'ADH-B', 'ADH-G', 'PRJ-B', 'PRJ-G'];
+            const setTeamVal = (selId, nameId, teamVal, displayName) => {
                 const sel = document.getElementById(selId);
-                const customInput = document.getElementById(customId);
-                const standardValues = RO_TEAMS[roGender].map(t => t.value);
-                if (standardValues.includes(val)) {
-                    sel.value = val;
-                    if (customInput) customInput.style.display = 'none';
-                } else {
-                    sel.value = 'custom';
-                    if (customInput) {
-                        customInput.style.display = 'block';
-                        customInput.value = val;
-                    }
+                const nameBox = document.getElementById(nameId);
+                if (sel) sel.value = allVals.includes(teamVal) ? teamVal : 'ABH-B';
+                if (nameBox) {
+                    // If display name differs from the base team label, store it as custom
+                    const baseLabel = sel ? sel.options[sel.selectedIndex]?.text : '';
+                    nameBox.value = (displayName && displayName !== baseLabel) ? displayName : '';
                 }
             };
-            setTeamVal('roT1Sel', 'roT1Custom', rec.team1);
-            setTeamVal('roT2Sel', 'roT2Custom', rec.team2);
+            setTeamVal('roT1Sel', 'roT1Name', rec.team1, rec.team1DisplayName || '');
+            setTeamVal('roT2Sel', 'roT2Name', rec.team2, rec.team2DisplayName || '');
 
             document.getElementById('roT1Score').value = rec.team1Score || '';
             document.getElementById('roT2Score').value = rec.team2Score || '';
@@ -2960,17 +2920,13 @@
                 ? (document.getElementById('roCustomSport').value.trim() || 'custom')
                 : sportSel.value;
 
-            const getTeamValue = (selId, customId) => {
-                const sel = document.getElementById(selId);
-                if (sel.value === 'custom') {
-                    return document.getElementById(customId)?.value.trim() || 'Custom';
-                }
-                return sel.value;
-            };
-            const t1 = getTeamValue('roT1Sel', 'roT1Custom');
-            const t2 = getTeamValue('roT2Sel', 'roT2Custom');
+            const t1 = document.getElementById('roT1Sel').value;
+            const t2 = document.getElementById('roT2Sel').value;
+            const t1Name = document.getElementById('roT1Name').value.trim();
+            const t2Name = document.getElementById('roT2Name').value.trim();
 
-            if (!t1 || !t2 || t1 === t2) { alert('Please select two different teams.'); return; }
+            if (!t1 || !t2) { alert('Please select both teams.'); return; }
+            if (t1 === t2 && !t1Name && !t2Name) { alert('Same team selected — please add custom names to tell them apart.'); return; }
 
             const score1 = document.getElementById('roT1Score').value.trim() || '0';
             const score2 = document.getElementById('roT2Score').value.trim() || '0';
@@ -2998,8 +2954,11 @@
                 fn: true,
                 team1: t1,
                 team2: t2,
+                team1DisplayName: t1Name || '',
+                team2DisplayName: t2Name || '',
                 team1Logo: logos[t1] || '',
                 team2Logo: logos[t2] || '',
+                gender: t1.endsWith('-B') ? 'boys' : 'girls',
                 team1Score: score1,
                 team2Score: score2,
                 remarks: remarks || '',
