@@ -198,7 +198,8 @@
             border-radius: 20px;
             font-size: 0.75rem;
             font-weight: 700;
-            display: none; /* Hidden by default */
+            display: none;
+            /* Hidden by default */
             align-items: center;
             gap: 5px;
             cursor: pointer;
@@ -873,6 +874,26 @@
         .bb-team-col.right-side {
             text-align: right !important;
         }
+
+        .match-type-sel {
+            width: 100%;
+            background: #161920;
+            border: 1px solid #2d3345;
+            color: #a0aec0;
+            padding: 9px 170px;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            outline: none;
+            appearance: none;
+            background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%23a0aec0' viewBox='0 0 24 24'><path d='M7 10l5 5 5-5z'/></svg>");
+            background-repeat: no-repeat;
+            background-position: right 10px center;
+            background-color: #161920;
+            margin-bottom: 12px;
+            letter-spacing: 0.4px;
+            text-transform: uppercase;
+        }
     </style>
 </head>
 
@@ -909,6 +930,14 @@
             <div class="top-bar">
                 <span class="page-title">CRICKET</span>
                 <button class="live-toggle-btn" id="lvBtn" onclick="tglLv()">LIVE</button>
+            </div>
+
+            <div>
+                <select class="match-type-sel" id="crMatchType" onchange="onMatchTypeChange('crick')">
+                    <option value="league">League Match</option>
+                    <option value="semi_final">Semi-Final</option>
+                    <option value="grand_final">Grand Final</option>
+                </select>
             </div>
             <!-- GENDER TOGGLE -->
             <div class="gender-toggle" id="crGenderToggle">
@@ -986,6 +1015,14 @@
             <div class="top-bar">
                 <span class="page-title" style="color:#ff9900;">BASKETBALL</span>
                 <button class="live-toggle-btn" id="bbLvBtn" onclick="tglLv()">LIVE</button>
+            </div>
+
+            <div>
+                <select class="match-type-sel" id="crMatchType" onchange="onMatchTypeChange('crick')">
+                    <option value="league">League Match</option>
+                    <option value="semi_final">Semi-Final</option>
+                    <option value="grand_final">Grand Final</option>
+                </select>
             </div>
             <!-- GENDER TOGGLE -->
             <div class="gender-toggle" id="bbGenderToggle">
@@ -1067,6 +1104,14 @@
                 <span class="page-title" style="color:#00ffcc;">BADMINTON</span>
                 <button class="live-toggle-btn" id="bdLvBtn" onclick="tglLv()">LIVE</button>
             </div>
+
+            <div>
+                <select class="match-type-sel" id="crMatchType" onchange="onMatchTypeChange('crick')">
+                    <option value="league">League Match</option>
+                    <option value="semi_final">Semi-Final</option>
+                    <option value="grand_final">Grand Final</option>
+                </select>
+            </div>
             <!-- GENDER TOGGLE -->
             <div class="gender-toggle" id="bdGenderToggle">
                 <button class="g-btn active" id="bdGirlsBtn" onclick="setGender('bd','G')">♀ Girls</button>
@@ -1140,6 +1185,14 @@
                 <span class="page-title" style="color:#4299e1;">VOLLEYBALL</span>
                 <button class="live-toggle-btn" id="vlLvBtn" onclick="tglLv()">LIVE</button>
             </div>
+
+            <div>
+                <select class="match-type-sel" id="crMatchType" onchange="onMatchTypeChange('crick')">
+                    <option value="league">League Match</option>
+                    <option value="semi_final">Semi-Final</option>
+                    <option value="grand_final">Grand Final</option>
+                </select>
+            </div>
             <div
                 style="width:100%;text-align:center;font-size:0.75rem;font-weight:700;color:#4299e1;background:rgba(66,153,225,0.08);border:1px solid rgba(66,153,225,0.2);border-radius:8px;padding:6px;margin-bottom:12px;">
                 ♂ BOYS ONLY</div>
@@ -1210,6 +1263,14 @@
             <div class="top-bar">
                 <span class="page-title" style="color:#ed64a6;">THROWBALL</span>
                 <button class="live-toggle-btn" id="thLvBtn" onclick="tglLv()">LIVE</button>
+            </div>
+
+            <div>
+                <select class="match-type-sel" id="crMatchType" onchange="onMatchTypeChange('crick')">
+                    <option value="league">League Match</option>
+                    <option value="semi_final">Semi-Final</option>
+                    <option value="grand_final">Grand Final</option>
+                </select>
             </div>
             <div
                 style="width:100%;text-align:center;font-size:0.75rem;font-weight:700;color:#ed64a6;background:rgba(237,100,166,0.08);border:1px solid rgba(237,100,166,0.2);border-radius:8px;padding:6px;margin-bottom:12px;">
@@ -1346,6 +1407,14 @@
             </div>
             <input type="text" id="roCustomSport" class="md-ipt" placeholder="Type custom sport name..."
                 style="display:none;margin-bottom:12px;">
+
+            <!-- Match Type -->
+            <label class="md-lbl">Match Type</label>
+            <select id="roMatchType" class="match-type-sel" style="margin-bottom:12px;">
+                <option value="league">League Match</option>
+                <option value="semi_final">Semi-Final</option>
+                <option value="grand_final">Grand Final</option>
+            </select>
 
             <!-- Gender Toggle -->
             <label class="md-lbl">Gender</label>
@@ -1542,14 +1611,27 @@
         function initMatchState() {
             st = {
                 sport: activeSport, id: Date.now(),
-                crick: { t1: { k: '', r: 0, w: 0, b: 0 }, t2: { k: '', r: 0, w: 0, b: 0 }, inn: 1, lv: false, fn: false, uploadedImages: [] },
-                bball: { t1: { k: '', s: 0, p: {} }, t2: { k: '', s: 0, p: {} }, pd: '1st Quarter', lv: false, fn: false, uploadedImages: [] },
-                badmin: { t1: { k: '', p: '' }, t2: { k: '', p: '' }, sets: [[0, 0]], cg: 0, w1: 0, w2: 0, lv: false, fn: false, uploadedImages: [] },
-                vl: { t1: { k: '' }, t2: { k: '' }, sets: [[0, 0]], cg: 0, w1: 0, w2: 0, lv: false, fn: false, uploadedImages: [] },
-                th: { t1: { k: '' }, t2: { k: '' }, sets: [[0, 0]], cg: 0, w1: 0, w2: 0, lv: false, fn: false, uploadedImages: [] }
+                crick: { t1: { k: '', r: 0, w: 0, b: 0 }, t2: { k: '', r: 0, w: 0, b: 0 }, inn: 1, lv: false, fn: false, uploadedImages: [], matchType: 'league' },
+                bball: { t1: { k: '', s: 0, p: {} }, t2: { k: '', s: 0, p: {} }, pd: '1st Quarter', lv: false, fn: false, uploadedImages: [], matchType: 'league' },
+                badmin: { t1: { k: '', p: '' }, t2: { k: '', p: '' }, sets: [[0, 0]], cg: 0, w1: 0, w2: 0, lv: false, fn: false, uploadedImages: [], matchType: 'league' },
+                vl: { t1: { k: '' }, t2: { k: '' }, sets: [[0, 0]], cg: 0, w1: 0, w2: 0, lv: false, fn: false, uploadedImages: [], matchType: 'league' },
+                th: { t1: { k: '' }, t2: { k: '' }, sets: [[0, 0]], cg: 0, w1: 0, w2: 0, lv: false, fn: false, uploadedImages: [], matchType: 'league' }
             };
         }
         initMatchState();
+
+        window.onMatchTypeChange = function (sportKey) {
+            const selMap = { crick: 'crMatchType', bball: 'bbMatchType', badmin: 'bdMatchType', vl: 'vlMatchType', th: 'thMatchType' };
+            const selId = selMap[sportKey];
+            if (!selId) return;
+            const val = document.getElementById(selId)?.value || 'league';
+            st[sportKey].matchType = val;
+            saveToStorage();
+            // If a match is already live/active, sync to Firebase immediately
+            if (st[sportKey].currentMatchId && !st[sportKey]._isFresh) {
+                saveMatchToFirebase(st[sportKey].currentMatchId, JSON.parse(JSON.stringify(st[sportKey])), st[sportKey].lv);
+            }
+        };
 
         populateTeamDropdown('t1Sel', genderState.cr);
         populateTeamDropdown('t2Sel', genderState.cr);
@@ -1610,10 +1692,11 @@
                     matchId,
                     sport: sportFolder,
                     gender,
+                    matchType: matchData.matchType || 'league',
                     createdAt,
                     lastUpdated: new Date().toISOString(),
-                    status: matchData.lv ? 'LIVE' : '', 
-                    fn: matchData.fn || false,      
+                    status: matchData.lv ? 'LIVE' : '',
+                    fn: matchData.fn || false,
                     team1: matchData.t1?.k || '',
                     team2: matchData.t2?.k || '',
                     team1Logo: logos[matchData.t1?.k] || '',
@@ -1691,6 +1774,13 @@
 
             const activePage = document.querySelector('.page-view.active');
             if (activePage) {
+                // Lock match type dropdown when live
+                const mtSelMap2 = { crick: 'crMatchType', bball: 'bbMatchType', badmin: 'bdMatchType', vl: 'vlMatchType', th: 'thMatchType' };
+                const mtSelId2 = mtSelMap2[activeSport];
+                if (mtSelId2) {
+                    const mtEl = document.getElementById(mtSelId2);
+                    if (mtEl) { mtEl.disabled = s.lv; mtEl.style.opacity = s.lv ? '0.5' : '1'; }
+                }
                 activePage.querySelectorAll('select').forEach(sel => {
                     if (sel.id === 'bbPdSel' || sel.id === 'bbP1Sel' || sel.id === 'bbP2Sel') {
                         sel.disabled = false; sel.style.opacity = "1";
@@ -2193,6 +2283,11 @@
                     if (elem) { elem.selectedIndex = 0; elem.disabled = false; elem.style.opacity = "1"; elem.style.pointerEvents = "auto"; }
                 });
 
+                ['crMatchType', 'bbMatchType', 'bdMatchType', 'vlMatchType', 'thMatchType'].forEach(id => {
+                    const e = document.getElementById(id);
+                    if (e) { e.value = 'league'; e.disabled = false; e.style.opacity = '1'; }
+                });
+
                 const resetEl = (id, val) => { const e = document.getElementById(id); if (e) e.innerText = val; };
                 resetEl('t1R', '0'); resetEl('t1W', '0'); resetEl('t1O', '0.0');
                 resetEl('t2R', '0'); resetEl('t2W', '0'); resetEl('t2O', '0.0');
@@ -2394,11 +2489,12 @@
                 st[sportKey].t1.k = rec.team1 || '';
                 st[sportKey].t2.k = rec.team2 || '';
                 st[sportKey].lv = false;
-                st[sportKey].fn = rec.fn === true || rec.status === 'FINAL'; 
+                st[sportKey].fn = rec.fn === true || rec.status === 'FINAL';
                 st[sportKey].currentMatchId = matchId;
                 st[sportKey]._isFresh = false;
                 st[sportKey].uploadedImages = rec.uploadedImages || [];
                 st[sportKey].createdAt = rec.createdAt || null;
+                st[sportKey].matchType = rec.matchType || 'league';
 
                 if (sportFolder === 'cricket') {
                     const s1 = (rec.team1Score || '0/0').split('/');
@@ -2469,6 +2565,14 @@
                     el('thT1Sel').value = t1k; el('thT2Sel').value = t2k; chkTmsCourt('th');
                 }
                 updUI();
+
+                // Restore match type dropdown
+                const mtSelMap = { cricket: 'crMatchType', basketball: 'bbMatchType', badminton: 'bdMatchType', volleyball: 'vlMatchType', throwball: 'thMatchType' };
+                const mtSelId = mtSelMap[sportFolder];
+                if (mtSelId) {
+                    const mtSel = document.getElementById(mtSelId);
+                    if (mtSel) mtSel.value = rec.matchType || 'league';
+                }
 
                 get(ref(db, `matches_archive/${sportFolder}/${matchId}/uploadedImages`)).then(snap => {
                     if (snap.exists() && Array.isArray(snap.val())) {
@@ -2695,6 +2799,7 @@
 
             roGender = 'B';
             roImages = [];
+            document.getElementById('roMatchType').value = 'league';
             document.getElementById('roImgThumbs').innerHTML = '';
             document.getElementById('roImgSlotLabel').textContent = '0/3 slots used';
             document.getElementById('roSportSel').value = 'tug_of_war';
@@ -2734,6 +2839,7 @@
             }
 
             roGender = rec.gender === 'boys' ? 'B' : 'G';
+            document.getElementById('roMatchType').value = rec.matchType || 'league';
             document.getElementById('roBoysBtn').style.background = roGender === 'B' ? '#00ffcc' : 'transparent';
             document.getElementById('roBoysBtn').style.color = roGender === 'B' ? '#0d0e12' : '#718096';
             document.getElementById('roGirlsBtn').style.background = roGender === 'G' ? '#00ffcc' : 'transparent';
@@ -2885,6 +2991,7 @@
                 matchId,
                 sport: sportName,
                 gender,
+                matchType: document.getElementById('roMatchType')?.value || 'league',
                 createdAt: createdAt,
                 lastUpdated: now,
                 status: 'FINAL',
@@ -2897,7 +3004,7 @@
                 team2Score: score2,
                 remarks: remarks || '',
                 uploadedImages: roImages,
-                resultOnly: true  
+                resultOnly: true
             };
 
             try {
