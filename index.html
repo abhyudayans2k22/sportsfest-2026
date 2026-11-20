@@ -269,8 +269,6 @@
             background-color: #000000;
             z-index: 5;
             box-shadow: 0 0 0px rgba(0, 0, 0, 0);
-            -webkit-mask-image: -webkit-radial-gradient(white, black);
-            mask-image: radial-gradient(white, black);
             backface-visibility: hidden;
             -webkit-backface-visibility: hidden;
             transform: translateZ(0);
@@ -280,10 +278,12 @@
         .app-wrapper.menu-open .content-card-wrapper {
             transform: translateX(-50%) scale(0.8);
             border-radius: 28px;
+            -webkit-mask-image: -webkit-radial-gradient(white, black);
+            mask-image: radial-gradient(white, black);
             box-shadow: -15px 20px 40px rgba(0, 0, 0, 0.4);
             pointer-events: none;
-            transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1),
-                border-radius 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            transition: transform 0.55s cubic-bezier(0.25, 0.1, 0.25, 1),
+                border-radius 0.55s cubic-bezier(0.25, 0.1, 0.25, 1);
         }
 
         .pages-track {
@@ -293,13 +293,12 @@
             flex-direction: column;
             will-change: transform;
             transition-property: transform;
-            transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
-            transform: translateZ(0);
-            -webkit-transform: translateZ(0);
+            transition-duration: 0.9s;
+            transition-timing-function: cubic-bezier(0.22, 0.61, 0.36, 1);
+            transform: translate3d(0, 0, 0);
+            -webkit-transform: translate3d(0, 0, 0);
             backface-visibility: hidden;
             -webkit-backface-visibility: hidden;
-            perspective: 1000px;
-            -webkit-perspective: 1000px;
         }
 
         .page-view {
@@ -977,10 +976,10 @@
         }
 
         #live .gyro-3d-box-container {
-            width: 90%;
+            width: 92%;
             max-width: 440px;
             position: relative;
-            transform-style: preserve-3d;
+            container-type: inline-size;
             z-index: 5;
             display: none;
         }
@@ -991,15 +990,14 @@
 
         #live .gyro-3d-box {
             width: 100%;
-            border-radius: 24px;
-            padding: 22px 20px 16px 20px;
+            border-radius: clamp(18px, 5.5cqw, 24px);
+            padding: clamp(14px, 5cqw, 22px) clamp(12px, 4.5cqw, 20px) clamp(12px, 3.6cqw, 16px);
             background-color: rgba(15, 15, 22, 0.45);
             backdrop-filter: blur(25px);
             -webkit-backdrop-filter: blur(25px);
             border: 1px solid rgba(255, 255, 255, 0.08);
             box-shadow: 2px 2px 0px #000, 4px 4px 0px #000, 6px 6px 0px #000,
                 0px 20px 40px rgba(0, 0, 0, 0.65);
-            transform-style: preserve-3d;
             will-change: transform;
             animation: liveCardFloat 4s ease-in-out infinite;
             transform: translateZ(0);
@@ -1038,10 +1036,10 @@
         #live .card-header-row {
             display: flex;
             align-items: center;
-            justify-content: space-between;
+            justify-content: flex-start;
             width: 100%;
-            height: 32px;
-            gap: 1px;
+            min-height: clamp(24px, 7cqw, 32px);
+            gap: clamp(5px, 1.8cqw, 10px);
         }
 
         #live .sport-brand-identity {
@@ -1054,7 +1052,7 @@
 
         #live .sport-label-text {
             color: #ffffff;
-            font-size: 15px;
+            font-size: clamp(11.5px, 3.4cqw, 15px);
             font-weight: 700;
             text-transform: uppercase;
             letter-spacing: 0.5px;
@@ -1066,32 +1064,34 @@
 
         #live .innings-status-badge {
             border: 1px solid rgba(255, 255, 255, 0.18);
-            border-radius: 8px;
-            padding: 4px 10px;
+            border-radius: clamp(6px, 1.8cqw, 8px);
+            padding: clamp(2px, 0.9cqw, 4px) clamp(6px, 2.2cqw, 10px);
             display: flex;
             align-items: center;
             justify-content: center;
-            margin-left: -40px;
+            margin-left: 0;
             flex-shrink: 0;
         }
 
         #live .innings-status-badge span {
             color: #b0b3b8;
-            font-size: 11px;
+            font-size: clamp(8.5px, 2.5cqw, 11px);
             font-weight: 600;
             text-transform: uppercase;
-            letter-spacing: 0.8px;
+            letter-spacing: 0.6px;
+            white-space: nowrap;
         }
 
         #live .live-broadcast-indicator {
             display: flex;
             align-items: center;
-            gap: 6px;
+            gap: clamp(4px, 1.3cqw, 6px);
+            flex-shrink: 0;
         }
 
         #live .pulsating-indicator-dot {
-            width: 7px;
-            height: 7px;
+            width: clamp(5px, 1.6cqw, 7px);
+            height: clamp(5px, 1.6cqw, 7px);
             background-color: #ff3b30;
             border-radius: 50%;
             position: relative;
@@ -1111,13 +1111,15 @@
         }
 
         .match-type-badge {
-            font-size: 10px;
+            margin-left: auto;
+            font-size: clamp(8.5px, 2.3cqw, 10px);
             font-weight: 700;
-            letter-spacing: 1px;
+            letter-spacing: 0.8px;
             text-transform: uppercase;
             color: rgba(255, 255, 255, 0.45);
             text-shadow: 0 0 8px rgba(255, 255, 255, 0.25);
             white-space: nowrap;
+            flex-shrink: 0;
         }
 
         .match-type-badge.grand-final {
@@ -1132,29 +1134,31 @@
 
         #live .live-tag-text {
             color: #ff3b30;
-            font-size: 13px;
+            font-size: clamp(10px, 3cqw, 13px);
             font-weight: 800;
             text-transform: uppercase;
             letter-spacing: 0.5px;
             text-shadow: 0 0 10px rgba(255, 59, 48, 0.4);
-            margin-top: -3px;
+            margin-top: 0;
         }
 
         #live .finished-broadcast-indicator {
             display: flex;
             align-items: center;
-            gap: 6px;
+            gap: clamp(4px, 1.3cqw, 6px);
+            flex-shrink: 0;
         }
 
         #live .finished-tag-text {
             color: #00ffcc;
-            font-size: 13px;
+            font-size: clamp(9.5px, 2.8cqw, 12px);
             font-weight: 700;
             text-transform: uppercase;
             background: rgba(0, 255, 204, 0.1);
             border: 1px solid rgba(0, 255, 204, 0.2);
             border-radius: 6px;
-            padding: 2px 7px;
+            padding: clamp(2px, 0.5cqw, 3px) clamp(5px, 1.6cqw, 7px);
+            white-space: nowrap;
         }
 
         @keyframes liveIndicatorPulse {
@@ -1173,31 +1177,34 @@
             width: 100%;
             height: 1px;
             background: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.15) 20%, rgba(255, 255, 255, 0.15) 80%, transparent 100%);
-            margin-top: 12px;
-            margin-bottom: 18px;
+            margin-top: clamp(8px, 2.8cqw, 12px);
+            margin-bottom: clamp(12px, 4cqw, 18px);
         }
 
         #live .match-field-arena {
-            display: flex;
+            display: grid;
+            grid-template-columns: 24% minmax(0, 1fr) auto minmax(0, 1fr) 24%;
             align-items: center;
-            justify-content: space-between;
+            column-gap: clamp(3px, 1.2cqw, 8px);
             width: 100%;
             position: relative;
-            margin-bottom: 12px;
+            margin-bottom: clamp(8px, 2.8cqw, 12px);
         }
 
         #live .team-block-identity {
             display: flex;
             flex-direction: column;
             align-items: center;
-            width: 36%;
-            gap: 6px;
+            width: 100%;
+            min-width: 0;
+            gap: clamp(4px, 1.4cqw, 6px);
             position: relative;
         }
 
         #live .team-logo-shield {
-            width: 90px;
-            height: 90px;
+            width: clamp(50px, 18cqw, 86px);
+            height: clamp(50px, 18cqw, 86px);
+            max-width: 100%;
             object-fit: contain;
             filter: drop-shadow(0px 4px 8px rgba(0, 0, 0, 0.5));
         }
@@ -1209,19 +1216,21 @@
             justify-content: center;
             color: #ffffff;
             font-weight: 700;
-            font-size: 14px;
-            letter-spacing: 0.5px;
+            font-size: clamp(10.5px, 3.2cqw, 14px);
+            letter-spacing: 0.4px;
             width: 100%;
             text-align: center;
+            line-height: 1.2;
         }
 
         #live .player-glow-subtext {
-            font-size: 11px;
+            font-size: clamp(9px, 2.5cqw, 11px);
             font-weight: 500;
             color: #b0b3b8;
             text-shadow: 0 0 5px rgba(255, 255, 255, 0.2);
             text-align: center;
             margin-top: 2px;
+            word-break: break-word;
         }
 
         @keyframes coinFloat {
@@ -1237,58 +1246,60 @@
         }
 
         #live .match-mid-split {
-            position: absolute;
-            left: 50%;
-            top: 50%;
-            transform: translate(-50%, -50%);
+            position: static;
+            transform: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0 clamp(2px, 0.8cqw, 6px);
             z-index: 2;
         }
 
         #live .vs-middle-text {
             color: #6c7075;
             font-weight: 800;
-            font-size: 13px;
+            font-size: clamp(10px, 3cqw, 13px);
             letter-spacing: 1px;
             text-shadow: 0px 1px 2px rgba(0, 0, 0, 0.5);
+            white-space: nowrap;
         }
 
         #live .scoreline-block {
             display: flex;
             flex-direction: column;
-            width: 25%;
+            width: 100%;
+            min-width: 0;
         }
 
-        #live .scoreline-block.left-align {
-            align-items: flex-start;
-            text-align: left;
-        }
-
+        #live .scoreline-block.left-align,
         #live .scoreline-block.right-align {
-            align-items: flex-end;
-            text-align: right;
+            align-items: center;
+            text-align: center;
         }
 
         #live .live-score-value {
             color: #ffffff;
-            font-size: 18px;
+            font-size: clamp(13px, 4.1cqw, 18px);
             font-weight: 700;
             letter-spacing: 0.2px;
             text-shadow: 0 0 10px rgba(255, 255, 255, 0.35);
             line-height: 1.2;
+            white-space: nowrap;
         }
 
         #live .live-overs-value {
             color: #b0b3b8;
-            font-size: 11px;
+            font-size: clamp(9.5px, 2.5cqw, 11px);
             font-weight: 500;
             margin-top: 2px;
+            white-space: nowrap;
         }
 
         #live .match-insight-ticker {
             width: 100%;
             text-align: center;
-            margin-top: 14px;
-            margin-bottom: 8px;
+            margin-top: clamp(10px, 3.2cqw, 14px);
+            margin-bottom: clamp(6px, 1.8cqw, 8px);
             min-height: 18px;
             display: flex;
             align-items: center;
@@ -1297,7 +1308,7 @@
 
         #live .match-insight-text {
             color: #ffffff;
-            font-size: 13px;
+            font-size: clamp(10.5px, 3cqw, 13px);
             font-weight: 600;
             letter-spacing: 0.3px;
             text-shadow: 0 0 8px rgba(255, 255, 255, 0.45);
@@ -1305,10 +1316,10 @@
 
         #live .predictor-section-wrapper {
             width: 100%;
-            margin-top: 10px;
+            margin-top: clamp(8px, 2.2cqw, 10px);
             display: flex;
             flex-direction: column;
-            gap: 6px;
+            gap: clamp(4px, 1.4cqw, 6px);
         }
 
         #live .predictor-label-row {
@@ -1321,7 +1332,7 @@
 
         #live .predictor-title-text {
             color: #a0a5ad;
-            font-size: 11px;
+            font-size: clamp(9px, 2.5cqw, 11px);
             font-weight: 700;
             text-transform: uppercase;
             letter-spacing: 0.8px;
@@ -1329,7 +1340,7 @@
 
         #live .predictor-bar-track {
             width: 100%;
-            height: 16px;
+            height: clamp(13px, 3.6cqw, 16px);
             border-radius: 30px;
             overflow: hidden;
             display: flex;
@@ -1356,7 +1367,7 @@
 
         #live .predictor-percent-label {
             color: #000000;
-            font-size: 10px;
+            font-size: clamp(8.5px, 2.3cqw, 10px);
             font-weight: 800;
             position: absolute;
             top: 50%;
@@ -1375,12 +1386,12 @@
         #live .individual-tracker-wrapper {
             display: flex;
             width: 100%;
-            margin-top: 10px;
-            border-radius: 16px;
-            padding: 12px;
+            margin-top: clamp(8px, 2.2cqw, 10px);
+            border-radius: clamp(12px, 3.6cqw, 16px);
+            padding: clamp(9px, 2.8cqw, 12px);
             background: rgba(0, 0, 0, 0.25);
             border: 1px solid rgba(255, 255, 255, 0.05);
-            gap: 16px;
+            gap: clamp(10px, 3.6cqw, 16px);
         }
 
         #live .tracker-column {
@@ -1401,7 +1412,7 @@
         }
 
         #live .tracker-column-header {
-            font-size: 12px;
+            font-size: clamp(10px, 2.8cqw, 12px);
             font-weight: 800;
             color: #ffffff;
             text-transform: uppercase;
@@ -1416,12 +1427,12 @@
         }
 
         #live .tracker-player-name {
-            font-size: 11px;
+            font-size: clamp(9.5px, 2.5cqw, 11px);
             color: #b0b3b8;
         }
 
         #live .tracker-player-points {
-            font-size: 11px;
+            font-size: clamp(9.5px, 2.5cqw, 11px);
             font-weight: 700;
             color: #ffffff;
             text-shadow: 0 0 8px rgba(255, 255, 255, 0.6);
@@ -1430,26 +1441,26 @@
         #live .sets-tracker-wrapper {
             display: flex;
             width: 100%;
-            margin-top: 10px;
+            margin-top: clamp(8px, 2.2cqw, 10px);
             justify-content: space-between;
             align-items: center;
             background: rgba(0, 0, 0, 0.25);
             border: 1px solid rgba(255, 255, 255, 0.05);
-            padding: 12px;
-            border-radius: 16px;
+            padding: clamp(9px, 2.8cqw, 12px);
+            border-radius: clamp(12px, 3.6cqw, 16px);
         }
 
         #live .sets-teams-label-column {
             display: flex;
             flex-direction: column;
-            gap: 12px;
+            gap: clamp(8px, 2.8cqw, 12px);
         }
 
         #live .sets-team-label-name {
-            font-size: 12px;
+            font-size: clamp(10px, 2.8cqw, 12px);
             font-weight: 800;
             color: #ffffff;
-            height: 24px;
+            height: clamp(20px, 5.5cqw, 24px);
             display: flex;
             align-items: center;
             text-shadow: 0 0 8px rgba(255, 255, 255, 0.25);
@@ -1457,7 +1468,7 @@
 
         #live .sets-boxes-scroll-lane {
             display: flex;
-            gap: 8px;
+            gap: clamp(6px, 1.8cqw, 8px);
             overflow-x: auto;
             max-width: 70%;
             align-items: center;
@@ -1467,19 +1478,19 @@
         #live .sets-vertical-box-pair {
             display: flex;
             flex-direction: column;
-            gap: 12px;
+            gap: clamp(8px, 2.8cqw, 12px);
             align-items: center;
         }
 
         #live .set-score-outcome-box {
-            width: 32px;
-            height: 24px;
+            width: clamp(26px, 7.2cqw, 32px);
+            height: clamp(20px, 5.5cqw, 24px);
             border-radius: 6px;
             border: 1px solid rgba(255, 255, 255, 0.25);
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 11px;
+            font-size: clamp(9.5px, 2.5cqw, 11px);
             font-weight: 700;
             color: #ffffff;
             background: rgba(255, 255, 255, 0.02);
@@ -1502,9 +1513,9 @@
 
         #live .carousel-section-box {
             width: 100%;
-            height: 200px;
-            margin-top: 15px;
-            border-radius: 16px;
+            height: clamp(145px, 45cqw, 200px);
+            margin-top: clamp(11px, 3.4cqw, 15px);
+            border-radius: clamp(12px, 3.6cqw, 16px);
             overflow: hidden;
             position: relative;
             border: 1px solid rgba(255, 255, 255, 0.06);
@@ -1571,14 +1582,14 @@
         #live .winner-banner {
             width: 100%;
             text-align: center;
-            padding: 10px;
-            border-radius: 10px;
+            padding: clamp(7px, 2.2cqw, 10px);
+            border-radius: clamp(8px, 2.3cqw, 10px);
             background: rgba(0, 255, 204, 0.08);
             border: 1px solid rgba(0, 255, 204, 0.2);
             color: #00ffcc;
-            font-size: 13px;
+            font-size: clamp(10.5px, 3cqw, 13px);
             font-weight: 600;
-            margin-top: 8px;
+            margin-top: clamp(6px, 1.8cqw, 8px);
             display: none;
         }
 
@@ -1812,8 +1823,8 @@
 
         #results .gyro-3d-box {
             width: 100%;
-            border-radius: 24px;
-            padding: 22px 20px 16px 20px;
+            border-radius: clamp(18px, 5.5cqw, 24px);
+            padding: clamp(14px, 5cqw, 22px) clamp(12px, 4.5cqw, 20px) clamp(12px, 3.6cqw, 16px);
             background-color: rgba(15, 15, 22, 0.45);
             backdrop-filter: blur(25px);
             -webkit-backdrop-filter: blur(25px);
@@ -1933,6 +1944,7 @@
         }
 
         #results .gyro-3d-box-container {
+            container-type: inline-size;
             transition: transform 0.4s ease;
             opacity: 1 !important;
             transform: scale(0.97);
@@ -1951,90 +1963,103 @@
         #results .card-header-row {
             display: flex;
             align-items: center;
-            justify-content: space-between;
+            justify-content: flex-start;
             width: 100%;
-            height: 32px;
+            min-height: clamp(24px, 7cqw, 32px);
+            gap: clamp(5px, 1.8cqw, 10px);
         }
 
         #results .sport-brand-identity {
             display: flex;
             align-items: center;
             gap: 5px;
+            min-width: 0;
+            flex-shrink: 1;
         }
 
         #results .sport-label-text {
             color: #ffffff;
-            font-size: 15px;
+            font-size: clamp(11.5px, 3.4cqw, 15px);
             font-weight: 700;
             text-transform: uppercase;
             letter-spacing: 0.5px;
             text-shadow: 0 0 8px rgba(255, 255, 255, 0.25);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
         #results .innings-status-badge {
             border: 1px solid rgba(255, 255, 255, 0.18);
-            border-radius: 8px;
-            padding: 4px 6px;
+            border-radius: clamp(6px, 1.8cqw, 8px);
+            padding: clamp(2px, 0.9cqw, 4px) clamp(5px, 1.8cqw, 8px);
             display: flex;
             align-items: center;
             justify-content: center;
-            margin-left: 10px;
+            margin-left: 0;
+            flex-shrink: 0;
         }
 
         #results .innings-status-badge span {
             color: #b0b3b8;
-            font-size: 11px;
+            font-size: clamp(8.5px, 2.5cqw, 11px);
             font-weight: 600;
             text-transform: uppercase;
             letter-spacing: 0.2px;
+            white-space: nowrap;
         }
 
         #results .finished-broadcast-indicator {
             display: flex;
             align-items: center;
-            gap: 6px;
+            gap: clamp(4px, 1.3cqw, 6px);
+            flex-shrink: 0;
         }
 
         #results .finished-tag-text {
             color: #00ffcc;
-            font-size: 13px;
+            font-size: clamp(9.5px, 2.8cqw, 12px);
             font-weight: 700;
             text-transform: uppercase;
             background: rgba(0, 255, 204, 0.1);
             border: 1px solid rgba(0, 255, 204, 0.2);
             border-radius: 6px;
-            padding: 2px 7px;
+            padding: clamp(2px, 0.5cqw, 3px) clamp(5px, 1.6cqw, 7px);
+            white-space: nowrap;
         }
 
         #results .scorecard-header-divider {
             width: 100%;
             height: 1px;
             background: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.15) 20%, rgba(255, 255, 255, 0.15) 80%, transparent 100%);
-            margin-top: 12px;
-            margin-bottom: 18px;
+            margin-top: clamp(8px, 2.8cqw, 12px);
+            margin-bottom: clamp(12px, 4cqw, 18px);
         }
 
         #results .match-field-arena {
-            display: flex;
+            display: grid;
+            grid-template-columns: 24% minmax(0, 1fr) auto minmax(0, 1fr) 24%;
             align-items: center;
-            justify-content: space-between;
+            column-gap: clamp(3px, 1.2cqw, 8px);
             width: 100%;
             position: relative;
-            margin-bottom: 12px;
+            margin-bottom: clamp(8px, 2.8cqw, 12px);
         }
 
         #results .team-block-identity {
             display: flex;
             flex-direction: column;
             align-items: center;
-            width: 32%;
-            gap: 6px;
+            width: 100%;
+            min-width: 0;
+            gap: clamp(4px, 1.4cqw, 6px);
             position: relative;
         }
 
         #results .team-logo-shield {
-            width: 90px;
-            height: 90px;
+            width: clamp(50px, 18cqw, 86px);
+            height: clamp(50px, 18cqw, 86px);
+            max-width: 100%;
             object-fit: contain;
             filter: drop-shadow(0px 4px 8px rgba(0, 0, 0, 0.5));
         }
@@ -2046,74 +2071,78 @@
             justify-content: center;
             color: #ffffff;
             font-weight: 700;
-            font-size: 14px;
-            letter-spacing: 0.5px;
+            font-size: clamp(10.5px, 3.2cqw, 14px);
+            letter-spacing: 0.4px;
             width: 100%;
             text-align: center;
+            line-height: 1.2;
         }
 
         #results .player-glow-subtext {
-            font-size: 11px;
+            font-size: clamp(9px, 2.5cqw, 11px);
             font-weight: 500;
             color: #b0b3b8;
             text-shadow: 0 0 5px rgba(255, 255, 255, 0.2);
             text-align: center;
             margin-top: 2px;
+            word-break: break-word;
         }
 
         #results .match-mid-split {
-            position: absolute;
-            left: 50%;
-            top: 50%;
-            transform: translate(-50%, -50%);
+            position: static;
+            transform: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0 clamp(2px, 0.8cqw, 6px);
             z-index: 2;
         }
 
         #results .vs-middle-text {
             color: #6c7075;
             font-weight: 800;
-            font-size: 13px;
+            font-size: clamp(10px, 3cqw, 13px);
             letter-spacing: 1px;
             text-shadow: 0px 1px 2px rgba(0, 0, 0, 0.5);
+            white-space: nowrap;
         }
 
         #results .scoreline-block {
             display: flex;
             flex-direction: column;
-            width: 25%;
+            width: 100%;
+            min-width: 0;
         }
 
-        #results .scoreline-block.left-align {
-            align-items: flex-start;
-            text-align: left;
-        }
-
+        #results .scoreline-block.left-align,
         #results .scoreline-block.right-align {
-            align-items: flex-end;
-            text-align: right;
+            align-items: center;
+            text-align: center;
         }
 
         #results .live-score-value {
             color: #ffffff;
-            font-size: 18px;
+            font-size: clamp(13px, 4.1cqw, 18px);
             font-weight: 700;
             letter-spacing: 0.2px;
             text-shadow: 0 0 10px rgba(255, 255, 255, 0.35);
             line-height: 1.2;
+            white-space: nowrap;
         }
 
         #results .live-overs-value {
             color: #b0b3b8;
-            font-size: 11px;
+            font-size: clamp(9.5px, 2.5cqw, 11px);
             font-weight: 500;
             margin-top: 2px;
+            white-space: nowrap;
         }
 
         #results .match-insight-ticker {
             width: 100%;
             text-align: center;
-            margin-top: 14px;
-            margin-bottom: 8px;
+            margin-top: clamp(10px, 3.2cqw, 14px);
+            margin-bottom: clamp(6px, 1.8cqw, 8px);
             min-height: 18px;
             display: flex;
             align-items: center;
@@ -2122,7 +2151,7 @@
 
         #results .match-insight-text {
             color: #ffffff;
-            font-size: 13px;
+            font-size: clamp(10.5px, 3cqw, 13px);
             font-weight: 600;
             letter-spacing: 0.3px;
             text-shadow: 0 0 8px rgba(255, 255, 255, 0.45);
@@ -2131,12 +2160,12 @@
         #results .individual-tracker-wrapper {
             display: flex;
             width: 100%;
-            margin-top: 10px;
-            border-radius: 16px;
-            padding: 12px;
+            margin-top: clamp(8px, 2.2cqw, 10px);
+            border-radius: clamp(12px, 3.6cqw, 16px);
+            padding: clamp(9px, 2.8cqw, 12px);
             background: rgba(0, 0, 0, 0.25);
             border: 1px solid rgba(255, 255, 255, 0.05);
-            gap: 16px;
+            gap: clamp(10px, 3.6cqw, 16px);
         }
 
         #results .tracker-column {
@@ -2157,7 +2186,7 @@
         }
 
         #results .tracker-column-header {
-            font-size: 12px;
+            font-size: clamp(10px, 2.8cqw, 12px);
             font-weight: 800;
             color: #ffffff;
             text-transform: uppercase;
@@ -2172,12 +2201,12 @@
         }
 
         #results .tracker-player-name {
-            font-size: 11px;
+            font-size: clamp(9.5px, 2.5cqw, 11px);
             color: #b0b3b8;
         }
 
         #results .tracker-player-points {
-            font-size: 11px;
+            font-size: clamp(9.5px, 2.5cqw, 11px);
             font-weight: 700;
             color: #ffffff;
             text-shadow: 0 0 8px rgba(255, 255, 255, 0.6);
@@ -2186,26 +2215,26 @@
         #results .sets-tracker-wrapper {
             display: flex;
             width: 100%;
-            margin-top: 10px;
+            margin-top: clamp(8px, 2.2cqw, 10px);
             justify-content: space-between;
             align-items: center;
             background: rgba(0, 0, 0, 0.25);
             border: 1px solid rgba(255, 255, 255, 0.05);
-            padding: 12px;
-            border-radius: 16px;
+            padding: clamp(9px, 2.8cqw, 12px);
+            border-radius: clamp(12px, 3.6cqw, 16px);
         }
 
         #results .sets-teams-label-column {
             display: flex;
             flex-direction: column;
-            gap: 12px;
+            gap: clamp(8px, 2.8cqw, 12px);
         }
 
         #results .sets-team-label-name {
-            font-size: 12px;
+            font-size: clamp(10px, 2.8cqw, 12px);
             font-weight: 800;
             color: #ffffff;
-            height: 24px;
+            height: clamp(20px, 5.5cqw, 24px);
             display: flex;
             align-items: center;
             text-shadow: 0 0 8px rgba(255, 255, 255, 0.25);
@@ -2213,7 +2242,7 @@
 
         #results .sets-boxes-scroll-lane {
             display: flex;
-            gap: 8px;
+            gap: clamp(6px, 1.8cqw, 8px);
             overflow-x: auto;
             max-width: 70%;
             align-items: center;
@@ -2223,19 +2252,19 @@
         #results .sets-vertical-box-pair {
             display: flex;
             flex-direction: column;
-            gap: 12px;
+            gap: clamp(8px, 2.8cqw, 12px);
             align-items: center;
         }
 
         #results .set-score-outcome-box {
-            width: 32px;
-            height: 24px;
+            width: clamp(26px, 7.2cqw, 32px);
+            height: clamp(20px, 5.5cqw, 24px);
             border-radius: 6px;
             border: 1px solid rgba(255, 255, 255, 0.25);
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 11px;
+            font-size: clamp(9.5px, 2.5cqw, 11px);
             font-weight: 700;
             color: #ffffff;
             background: rgba(255, 255, 255, 0.02);
@@ -2258,9 +2287,9 @@
 
         #results .carousel-section-box {
             width: 100%;
-            height: 200px;
-            margin-top: 15px;
-            border-radius: 16px;
+            height: clamp(145px, 45cqw, 200px);
+            margin-top: clamp(11px, 3.4cqw, 15px);
+            border-radius: clamp(12px, 3.6cqw, 16px);
             overflow: hidden;
             position: relative;
             border: 1px solid rgba(255, 255, 255, 0.06);
@@ -2327,14 +2356,14 @@
         #results .winner-banner {
             width: 100%;
             text-align: center;
-            padding: 10px;
-            border-radius: 10px;
+            padding: clamp(7px, 2.2cqw, 10px);
+            border-radius: clamp(8px, 2.3cqw, 10px);
             background: rgba(0, 255, 204, 0.08);
             border: 1px solid rgba(0, 255, 204, 0.2);
             color: #00ffcc;
-            font-size: 13px;
+            font-size: clamp(10.5px, 3cqw, 13px);
             font-weight: 600;
-            margin-top: 8px;
+            margin-top: clamp(6px, 1.8cqw, 8px);
             display: none;
         }
 
@@ -5325,12 +5354,30 @@
         const menuItems = document.querySelectorAll('.menu-item');
 
         let currentIndex = 0;
+        let menuCloseTimer = null;
 
         function navigateToPage(targetIndex) {
+            const contentCard = document.getElementById('contentCard');
+            const menuLayer = document.querySelector('.menu-layer');
+            const isMenuOpen = appWrapper.classList.contains('menu-open');
+            const isPerfMode = document.body.classList.contains('perf-mode');
+
+            if (targetIndex === currentIndex) {
+                if (isMenuOpen) {
+                    clearTimeout(menuCloseTimer);
+                    contentCard.style.transition = '';
+                    menuLayer.style.transition = '';
+                    appWrapper.classList.remove('menu-open');
+                }
+                return;
+            }
+
             const distance = Math.abs(targetIndex - currentIndex);
-            const transitionDuration = Math.min(0.60 + (distance * 0.12), 1.0);
+            const transitionDuration = Math.min(0.85 + (distance * 0.15), 1.40);
+
             pagesTrack.style.transitionDuration = `${transitionDuration}s`;
-            pagesTrack.style.transform = `translateY(-${targetIndex * 100}%)`;
+            void pagesTrack.offsetHeight; // Force iOS Safari to commit duration before transform
+            pagesTrack.style.transform = `translate3d(0, -${targetIndex * 100}%, 0)`;
 
             document.querySelectorAll('.menu-item.active-link').forEach(item => {
                 item.classList.remove('active-link');
@@ -5351,7 +5398,7 @@
                 }
             }
 
-            if (!document.body.classList.contains('perf-mode')) {
+            if (!isPerfMode) {
                 if (targetIndex === 0) {
                     headerBox.classList.remove('with-box');
                 } else {
@@ -5359,25 +5406,20 @@
                 }
             }
 
-            const contentCard = document.getElementById('contentCard');
-            const menuLayer = document.querySelector('.menu-layer');
-            const isMenuOpen = appWrapper.classList.contains('menu-open');
-
+            clearTimeout(menuCloseTimer);
             if (isMenuOpen) {
-                const isPerfMode = document.body.classList.contains('perf-mode');
                 if (isPerfMode) {
-                    // Simple dropdown closing without scale down/shifting animations on performance mode
                     appWrapper.classList.remove('menu-open');
                 } else {
-                    const zoomDuration = 0.5;
+                    const zoomDuration = 0.55;
                     const totalDuration = transitionDuration + zoomDuration;
 
-                    contentCard.style.transition = `transform ${zoomDuration}s cubic-bezier(0.16, 1, 0.3, 1) ${transitionDuration}s, border-radius ${zoomDuration}s cubic-bezier(0.16, 1, 0.3, 1) ${transitionDuration}s`;
-                    menuLayer.style.transition = `opacity 0.2s ease ${totalDuration - 0.1}s, visibility 0.2s ease ${totalDuration - 0.1}s`;
+                    contentCard.style.transition = `transform ${zoomDuration}s cubic-bezier(0.22, 0.61, 0.36, 1) ${transitionDuration}s, border-radius ${zoomDuration}s cubic-bezier(0.22, 0.61, 0.36, 1) ${transitionDuration}s`;
+                    menuLayer.style.transition = `opacity 0.25s ease ${totalDuration - 0.1}s, visibility 0.25s ease ${totalDuration - 0.1}s`;
 
                     appWrapper.classList.remove('menu-open');
 
-                    setTimeout(() => {
+                    menuCloseTimer = setTimeout(() => {
                         contentCard.style.transition = '';
                         menuLayer.style.transition = '';
                     }, (totalDuration + 0.2) * 1000);
