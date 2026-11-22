@@ -4413,8 +4413,7 @@
             padding: 24px var(--results-side-pad) 0 var(--results-side-pad);
             overflow-x: hidden;
             overflow-y: auto;
-            scroll-snap-type: y mandatory;
-            scroll-padding-top: 24px;
+            scroll-snap-type: none;
             overscroll-behavior-y: contain;
             -webkit-overflow-scrolling: touch;
             z-index: 5;
@@ -4434,8 +4433,6 @@
             width: 100%;
             max-width: none;
             margin: 0 0 14px 0;
-            scroll-snap-align: start;
-            scroll-snap-stop: always;
             transform: none;
         }
 
@@ -4491,26 +4488,26 @@
         }
 
         #results.results-v2 .gyro-3d-box-container.is-open .card-below-victory {
-            max-height: 720px;
+            max-height: 2000px;
             opacity: 1;
         }
 
-        /* an open card never gets taller than the list (extra content scrolls inside it, no scrollbar) */
+        /* let every open card expand to its full content height with no internal scroll */
         #results.results-v2 .gyro-3d-box-container.is-open .gyro-3d-box {
-            max-height: calc(var(--results-list-h, 70dvh) - 38px - var(--results-peek));
-            overflow-y: auto;
-            overflow-x: hidden;
-            -webkit-overflow-scrolling: touch;
+            max-height: none;
+            overflow: visible;
         }
 
         /* ---------- LOW-END (perf mode) OVERRIDES ---------- */
         body.perf-mode #results.results-v2 .gyro-3d-box {
             background-color: var(--results-card-bg) !important;
             max-height: none !important;
+            overflow: visible !important;
         }
 
         body.perf-mode #results.results-v2 .gyro-3d-box-container.is-open .gyro-3d-box {
-            max-height: calc(var(--results-list-h, 70dvh) - 38px - var(--results-peek)) !important;
+            max-height: none !important;
+            overflow: visible !important;
         }
 
         body.perf-mode #results.results-v2 .card-below-victory {
@@ -8265,6 +8262,83 @@ ${matchTypeBadgeHTML(rec.matchType)}
             triggerScrollUpdate();
         });
 
+        /* ── RESULTS BOUNDARY SNAP (free inside tall cards, hard snap between cards) ── */
+        let isTouchingResults = false;
+        let isProgrammaticSnap = false;
+        let snapTarget = null;
+        let resultsSnapTimer = null;
+        let programmaticSnapTimeout = null;
+        let lastScrollDir = 1;
+        let prevScrollTopForDir = 0;
+
+        function smoothSnapTo(row, target) {
+            if (Math.abs(row.scrollTop - target) <= 2) return;
+            snapTarget = target;
+            isProgrammaticSnap = true;
+            row.scrollTo({ top: target, behavior: 'smooth' });
+            clearTimeout(programmaticSnapTimeout);
+            programmaticSnapTimeout = setTimeout(() => {
+                isProgrammaticSnap = false;
+                snapTarget = null;
+            }, 600);
+        }
+
+        function snapIfInTransitionZone() {
+            const row = el('resultsCardsScrollRow');
+            if (!row || isTouchingResults || isProgrammaticSnap) return;
+
+            const cards = getResultCards();
+            if (!cards.length) return;
+
+            const pad = parseFloat(getComputedStyle(row).paddingTop) || 0;
+            const gap = 14;
+            const st = row.scrollTop;
+            if (st <= 0) return;
+
+            let idx = 0;
+            for (let i = 0; i < cards.length; i++) {
+                const cardStart = Math.max(0, cards[i].offsetTop - pad);
+                if (cardStart <= st + 2) idx = i;
+            }
+
+            const curCard = cards[idx];
+            const startI = Math.max(0, curCard.offsetTop - pad);
+            const bottomI = curCard.offsetTop + curCard.offsetHeight;
+            const maxInsideI = Math.max(startI, bottomI + gap - row.clientHeight);
+
+            // Free scroll while inside a tall card's readable body
+            if (maxInsideI > startI && st >= startI - 2 && st <= maxInsideI + 2) {
+                return;
+            }
+
+            // Past the bottom of the last card -> snap back to the bottom of the last card
+            if (idx === cards.length - 1) {
+                if (Math.abs(st - maxInsideI) > 2) {
+                    smoothSnapTo(row, maxInsideI);
+                }
+                return;
+            }
+
+            // Transition zone between current card and next card -> snap to one or the other
+            const nextCard = cards[idx + 1];
+            const zoneStart = maxInsideI;
+            const zoneEnd = Math.max(zoneStart, nextCard.offsetTop - pad);
+            const span = zoneEnd - zoneStart;
+            if (span <= 2) return;
+
+            const threshold = 0.25;
+            const target = lastScrollDir >= 0
+                ? (st >= zoneStart + span * threshold ? zoneEnd : zoneStart)
+                : (st <= zoneEnd - span * threshold ? zoneStart : zoneEnd);
+
+            smoothSnapTo(row, target);
+        }
+
+        function scheduleResultsSnap(delay = 130) {
+            clearTimeout(resultsSnapTimer);
+            resultsSnapTimer = setTimeout(snapIfInTransitionZone, delay);
+        }
+
 
         /* ── PART 4: COMPILING DATABASES & GENERAL INITIALIZATION ── */
 
@@ -8362,7 +8436,39 @@ ${matchTypeBadgeHTML(rec.matchType)}
 
             const resultsScrollRow = el('resultsCardsScrollRow');
             if (resultsScrollRow) {
-                resultsScrollRow.addEventListener('scroll', triggerScrollUpdate);
+                resultsScrollRow.addEventListener('scroll', () => {
+                    const st = resultsScrollRow.scrollTop;
+                    if (isProgrammaticSnap) {
+                        if (snapTarget !== null && Math.abs(st - snapTarget) <= 2) {
+                            isProgrammaticSnap = false;
+                            snapTarget = null;
+                            clearTimeout(programmaticSnapTimeout);
+                        }
+                    } else {
+                        if (Math.abs(st - prevScrollTopForDir) > 1) {
+                            lastScrollDir = st > prevScrollTopForDir ? 1 : -1;
+                        }
+                        if (!isTouchingResults) scheduleResultsSnap(130);
+                    }
+                    prevScrollTopForDir = st;
+                    triggerScrollUpdate();
+                }, { passive: true });
+
+                resultsScrollRow.addEventListener('touchstart', () => {
+                    isTouchingResults = true;
+                    isProgrammaticSnap = false;
+                    snapTarget = null;
+                    clearTimeout(resultsSnapTimer);
+                    clearTimeout(programmaticSnapTimeout);
+                }, { passive: true });
+
+                const onTouchDone = () => {
+                    isTouchingResults = false;
+                    scheduleResultsSnap(130);
+                };
+                resultsScrollRow.addEventListener('touchend', onTouchDone, { passive: true });
+                resultsScrollRow.addEventListener('touchcancel', onTouchDone, { passive: true });
+
                 triggerScrollUpdate();
             }
 
