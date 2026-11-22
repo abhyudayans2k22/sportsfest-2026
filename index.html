@@ -3871,9 +3871,9 @@
         }
 
         /* Smooth page transitions — reduce duration on perf mode */
-        body.perf-mode .pages-track {
+                body.perf-mode .pages-track {
             perspective: none !important;
-            transition-timing-function: ease-out !important;
+            transition: none !important;   /* pages switch instantly; the circle hides the change */
         }
 
         body.perf-mode .content-card-wrapper {
@@ -3990,71 +3990,7 @@
             animation-delay: 6s !important;
             display: block !important;
         }
-
-        /* ============================================================
-           LOW END DEVICE OPTIMIZED POPUP TRANSITIONS (Android Bypass)
-        ============================================================ */
-        body.perf-mode .app-wrapper.menu-open .content-card-wrapper {
-            transform: none !important;
-            border-radius: 0 !important;
-            box-shadow: none !important;
-            pointer-events: auto !important;
-        }
-
-        body.perf-mode .app-wrapper.menu-open .header-box {
-            background: transparent !important;
-            border-color: transparent !important;
-            backdrop-filter: none !important;
-            -webkit-backdrop-filter: none !important;
-            box-shadow: none !important;
-        }
-
-        body.perf-mode .app-wrapper.menu-open .logo-img {
-            max-width: 100px !important;
-            opacity: 1 !important;
-            margin-right: 12px !important;
-            visibility: visible !important;
-        }
-
-        body.perf-mode .menu-layer {
-            position: absolute;
-            right: 24px;
-            top: 15px;
-            width: 240px;
-            height: auto;
-            max-height: calc(100% - 30px);
-            padding: 70px 24px 20px 24px;
-            border-radius: 24px;
-            background: rgba(20, 20, 28, 0.98);
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);
-            display: flex;
-            flex-direction: column;
-            justify-content: flex-start;
-            align-items: flex-end;
-            z-index: 9998;
-            opacity: 0;
-            visibility: hidden;
-            transition: opacity 0.2s ease, visibility 0.2s ease;
-        }
-
-        body.perf-mode .app-wrapper.menu-open .menu-layer {
-            opacity: 1;
-            visibility: visible;
-        }
-
-        body.perf-mode .menu-list {
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
-            text-align: right;
-            width: 100%;
-        }
-
-        body.perf-mode .menu-item {
-            font-size: 1.15rem;
-            padding: 8px 0;
-        }
+        
             /* ============================================================
            HOME — FLIP CLOCK STATS GRID + DESKTOP LAYOUT
         ============================================================ */
@@ -4260,6 +4196,126 @@
                 margin: 70px 0 24px 0;
             }
         }
+
+                /* ============================================================
+           LOW END MODE — CIRCULAR NAVIGATION REVEAL
+        ============================================================ */
+
+        /* the content never scales/shifts in low-end mode */
+        body.perf-mode .app-wrapper.menu-open .content-card-wrapper {
+            transform: none !important;
+            border-radius: 0 !important;
+            box-shadow: none !important;
+        }
+
+        body.perf-mode .app-wrapper.menu-open .header-box {
+            background: transparent !important;
+            border-color: transparent !important;
+            backdrop-filter: none !important;
+            -webkit-backdrop-filter: none !important;
+            box-shadow: none !important;
+        }
+
+        /* old side menu is not used in low-end mode */
+        body.perf-mode .menu-layer {
+            display: none !important;
+        }
+
+        /* hide the "GALLERY" corner label while the menu is open */
+        body.perf-mode .app-wrapper.menu-open .page-title-label {
+            opacity: 0 !important;
+        }
+
+        /* the new navigation shell (does not exist outside low-end mode) */
+        .perf-nav {
+            display: none;
+        }
+
+        body.perf-mode .perf-nav {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;                       /* <- space between the boxes */
+            position: absolute;
+            inset: 0;
+            z-index: 9000;                  /* above pages, below the burger (9999) */
+            padding: 80px 14px 16px 14px;   /* 80px top keeps the burger/X clear */
+            box-sizing: border-box;
+            background: #000000;
+            visibility: hidden;
+            pointer-events: none;
+            -webkit-clip-path: circle(0px at var(--nav-x, calc(100% - 36px)) var(--nav-y, 43px));
+            clip-path: circle(0px at var(--nav-x, calc(100% - 36px)) var(--nav-y, 43px));
+            transition: clip-path 0.5s cubic-bezier(0.4, 0, 0.2, 1),
+                        -webkit-clip-path 0.5s cubic-bezier(0.4, 0, 0.2, 1),
+                        visibility 0s linear 0.5s;   /* <- 0.5s = circle speed (change all three together) */
+        }
+
+        body.perf-mode .app-wrapper.menu-open .perf-nav {
+            visibility: visible;
+            pointer-events: auto;
+            -webkit-clip-path: circle(var(--nav-r, 150vmax) at var(--nav-x, calc(100% - 36px)) var(--nav-y, 43px));
+            clip-path: circle(var(--nav-r, 150vmax) at var(--nav-x, calc(100% - 36px)) var(--nav-y, 43px));
+            transition: clip-path 0.5s cubic-bezier(0.4, 0, 0.2, 1),
+                        -webkit-clip-path 0.5s cubic-bezier(0.4, 0, 0.2, 1),
+                        visibility 0s;
+        }
+
+        /* one box = one page (sharp corners) */
+        body.perf-mode .perf-nav-box {
+            position: relative;
+            display: block;
+            flex: 1 1 0;                    /* the 6 boxes share the height equally */
+            min-height: 0;
+            width: 100%;
+            padding: 0;
+            border: none;
+            border-radius: 0;               /* sharp edges */
+            overflow: hidden;
+            cursor: pointer;
+            background-color: #1c1c1c;      /* shows until you add an image */
+            background-image: var(--nav-img, none);
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        /* dark corner shade so the text stays readable on any image */
+        body.perf-mode .perf-nav-box::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(to top left, rgba(0, 0, 0, 0.7) 0%, rgba(0, 0, 0, 0) 65%);
+            pointer-events: none;
+        }
+
+        body.perf-mode .perf-nav-box:active {
+            opacity: 0.85;
+        }
+
+        /* box of the page you are currently on */
+        body.perf-mode .perf-nav-box.active {
+            outline: 2px solid #d4af37;
+            outline-offset: -2px;
+        }
+
+        /* page name, bottom-right corner */
+        body.perf-mode .perf-nav-label {
+            position: absolute;
+            right: 14px;
+            bottom: 9px;
+            z-index: 1;
+            font-family: 'Oswald', 'Impact', 'Arial Narrow', sans-serif;
+            font-size: 22px;                /* <- page name size */
+            font-weight: 700;
+            letter-spacing: 2px;
+            line-height: 1;
+            text-transform: uppercase;
+            color: #ffffff;
+            pointer-events: none;
+        }
+        
             /* ============================================================
            HOME — MOBILE ROWS (Players / Games+Teams / Champion) + 2nd DIVIDER
         ============================================================ */
@@ -4744,7 +4800,7 @@
         }
 
         #results.results-v2 .match-insight-text {
-            font-size: clamp(12px, 3.5cqw, 15px);
+            font-size: clamp(13px, 3.5cqw, 16px);
             font-weight: 700;
             letter-spacing: 0.4px;
             text-shadow: none;
@@ -4752,7 +4808,7 @@
 
         #results.results-v2 .winner-banner {
             font-size: clamp(12.5px, 3.7cqw, 16px);
-            font-weight: 700;
+            font-weight: 500;
             letter-spacing: 0.3px;
             padding: clamp(9px, 2.8cqw, 12px);
             border-radius: clamp(10px, 3cqw, 12px);
@@ -4788,9 +4844,472 @@
             font-size: clamp(10px, 2.8cqw, 11.5px);
         }
 
+                /* ============================================================
+           SHARE AS POST — button, modal, poster
+        ============================================================ */
+
+        /* button inside the expanded scorebox */
+        #results.results-v2 .share-post-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            width: 100%;
+            margin-top: 14px;
+            padding: 12px;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.22);
+            color: #ffffff;
+            font-family: inherit;
+            font-size: 13px;
+            font-weight: 800;
+            letter-spacing: 1.2px;
+            text-transform: uppercase;
+            cursor: pointer;
+            touch-action: manipulation;
+        }
+
+        #results.results-v2 .share-post-btn svg {
+            width: 15px;
+            height: 15px;
+            fill: currentColor;
+        }
+
+        /* modal */
+        .share-ov {
+            position: fixed;
+            inset: 0;
+            z-index: 20000;
+            background: rgba(0, 0, 0, 0.88);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+        }
+
+        .share-ov.open {
+            display: flex;
+        }
+
+        .share-box {
+            width: 100%;
+            max-width: 440px;
+            max-height: 94vh;
+            overflow: auto;
+            background: #0d0d14;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 20px;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            color: #ffffff;
+        }
+
+        .share-head {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .share-title {
+            font-size: 15px;
+            font-weight: 800;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            color: #FFCC00;
+        }
+
+        .share-close {
+            background: none;
+            border: none;
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 22px;
+            line-height: 1;
+            padding: 4px 8px;
+            cursor: pointer;
+            touch-action: manipulation;
+        }
+
+        .share-preview {
+            position: relative;
+            width: 100%;
+            aspect-ratio: 1 / 1;
+            overflow: hidden;
+            border-radius: 10px;
+            background: #000000;
+        }
+
+        .share-mount {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 1000px;
+            height: 1000px;
+            transform-origin: 0 0;
+        }
+
+        .share-dl {
+            width: 100%;
+            padding: 14px;
+            border: none;
+            border-radius: 14px;
+            background: linear-gradient(135deg, #FFCC00, #ff9900);
+            color: #000000;
+            font-size: 14px;
+            font-weight: 800;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            cursor: pointer;
+            touch-action: manipulation;
+        }
+
+        .share-dl:disabled {
+            background: #2a2a30;
+            color: rgba(255, 255, 255, 0.35);
+            cursor: not-allowed;
+        }
+
+        /* ---------- THE POSTER (fixed 1000 x 1000 px; 1u = 1cqw of your template) ---------- */
+        .sp-poster {
+            position: relative;
+            width: 1000px;
+            height: 1000px;
+            overflow: hidden;
+            background-color: #000000;
+            background-repeat: no-repeat;
+            font-family: 'Oswald', sans-serif;
+            user-select: none;
+        }
+
+        .sp-main {
+            --u: 10.1px;                 /* 1u = 1cqw of the black box (1010px wide) */
+            position: absolute;
+            width: 1010px;               /* --box-size 101% */
+            height: 1010px;
+            left: -305px;                /* --box-pos-x 20%  ->  200px - 505px */
+            top: -5px;                   /* --box-pos-y 50%  ->  500px - 505px */
+            background: #000000;
+            color: #ffffff;
+            overflow: hidden;
+        }
+
+        .sp-card {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            padding: calc(5.5 * var(--u)) calc(4.5 * var(--u)) calc(4.5 * var(--u)) calc(34.5 * var(--u));
+            display: flex;
+            flex-direction: column;
+        }
+
+        .sp-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            margin-bottom: calc(3 * var(--u));
+        }
+
+        .sp-hl {
+            flex: 1;
+            min-width: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            text-align: left;
+        }
+
+        .sp-lakshya {
+            font-size: calc(6.2 * var(--u));
+            font-weight: 700;
+            line-height: 0.95;
+            letter-spacing: calc(0.3 * var(--u));
+            text-transform: uppercase;
+            color: #ffffff;
+        }
+
+        .sp-fest {
+            font-size: calc(4.2 * var(--u));
+            font-weight: 700;
+            line-height: 1.05;
+            letter-spacing: calc(0.2 * var(--u));
+            text-transform: uppercase;
+            color: var(--sp-accent, #ff8c32);
+            margin-top: calc(0.3 * var(--u));
+        }
+
+        .sp-sport {
+            font-size: calc(2.8 * var(--u));
+            font-weight: 500;
+            line-height: 1.1;
+            letter-spacing: calc(0.25 * var(--u));
+            text-transform: uppercase;
+            color: rgba(255, 255, 255, 0.85);
+            margin-top: calc(1.2 * var(--u));
+        }
+
+        .sp-hr {
+            flex-shrink: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            text-align: right;
+            padding-left: calc(1.5 * var(--u));
+        }
+
+        .sp-meta-match {
+            font-size: calc(2.6 * var(--u));
+            font-weight: 400;
+            line-height: 1.1;
+            letter-spacing: calc(0.2 * var(--u));
+            text-transform: uppercase;
+            color: rgba(255, 255, 255, 0.65);
+        }
+
+        .sp-meta-period {
+            font-size: calc(2.8 * var(--u));
+            font-weight: 500;
+            line-height: 1.1;
+            letter-spacing: calc(0.25 * var(--u));
+            text-transform: uppercase;
+            color: #ffffff;
+            margin-top: calc(0.4 * var(--u));
+        }
+
+        .sp-divider {
+            width: 100%;
+            height: calc(0.18 * var(--u));
+            background-color: rgba(255, 255, 255, 0.22);
+        }
+
+        .sp-matchup {
+            width: 100%;
+            margin: calc(4 * var(--u)) 0;
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) minmax(0, 0.35fr) minmax(0, 1fr);
+            align-items: center;
+            justify-items: center;
+        }
+
+        .sp-logo {
+            width: calc(28 * var(--u));
+            height: calc(28 * var(--u));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .sp-logo img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        .sp-vs {
+            font-size: calc(4.8 * var(--u));
+            font-weight: 700;
+            letter-spacing: calc(0.2 * var(--u));
+            color: rgba(255, 255, 255, 0.85);
+        }
+
+        .sp-team {
+            margin-top: calc(1.8 * var(--u));
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+
+        .sp-team-name {
+            font-size: calc(2.6 * var(--u));
+            font-weight: 500;
+            line-height: 1.1;
+            letter-spacing: calc(0.15 * var(--u));
+            text-transform: uppercase;
+            color: var(--sp-accent, #ff8c32);
+        }
+
+        .sp-team-sub {
+            margin-top: calc(0.5 * var(--u));
+            font-size: calc(2.1 * var(--u));
+            font-weight: 400;
+            letter-spacing: calc(0.15 * var(--u));
+            text-transform: uppercase;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .sp-score {
+            margin-top: calc(0.8 * var(--u));
+            font-size: calc(9 * var(--u));           /* big numbers (points / sets) */
+            font-weight: 700;
+            line-height: 1;
+            letter-spacing: calc(0.15 * var(--u));
+            text-align: center;
+            color: #ffffff;
+            white-space: nowrap;
+        }
+
+        .sp-score.sm {
+            font-size: calc(5.2 * var(--u));         /* cricket 60/9(10) and long result-only scores */
+        }
+
+        .sp-score small {
+            font-size: 0.5em;
+            font-weight: 500;
+            letter-spacing: 0;
+            color: rgba(255, 255, 255, 0.75);
+        }
+
+        .sp-dash {
+            margin-top: calc(0.8 * var(--u));
+            font-size: calc(4.5 * var(--u));
+            font-weight: 400;
+            color: rgba(255, 255, 255, 0.35);
+        }
+
+        .sp-winner {
+            margin-top: calc(3.5 * var(--u));
+            text-align: center;
+            font-size: calc(3.1 * var(--u));
+            font-weight: 500;
+            letter-spacing: calc(0.22 * var(--u));
+            text-transform: uppercase;
+            color: #ffffff;
+        }
+
+        .sp-footer {
+            position: absolute;
+            left: calc(34.5 * var(--u));
+            bottom: calc(4 * var(--u));
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            font-size: calc(2.1 * var(--u));
+            font-weight: 500;
+            line-height: 1.25;
+            letter-spacing: calc(0.2 * var(--u));
+            text-transform: uppercase;
+            color: rgba(255, 255, 255, 0.55);
+        }
+
+            /* ---------- SHARE POSTER: theme-coloured box + matching text ---------- */
+        .sp-main { background: var(--sp-box, #000000); color: var(--sp-fg, #ffffff); }
+        .sp-lakshya,
+        .sp-meta-period,
+        .sp-score,
+        .sp-winner { color: var(--sp-fg, #ffffff); }
+        .sp-sport { color: rgba(var(--sp-fg-rgb, 255, 255, 255), 0.85); }
+        .sp-meta-match { color: rgba(var(--sp-fg-rgb, 255, 255, 255), 0.7); }
+        .sp-vs { color: rgba(var(--sp-fg-rgb, 255, 255, 255), 0.85); }
+        .sp-team-sub { color: rgba(var(--sp-fg-rgb, 255, 255, 255), 0.75); }
+        .sp-score small { color: rgba(var(--sp-fg-rgb, 255, 255, 255), 0.75); }
+        .sp-dash { color: rgba(var(--sp-fg-rgb, 255, 255, 255), 0.4); }
+        .sp-footer { color: rgba(var(--sp-fg-rgb, 255, 255, 255), 0.65); }
+        .sp-divider { background-color: rgba(var(--sp-fg-rgb, 255, 255, 255), 0.25); }
+
+        /* ---------- SHARE POPUP: loading spinner ---------- */
+        .share-loading {
+            position: absolute;
+            inset: 0;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            background: #0d0d14;
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            z-index: 5;
+        }
+        .share-loading.show { display: flex; }
+        .share-spin {
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            border: 3px solid rgba(255, 255, 255, 0.15);
+            border-top-color: #FFCC00;
+            animation: shareSpin 0.8s linear infinite;
+        }
+        @keyframes shareSpin { to { transform: rotate(360deg); } }
+            /* ============================================================
+           POST CONTROL PANEL — edit ONLY the numbers in this first block
+           (1 unit = about 10px on the 1000px post)
+        ============================================================ */
+        .sp-poster {
+            /* text sizes */
+            --sz-lakshya: 6.2;        /* "LAKSHYA" */
+            --sz-fest: 4.2;           /* "SPORTS FEST - 26" */
+            --sz-sport: 2.8;          /* "CRICKET SCORECARD" */
+            --sz-meta-match: 2.6;     /* "LEAGUE MATCH" (top right) */
+            --sz-meta-period: 2.8;    /* "FINISHED" / period (top right) */
+            --sz-logo: 28;            /* team logo size */
+            --sz-vs: 4.8;             /* "VS" */
+            --sz-team-name: 2.9;      /* team names */
+            --sz-team-sub: 2.5;       /* player / custom name under team */
+            --sz-score: 8;            /* big score numbers */
+            --sz-score-sm: 5.2;       /* cricket and long scores */
+            --sz-dash: 5;           /* "-" between the scores */
+            --sz-winner: 3.1;         /* winner line */
+            --sz-footer: 2.1;         /* hashtags at the bottom */
+
+            /* positions and spacing */
+            --pad-top: 5.5;           /* space above LAKSHYA */
+            --pad-left: 34.5;         /* where the content starts from the left edge of the box */
+            --pad-right: 4.5;
+            --pad-bottom: 4.5;
+            --gap-header: 3;          /* space under the header */
+            --gap-matchup: 3;         /* space above and below the logos/scores block */
+            --gap-winner: 3.5;        /* space above the winner line */
+            --footer-bottom: 4;       /* hashtags distance from the bottom */
+
+            /* black gradient at the bottom of the box */
+            --grad-h: 40%;            /* how tall the gradient is */
+            --grad-strength: 1;     /* 0 = invisible, 1 = solid black at the very bottom */
+        }
+
+        /* ---- rules that read the numbers above (don't edit) ---- */
+        .sp-card { padding: calc(var(--pad-top) * var(--u)) calc(var(--pad-right) * var(--u)) calc(var(--pad-bottom) * var(--u)) calc(var(--pad-left) * var(--u)); }
+        .sp-header { margin-bottom: calc(var(--gap-header) * var(--u)); }
+        .sp-lakshya { font-size: calc(var(--sz-lakshya) * var(--u)); }
+        .sp-fest { font-size: calc(var(--sz-fest) * var(--u)); }
+        .sp-sport { font-size: calc(var(--sz-sport) * var(--u)); }
+        .sp-meta-match { font-size: calc(var(--sz-meta-match) * var(--u)); }
+        .sp-meta-period { font-size: calc(var(--sz-meta-period) * var(--u)); }
+        .sp-matchup { margin: calc(var(--gap-matchup) * var(--u)) 0; }
+        .sp-logo { width: calc(var(--sz-logo) * var(--u)); height: calc(var(--sz-logo) * var(--u)); }
+        .sp-vs { font-size: calc(var(--sz-vs) * var(--u)); }
+        .sp-team-name { font-size: calc(var(--sz-team-name) * var(--u)); }
+        .sp-team-sub { font-size: calc(var(--sz-team-sub) * var(--u)); }
+        .sp-score { font-size: calc(var(--sz-score) * var(--u)); }
+        .sp-score.sm { font-size: calc(var(--sz-score-sm) * var(--u)); }
+        .sp-dash { font-size: calc(var(--sz-dash) * var(--u)); }
+        .sp-winner { margin-top: calc(var(--gap-winner) * var(--u)); font-size: calc(var(--sz-winner) * var(--u)); }
+        .sp-footer {
+            left: calc(var(--pad-left) * var(--u));
+            bottom: calc(var(--footer-bottom) * var(--u));
+            font-size: calc(var(--sz-footer) * var(--u));
+            color: rgba(255, 255, 255, 0.75);   /* always white, so it stays readable on the black gradient */
+        }
+
+        /* black gradient at the bottom of the scorebox container */
+        .sp-main::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            height: var(--grad-h);
+            background: linear-gradient(to bottom, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, var(--grad-strength)) 100%);
+            pointer-events: none;
+        }
     </style>
 
     <script src="https://cdn.jsdelivr.net/npm/twemoji@14.0.2/dist/twemoji.min.js" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" crossorigin="anonymous"></script>
 
 </head>
 
@@ -4843,6 +5362,28 @@
                 <li class="menu-item" data-target="gallery" data-index="5">Gallery</li>
             </ul>
         </nav>
+
+                <!-- ── LOW-END MODE navigation (circular reveal). Not visible in normal mode ── -->
+        <div class="perf-nav" id="perfNav">
+            <button type="button" class="perf-nav-box active" data-index="0" style="--nav-img: url('https://i.ibb.co/Myk9gc0H/8b0ee16fd98c0f69d4452e542034dd9f.jpg');">
+                <span class="perf-nav-label">Home</span>
+            </button>
+            <button type="button" class="perf-nav-box" data-index="1" style="--nav-img: url('https://i.ibb.co/FLFRzpkj/545b977ac4cfd84446fc0075fc3761bd.jpg');">
+                <span class="perf-nav-label">Live</span>
+            </button>
+            <button type="button" class="perf-nav-box" data-index="2" style="--nav-img: url('https://i.ibb.co/Zz4j5Mjr/84eaeb559c2fcde8ff9c6cf4b704ab08.jpg');">
+                <span class="perf-nav-label">Results</span>
+            </button>
+            <button type="button" class="perf-nav-box" data-index="3" style="--nav-img: url('https://i.ibb.co/rGXvzbBL/1d8252e2a4ebf64f520447f903d46ace.jpg');">
+                <span class="perf-nav-label">Standings</span>
+            </button>
+            <button type="button" class="perf-nav-box" data-index="4" style="--nav-img: url('https://i.ibb.co/prRfSH9w/79132ca25ed06540cc2d358e16fcda86.jpg');">
+                <span class="perf-nav-label">Teams</span>
+            </button>
+            <button type="button" class="perf-nav-box" data-index="5" style="--nav-img: url('https://i.ibb.co/rf2xFRg4/76e1938860d221900ebc101b68a6c791.jpg');">
+                <span class="perf-nav-label">Gallery</span>
+            </button>
+        </div>
 
         <!-- ── Card deck ── -->
         <div class="card-deck-element content-card-wrapper" id="contentCard">
@@ -6121,6 +6662,21 @@
 
     </div><!-- /app-wrapper -->
 
+    <!-- ── SHARE AS POST modal (outside the card deck on purpose) ── -->
+    <div class="share-ov" id="shareOv">
+        <div class="share-box">
+            <div class="share-head">
+                <span class="share-title">Download scorecard</span>
+                <button type="button" class="share-close" id="shareCloseBtn" aria-label="Close">&#x2715;</button>
+            </div>
+            <div class="share-preview" id="sharePreview">
+                <div class="share-mount" id="shareMount"></div>
+                <div class="share-loading" id="shareLoading"><div class="share-spin"></div><span>Preparing post</span></div>
+            </div>
+            <button type="button" class="share-dl" id="shareDownloadBtn">Download</button>
+        </div>
+    </div>
+
     <script>
         // Render all emojis consistently across all devices using Twemoji
         document.addEventListener('DOMContentLoaded', function () {
@@ -6180,6 +6736,9 @@
                 item.classList.remove('active-link');
             });
             menuItems[targetIndex].classList.add('active-link');
+            document.querySelectorAll('.perf-nav-box').forEach((box, i) => {
+                box.classList.toggle('active', i === targetIndex);
+            });
 
             currentIndex = targetIndex;
 
@@ -6247,13 +6806,37 @@
             }
         }
 
+        /* ── Low-end mode: circle starts exactly at the burger icon ── */
+        const perfNav = document.getElementById('perfNav');
+
+        function setPerfNavOrigin() {
+            const b = document.querySelector('.burger-icon').getBoundingClientRect();
+            const x = b.left + b.width / 2;
+            const y = b.top + b.height / 2;
+            const w = appWrapper.clientWidth;
+            const h = appWrapper.clientHeight;
+            // distance to the farthest corner = radius needed to cover the whole screen
+            const r = Math.hypot(Math.max(x, w - x), Math.max(y, h - y)) + 2;
+            perfNav.style.setProperty('--nav-x', x + 'px');
+            perfNav.style.setProperty('--nav-y', y + 'px');
+            perfNav.style.setProperty('--nav-r', r + 'px');
+        }
+
         headerBox.addEventListener('click', () => {
+            if (document.body.classList.contains('perf-mode')) setPerfNavOrigin();
             appWrapper.classList.toggle('menu-open');
         });
 
         menuItems.forEach(item => {
             item.addEventListener('click', () => {
                 navigateToPage(parseInt(item.getAttribute('data-index'), 10));
+            });
+        });
+
+        /* tapping a box opens that page (the circle then shrinks back into the burger) */
+        document.querySelectorAll('.perf-nav-box').forEach(box => {
+            box.addEventListener('click', () => {
+                navigateToPage(parseInt(box.getAttribute('data-index'), 10));
             });
         });
     </script>
@@ -8258,7 +8841,7 @@ ${matchTypeBadgeHTML(rec.matchType)}
 
         const TEAM_SEARCH_ALIASES = {
             ABH: 'abhyudayans abh',
-            VYV: 'vyvidhians vyvdhyans vyv',
+            VYV: 'vyvidhians vyv',
             ADH: 'adhirans adh',
             PRJ: 'prajvalyans prj'
         };
@@ -8293,11 +8876,255 @@ ${matchTypeBadgeHTML(rec.matchType)}
         }
 
 
+                    /* ── SHARE AS POST (1:1 scorecard image) ── */
+        let shareRegistry = {};   // cardId -> { sport, rec }, refilled on every render
+
+        // one template per team: background image + its position/size + accent colour
+        const SHARE_THEMES = {
+            ABH: { img: 'https://i.ibb.co/KjsQnB7s/Gemini-Generated-Image-xyi6b2xyi6b2xyi6.png', size: '190%', x: '26%', y: '59%', accent: '#ffb3b3', box: '#670E10', fg: '255,255,255' },
+            VYV: { img: 'https://i.ibb.co/Z1cpyP1H/Gemini-Generated-Image-h2lnheh2lnheh2ln.png', size: '200%', x: '8%',  y: '60%', accent: '#8ec5ff', box: '#0A1F5C', fg: '255,255,255' },
+            ADH: { img: 'https://i.ibb.co/ks5sSF1p/Gemini-Generated-Image-5xjbxn5xjbxn5xjb.png', size: '200%', x: '2%',  y: '60%', accent: '#2b1c00', box: '#C58E03', fg: '20,14,0' },
+            PRJ: { img: 'https://i.ibb.co/NdRhpR4r/Gemini-Generated-Image-e16ynce16ynce16y.png', size: '200%', x: '28%', y: '60%', accent: '#ffb36b', box: '#136207', fg: '255,255,255' }
+        };
+
+        const SHARE_MATCH_TYPE = { league: 'LEAGUE MATCH', semi_final: 'SEMI FINAL', grand_final: 'FINAL' };
+        const SHARE_PERIOD_TEXT = 'FULLTIME';
+
+        function shEsc(s) {
+            return String(s ?? '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+        }
+
+        // "ABH-B" -> "Abhyudayans Boys"
+        function shareTeamName(code) {
+            const raw = String(code || '').trim();
+            const base = normalizeTeamCode(raw);
+            const g = /-B$/i.test(raw) ? ' Boys' : /-G$/i.test(raw) ? ' Girls' : '';
+            return (base ? TEAMS[base].name : (raw || 'Team')) + g;
+        }
+
+        // turns a Firebase match record into everything the poster needs
+        function getShareMatchData(sport, rec) {
+            const t1 = rec.team1 || '', t2 = rec.team2 || '';
+            const clean = v => { const s = String(v ?? '').trim(); return s === '--' ? '' : s; };
+            let score1 = '0', score2 = '0', small = false, side = 0;   // side: 1 = team1 won, 2 = team2 won, 0 = tie
+
+            if (rec.resultOnly === true) {
+                // tug of war, ball badminton, custom sports: scores exactly as typed
+                const r1 = rec.team1Score ?? '0', r2 = rec.team2Score ?? '0';
+                score1 = shEsc(r1); score2 = shEsc(r2);
+                small = Math.max(String(r1).length, String(r2).length) > 4;
+                const n1 = parseFloat(r1) || 0, n2 = parseFloat(r2) || 0;
+                side = n1 > n2 ? 1 : n2 > n1 ? 2 : 0;
+            } else if (sport === 'cricket') {
+                // runs/wickets(overs)  e.g. 60/9(10)  -  61/5(8.5)
+                const ps = s => { const p = String(s || '0/0').split('/'); return { r: parseInt(p[0]) || 0, w: parseInt(p[1]) || 0 }; };
+                const fo = o => { const v = String(o || '0.0'); return v.endsWith('.0') ? v.slice(0, -2) : v; };
+                const a = ps(rec.team1Score), b = ps(rec.team2Score);
+                score1 = `${a.r}/${a.w}<small>(${fo(rec.team1Overs)})</small>`;
+                score2 = `${b.r}/${b.w}<small>(${fo(rec.team2Overs)})</small>`;
+                small = true;
+                side = a.r > b.r ? 1 : b.r > a.r ? 2 : 0;
+            } else if (sport === 'basketball') {
+                const n1 = Number(rec.team1Score) || 0, n2 = Number(rec.team2Score) || 0;
+                score1 = String(n1); score2 = String(n2);
+                side = n1 > n2 ? 1 : n2 > n1 ? 2 : 0;
+            } else {
+                // badminton / volleyball / throwball: show sets (games) WON
+                const sets = rec.sets || [];
+                let w1 = 0, w2 = 0;
+                sets.forEach(s => { if (s[0] > s[1]) w1++; else if (s[1] > s[0]) w2++; });
+                const won = rec.gamesWon || rec.setsWon;
+                if (won) { const p = String(won).split('-'); w1 = parseInt(p[0]) || w1; w2 = parseInt(p[1]) || w2; }
+                score1 = String(w1); score2 = String(w2);
+                side = w1 > w2 ? 1 : w2 > w1 ? 2 : 0;
+            }
+
+            const name1 = shareTeamName(t1), name2 = shareTeamName(t2);
+            const sub1 = clean(rec.team1DisplayName) || (sport === 'badminton' ? clean(rec.team1Player) : '');
+            const sub2 = clean(rec.team2DisplayName) || (sport === 'badminton' ? clean(rec.team2Player) : '');
+
+            const w = side === 1 ? [name1, sub1] : side === 2 ? [name2, sub2] : null;
+            let winnerText = w ? `${w[0]}${w[1] ? ' (' + w[1] + ')' : ''} WON THE GAME` : 'MATCH TIED';
+            if (sport === 'cricket' && w && rec.resultOnly !== true) {
+                const cp = s => { const p = String(s || '0/0').split('/'); return { r: parseInt(p[0]) || 0, w: parseInt(p[1]) || 0 }; };
+                const cr1 = cp(rec.team1Score), cr2 = cp(rec.team2Score);
+                const runsMargin = cr1.r - cr2.r;
+                const wktsLeft = 10 - cr2.w;
+                const margin = side === 1
+                    ? `${runsMargin} RUN${runsMargin !== 1 ? 'S' : ''}`
+                    : `${wktsLeft} WICKET${wktsLeft !== 1 ? 'S' : ''}`;
+                winnerText = `${w[0]}${w[1] ? ' (' + w[1] + ')' : ''} WON BY ${margin}`;
+            }
+
+            const themeCode = normalizeTeamCode(side === 2 ? t2 : t1) || normalizeTeamCode(t1) || normalizeTeamCode(t2) || 'PRJ';
+            const sportLabel = String(rec.sport || sport).replace(/_/g, ' ').toUpperCase();
+
+            return {
+                sportTitle: `${sportLabel} SCORECARD`,
+                matchType: SHARE_MATCH_TYPE[rec.matchType || 'league'] || String(rec.matchType).replace(/_/g, ' ').toUpperCase(),
+                period: sport === 'basketball' ? String(rec.period || 'Full Time').toUpperCase() : 'FINISHED',
+                name1, name2, sub1, sub2,
+                logo1: getLogo(t1, rec), logo2: getLogo(t2, rec),
+                score1, score2, small, winnerText, themeCode,
+                hashtag: '#' + TEAMS[themeCode].name.toUpperCase(),
+                fileName: `Lakshya26_${sportLabel}_${t1}_vs_${t2}`.replace(/[^A-Za-z0-9_-]+/g, '_')
+            };
+        }
+
+        function buildSharePosterHTML(d, theme) {
+            const sub = s => s ? `<div class="sp-team-sub">${shEsc(s)}</div>` : '';
+            const sm = d.small ? ' sm' : '';
+            return `
+<div class="sp-poster" id="spPoster" style="background-image:url('${theme.img}');background-size:${theme.size} auto;background-position:${theme.x} ${theme.y};--sp-accent:${theme.accent};--sp-box:${theme.box};--sp-fg:rgb(${theme.fg});--sp-fg-rgb:${theme.fg};">
+  <div class="sp-main">
+    <div class="sp-card">
+      <div class="sp-header">
+        <div class="sp-hl">
+          <div class="sp-lakshya">LAKSHYA</div>
+          <div class="sp-fest">SPORTS FEST - 26</div>
+          <div class="sp-sport">${shEsc(d.sportTitle)}</div>
+        </div>
+        <div class="sp-hr">
+          <div class="sp-meta-match">${shEsc(d.matchType)}</div>
+          <div class="sp-meta-period">${shEsc(d.period)}</div>
+        </div>
+      </div>
+      <div class="sp-divider"></div>
+      <div class="sp-matchup">
+        <div class="sp-logo"><img src="${d.logo1}" crossorigin="anonymous" alt=""></div>
+        <div class="sp-vs">VS</div>
+        <div class="sp-logo"><img src="${d.logo2}" crossorigin="anonymous" alt=""></div>
+
+        <div class="sp-team"><div class="sp-team-name">${shEsc(d.name1)}</div>${sub(d.sub1)}</div>
+        <div></div>
+        <div class="sp-team"><div class="sp-team-name">${shEsc(d.name2)}</div>${sub(d.sub2)}</div>
+
+        <div class="sp-score${sm}">${d.score1}</div>
+        <div class="sp-dash">-</div>
+        <div class="sp-score${sm}">${d.score2}</div>
+      </div>
+      <div class="sp-divider"></div>
+      <div class="sp-winner">${shEsc(d.winnerText)}</div>
+    </div>
+    <div class="sp-footer"><span>${shEsc(d.hashtag)}</span><span>#LAKSHYA26</span></div>
+  </div>
+</div>`;
+        }
+
+        // loads images with CORS first so the download never comes out blank/tainted
+        function preloadShareImages(urls) {
+            return Promise.all(urls.filter(Boolean).map(u => new Promise(res => {
+                const im = new Image();
+                im.crossOrigin = 'anonymous';
+                im.onload = im.onerror = () => res();
+                im.src = u;
+            })));
+        }
+
+        function fitSharePreview() {
+            const box = el('sharePreview'), mount = el('shareMount');
+            if (box && mount) mount.style.transform = `scale(${box.clientWidth / 1000})`;
+        }
+
+        let shareToken = 0;   // stops a late-loading poster from appearing after the popup was closed
+
+        async function openResultShare(cardId) {
+            const entry = shareRegistry[cardId];
+            if (!entry) return;
+            const d = getShareMatchData(entry.sport, entry.rec);
+            const theme = SHARE_THEMES[d.themeCode] || SHARE_THEMES.PRJ;
+
+            // 1) open the popup immediately with the spinner
+            const myToken = ++shareToken;
+            el('shareMount').innerHTML = '';
+            el('shareLoading').classList.add('show');
+            el('shareDownloadBtn').disabled = true;
+            el('shareOv').classList.add('open');
+            fitSharePreview();
+
+            // 2) load the images (gives up waiting after 8s and builds anyway)
+            await Promise.race([
+                preloadShareImages([theme.img, d.logo1, d.logo2]),
+                new Promise(r => setTimeout(r, 8000))
+            ]);
+            if (myToken !== shareToken) return;   // popup was closed or reopened meanwhile
+
+            // 3) show the poster, hide the spinner
+            el('shareMount').innerHTML = buildSharePosterHTML(d, theme);
+            el('shareMount').dataset.file = d.fileName;
+            el('shareLoading').classList.remove('show');
+            el('shareDownloadBtn').disabled = false;
+            fitSharePreview();
+        }
+
+        function closeResultShare() {
+            shareToken++;
+            el('shareOv').classList.remove('open');
+            el('shareLoading').classList.remove('show');
+            el('shareMount').innerHTML = '';
+        }
+
+        async function downloadSharePost() {
+            const btn = el('shareDownloadBtn');
+            const poster = el('spPoster');
+            if (!poster || typeof html2canvas !== 'function') { alert('Image tool not loaded. Please try again.'); return; }
+            const label = btn.textContent;
+            btn.disabled = true; btn.textContent = 'Preparing...';
+
+            // capture a full-size, un-scaled copy of the poster
+            const clone = poster.cloneNode(true);
+            clone.removeAttribute('id');
+            clone.style.position = 'fixed';
+            clone.style.left = '0px';
+            clone.style.top = '0px';
+            clone.style.zIndex = '-1';
+            clone.style.transform = 'none';
+            document.body.appendChild(clone);
+
+            try {
+                if (document.fonts && document.fonts.load) {
+                    await Promise.all(['400', '500', '700'].map(w => document.fonts.load(`${w} 26px Oswald`)));
+                    await document.fonts.ready;
+                }
+                const canvas = await html2canvas(clone, {
+                    scale: 1.08,                 // 1000px x 1.08 = 1080 x 1080 (Instagram size)
+                    useCORS: true,
+                    allowTaint: false,
+                    backgroundColor: '#000000',
+                    width: 1000, height: 1000,
+                    windowWidth: 1000, windowHeight: 1000,
+                    logging: false
+                });
+                const blob = await new Promise(r => canvas.toBlob(r, 'image/png'));
+                if (!blob) throw new Error('empty image');
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = (el('shareMount').dataset.file || 'Lakshya26_Scorecard') + '.png';
+                document.body.appendChild(a);
+                a.click();
+                a.remove();
+                setTimeout(() => URL.revokeObjectURL(url), 4000);
+            } catch (err) {
+                console.error('Share export failed:', err);
+                alert('Could not create the image. Please try again.');
+            } finally {
+                clone.remove();
+                btn.disabled = false; btn.textContent = label;
+            }
+        }
+
+        el('shareCloseBtn').addEventListener('click', closeResultShare);
+        el('shareOv').addEventListener('click', e => { if (e.target === el('shareOv')) closeResultShare(); });
+        el('shareDownloadBtn').addEventListener('click', downloadSharePost);
+        window.addEventListener('resize', fitSharePreview);
+        window.openResultShare = openResultShare;
 
         function renderAllFilteredMatches() {
             const teamFilter = el('resultsTeamDropdown').value;
             let combinedHTML = '';
             const renderedCards = [];
+            shareRegistry = {};
             let totalRendered = 0;
 
             const knownSports = ['cricket', 'basketball', 'badminton', 'volleyball', 'throwball'];
@@ -8327,6 +9154,7 @@ ${matchTypeBadgeHTML(rec.matchType)}
                     }
 
                     const cardId = `resultsDynamicCard_${sport}_${idx}`;
+                    shareRegistry[cardId] = { sport, rec };
 
                     let winnerTeam = null;
                     if (sport === 'cricket') {
@@ -8525,6 +9353,17 @@ function initFocusObserver() {
         }
     });
 
+    // add the "Share as post" button inside the part that only shows when expanded
+    cards.forEach(card => {
+        const below = card.querySelector('.card-below-victory');
+        if (below && !below.querySelector('.share-post-btn')) {
+            below.insertAdjacentHTML('beforeend',
+                '<button type="button" class="share-post-btn" data-card="' + card.id + '">' +
+                '<svg viewBox="0 0 24 24"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92s2.92-1.31 2.92-2.92-1.31-2.92-2.92-2.92z"/></svg>' +
+                'Download</button>');
+        }
+    });
+
     // keep the same card open after a re-render, without re-animating it
     const match = cards.find(c => (c.dataset.key || c.id) === resultsOpenKey);
     if (match) {
@@ -8646,6 +9485,8 @@ if (resultsScrollRow) {
     }, { passive: true });
 
     resultsScrollRow.addEventListener('click', (e) => {
+        const shareBtn = e.target.closest('.share-post-btn');
+        if (shareBtn) { window.openResultShare(shareBtn.getAttribute('data-card')); return; }   // open share, don't collapse the card
         if (e.target.closest('a')) return;               // let "Full Scorecard" link work
         const card = e.target.closest('.gyro-3d-box-container');
         if (card && resultsScrollRow.contains(card)) toggleResultCard(card);
