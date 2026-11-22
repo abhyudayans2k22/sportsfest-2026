@@ -5263,6 +5263,7 @@
             --pad-bottom: 4.5;
             --gap-header: 3;          /* space under the header */
             --gap-matchup: 3;         /* space above and below the logos/scores block */
+            --gap-logo-name: -2;     /* space between the logo and the team name */
             --gap-winner: 3.5;        /* space above the winner line */
             --footer-bottom: 4;       /* hashtags distance from the bottom */
 
@@ -5280,6 +5281,7 @@
         .sp-meta-match { font-size: calc(var(--sz-meta-match) * var(--u)); }
         .sp-meta-period { font-size: calc(var(--sz-meta-period) * var(--u)); }
         .sp-matchup { margin: calc(var(--gap-matchup) * var(--u)) 0; }
+        .sp-team { margin-top: calc(var(--gap-logo-name) * var(--u)); }
         .sp-logo { width: calc(var(--sz-logo) * var(--u)); height: calc(var(--sz-logo) * var(--u)); }
         .sp-vs { font-size: calc(var(--sz-vs) * var(--u)); }
         .sp-team-name { font-size: calc(var(--sz-team-name) * var(--u)); }
@@ -8974,6 +8976,7 @@ ${matchTypeBadgeHTML(rec.matchType)}
         function buildSharePosterHTML(d, theme) {
             const sub = s => s ? `<div class="sp-team-sub">${shEsc(s)}</div>` : '';
             const sm = d.small ? ' sm' : '';
+            const twoLine = n => { const m = String(n).match(/^(.*)\s+(Boys|Girls)$/i); return m ? shEsc(m[1]) + '<br>' + shEsc(m[2]) : shEsc(n); };
             return `
 <div class="sp-poster" id="spPoster" style="background-image:url('${theme.img}');background-size:${theme.size} auto;background-position:${theme.x} ${theme.y};--sp-accent:${theme.accent};--sp-box:${theme.box};--sp-fg:rgb(${theme.fg});--sp-fg-rgb:${theme.fg};">
   <div class="sp-main">
@@ -8995,9 +8998,9 @@ ${matchTypeBadgeHTML(rec.matchType)}
         <div class="sp-vs">VS</div>
         <div class="sp-logo"><img src="${d.logo2}" crossorigin="anonymous" alt=""></div>
 
-        <div class="sp-team"><div class="sp-team-name">${shEsc(d.name1)}</div>${sub(d.sub1)}</div>
+        <div class="sp-team"><div class="sp-team-name">${twoLine(d.name1)}</div>${sub(d.sub1)}</div>
         <div></div>
-        <div class="sp-team"><div class="sp-team-name">${shEsc(d.name2)}</div>${sub(d.sub2)}</div>
+        <div class="sp-team"><div class="sp-team-name">${twoLine(d.name2)}</div>${sub(d.sub2)}</div>
 
         <div class="sp-score${sm}">${d.score1}</div>
         <div class="sp-dash">-</div>
@@ -9086,16 +9089,24 @@ ${matchTypeBadgeHTML(rec.matchType)}
                     await Promise.all(['400', '500', '700'].map(w => document.fonts.load(`${w} 26px Oswald`)));
                     await document.fonts.ready;
                 }
-                const canvas = await html2canvas(clone, {
-                    scale: 1.08,                 // 1000px x 1.08 = 1080 x 1080 (Instagram size)
-                    useCORS: true,
-                    allowTaint: false,
-                    backgroundColor: '#000000',
-                    width: 1000, height: 1000,
-                    windowWidth: 1000, windowHeight: 1000,
-                    logging: false
-                });
-                const blob = await new Promise(r => canvas.toBlob(r, 'image/png'));
+                // highest quality first; if the phone can't handle it, it falls back to a smaller size automatically
+                const EXPORT_SCALES = [3, 2, 1.08];   // 3 = 3000x3000 px, 2 = 2000x2000 px, 1.08 = 1080x1080 px
+                let blob = null;
+                for (const sc of EXPORT_SCALES) {
+                    try {
+                        const canvas = await html2canvas(clone, {
+                            scale: sc,
+                            useCORS: true,
+                            allowTaint: false,
+                            backgroundColor: '#000000',
+                            width: 1000, height: 1000,
+                            windowWidth: 1000, windowHeight: 1000,
+                            logging: false
+                        });
+                        blob = await new Promise(r => canvas.toBlob(r, 'image/png'));
+                        if (blob) break;
+                    } catch (e) { console.warn('Export at scale ' + sc + ' failed, trying smaller', e); }
+                }
                 if (!blob) throw new Error('empty image');
                 const url = URL.createObjectURL(blob);
                 const a = document.createElement('a');
