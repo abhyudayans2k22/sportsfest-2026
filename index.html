@@ -13,7 +13,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
-        href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Anton&family=Oswald:wght@400;500;600;700&display=swap"
+        href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Anton&family=Oswald:wght@400;500;600;700&family=Archivo:ital,wdth,wght@1,62..125,100..900&display=swap"
         rel="stylesheet">
 
     <style>
@@ -4055,6 +4055,475 @@
             font-size: 1.15rem;
             padding: 8px 0;
         }
+            /* ============================================================
+           HOME — FLIP CLOCK STATS GRID + DESKTOP LAYOUT
+        ============================================================ */
+        #home .stats-flip-section {
+            width: 100%;
+            margin: 36px 0 30px 0;
+            container-type: inline-size;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        #home .stats-flip-grid {
+            --flip-w: clamp(30px, 14cqw, 66px);
+            --flip-gap: clamp(3px, 1.2cqw, 6px);
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            column-gap: 4cqw;
+            row-gap: clamp(26px, 8cqw, 44px);
+            justify-items: center;
+        }
+
+        #home .stat-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: clamp(10px, 3.2cqw, 16px);
+        }
+
+        #home .flip-row {
+            display: flex;
+            gap: var(--flip-gap);
+        }
+
+        #home .stat-label {
+            font-family: 'Cinzel', serif;
+            font-size: clamp(0.62rem, 2.6cqw, 0.85rem);
+            font-weight: 600;
+            letter-spacing: 0.28em;
+            padding-left: 0.28em;
+            text-transform: uppercase;
+            color: #FFCC00;
+            text-shadow: 0 0 14px rgba(255, 204, 0, 0.35);
+        }
+
+        /* --- one flip card --- */
+        #home .flip-digit {
+            --flip-r: calc(var(--flip-w) * 0.14);
+            position: relative;
+            flex-shrink: 0;
+            width: var(--flip-w);
+            height: calc(var(--flip-w) * 1.45);
+            perspective: calc(var(--flip-w) * 9);
+            border-radius: var(--flip-r);
+            box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.08),
+                0 calc(var(--flip-w) * 0.14) calc(var(--flip-w) * 0.3) rgba(0, 0, 0, 0.9);
+            font-family: 'Oswald', 'Impact', 'Arial Narrow', sans-serif;
+            font-weight: 700;
+            font-size: calc(var(--flip-w) * 1.1);
+            color: #f4f4f4;
+        }
+
+        #home .fd-half {
+            position: absolute;
+            left: 0;
+            width: 100%;
+            height: 50%;
+            overflow: hidden;
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
+        }
+
+        #home .fd-half span {
+            position: absolute;
+            left: 0;
+            width: 100%;
+            height: 200%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            line-height: 1;
+            padding-bottom: 0.09em; /* nudges the digit up/down inside the card */
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.55);
+        }
+
+        #home .fd-top,
+        #home .fd-leaf-front {
+            top: 0;
+            border-radius: var(--flip-r) var(--flip-r) 0 0;
+            background: linear-gradient(180deg, #353535 0%, #222222 100%);
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1);
+        }
+
+        #home .fd-top span,
+        #home .fd-leaf-front span {
+            top: 0;
+        }
+
+        #home .fd-bottom,
+        #home .fd-leaf-back {
+            bottom: 0;
+            border-radius: 0 0 var(--flip-r) var(--flip-r);
+            background: linear-gradient(180deg, #181818 0%, #282828 100%);
+        }
+
+        #home .fd-bottom span,
+        #home .fd-leaf-back span {
+            bottom: 0;
+        }
+
+        #home .fd-top,
+        #home .fd-bottom {
+            z-index: 1;
+        }
+
+        #home .fd-leaf {
+            z-index: 5;
+            will-change: transform;
+        }
+
+        #home .fd-leaf-front {
+            transform-origin: 50% 100%;
+        }
+
+        #home .fd-leaf-back {
+            transform-origin: 50% 0%;
+            transform: rotateX(90deg);
+        }
+
+        /* middle split line with the small side notches */
+        #home .fd-hinge {
+            position: absolute;
+            left: 0;
+            top: 50%;
+            width: 100%;
+            height: max(2px, calc(var(--flip-w) * 0.035));
+            transform: translateY(-50%);
+            background: #000000;
+            box-shadow: 0 1px 0 rgba(255, 255, 255, 0.07);
+            z-index: 10;
+            pointer-events: none;
+        }
+
+        #home .fd-hinge::before,
+        #home .fd-hinge::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            width: calc(var(--flip-w) * 0.07);
+            height: calc(var(--flip-w) * 0.16);
+            transform: translateY(-50%);
+            background: linear-gradient(180deg, #4a4a4a, #0d0d0d);
+            border-radius: 2px;
+        }
+
+        #home .fd-hinge::before {
+            left: calc(var(--flip-w) * -0.02);
+        }
+
+        #home .fd-hinge::after {
+            right: calc(var(--flip-w) * -0.02);
+        }
+
+        /* --- DESKTOP / WIDE SCREEN LAYOUT --- */
+        @media (min-width: 1024px) {
+            #home .stats-flip-grid {
+                --flip-w: clamp(40px, 14cqw, 76px);
+            }
+
+            #home .premium-feed-section {
+                display: grid;
+                grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+                column-gap: clamp(40px, 5vw, 90px);
+                align-items: center;
+                max-width: none;
+                padding: 70px 0 140px 0;
+            }
+
+            /* everything spans the full screen width by default (divider, logo strip, footer) */
+            #home .premium-feed-section>* {
+                grid-column: 1 / -1;
+            }
+
+            /* left side: complete paragraph block */
+            #home .premium-feed-section>.fest-floating-card {
+                grid-column: 1;
+                grid-row: 1;
+                justify-self: end;
+                width: calc(100% - 4vw);
+                max-width: 600px;
+            }
+
+            /* right side: flip numbers grid */
+            #home .premium-feed-section>.stats-flip-section {
+                grid-column: 2;
+                grid-row: 1;
+                justify-self: start;
+                width: calc(100% - 4vw);
+                max-width: 600px;
+                margin: 0;
+            }
+
+            #home .premium-feed-section>.premium-divider {
+                margin: 70px 0 24px 0;
+            }
+        }
+            /* ============================================================
+           HOME — MOBILE ROWS (Players / Games+Teams / Champion) + 2nd DIVIDER
+        ============================================================ */
+
+        /* Players and Champion each take a full row, centered. Games + Teams share the middle row. */
+        @media (max-width: 1023px) {
+
+            #home .stat-item:nth-child(1),
+            #home .stat-item:nth-child(4) {
+                grid-column: 1 / -1;
+            }
+        }
+
+        /* second golden divider, below the flip grid (mobile / tablet only) */
+        #home .premium-divider.stats-divider-bottom {
+            margin: 36px 0 22px 0;
+        }
+
+        @media (min-width: 1024px) {
+            #home .premium-divider.stats-divider-bottom {
+                display: none;
+            }
+        }
+            /* ============================================================
+           RESULTS PAGE — REMODEL (v2)
+        ============================================================ */
+
+        /* ---------- EASY EDIT VALUES ---------- */
+        #results.results-v2 {
+            --results-default-bg: #8b2cf5;      /* DEFAULT page colour (no results / searching). Keep it a 6-digit hex */
+            --results-card-bg: #1f1f1e;         /* scorecard background (greyish black) */
+
+            --results-title-color: #e9e6d6;     /* "RESULTS" colour */
+            --results-title-size: clamp(22px, 6.8vw, 44px);    /* scaled to stay clear of the nav pill */
+            --results-title-spacing: -0.02em;   /* letter spacing (negative = tighter, positive = wider) */
+            --results-title-stretch: 125%;      /* letter width: 62% (narrow) to 125% (extra wide) */
+            --results-title-weight: 900;        /* boldness: 100 to 900 */
+            --results-title-skew: -3deg;        /* extra slant on top of the italic (0deg = none) */
+            --results-title-line: 0.88;         /* line height */
+
+            --results-head-top: 15px;           /* aligns directly with .header-box (top: 15px) */
+            --results-side-pad: 20px;           /* left / right space */
+            --results-col-max: 760px;           /* max width of the content on big screens (use 100% for full width) */
+            --results-peek: 56px;               /* how much of the next collapsed card stays visible under the open one */
+        }
+
+        /* ---------- PAGE ---------- */
+        #results.results-v2 {
+            background-color: var(--results-default-bg);
+            perspective: none;
+            align-items: stretch;
+        }
+
+        #results.results-v2::before {
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.10) 0%, rgba(0, 0, 0, 0) 40%, rgba(0, 0, 0, 0.22) 100%);
+            z-index: 0;
+        }
+
+        /* no scrollbars anywhere on this page */
+        #results.results-v2 * {
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+
+        #results.results-v2 *::-webkit-scrollbar {
+            display: none !important;
+            width: 0 !important;
+            height: 0 !important;
+        }
+
+        /* ---------- HEADER: title + search box ---------- */
+        #results.results-v2 .results-head {
+            position: relative;
+            z-index: 2;
+            flex: 0 0 auto;
+            width: 100%;
+            max-width: var(--results-col-max);
+            margin: 0 auto;
+            padding: var(--results-head-top) var(--results-side-pad) 4px var(--results-side-pad);
+        }
+
+        #results.results-v2 .results-big-title {
+            font-family: 'Archivo', 'Arial Black', Impact, sans-serif;
+            font-style: italic;
+            font-weight: var(--results-title-weight);
+            font-stretch: var(--results-title-stretch);
+            font-size: var(--results-title-size);
+            letter-spacing: var(--results-title-spacing);
+            line-height: var(--results-title-line);
+            color: var(--results-title-color);
+            text-transform: uppercase;
+            text-align: left;
+            white-space: nowrap;
+            min-height: 59px;
+            display: flex;
+            align-items: center;
+            transform: skewX(var(--results-title-skew));
+            transform-origin: left center;
+            user-select: none;
+            pointer-events: none;
+        }
+
+        #results.results-v2 .results-search-box {
+            height: 42px;
+            margin-top: 12px;
+            border-radius: 999px;
+            border: 1.5px solid rgba(255, 255, 255, 0.55);
+            background: rgba(0, 0, 0, 0.20);
+        }
+
+        /* ---------- LIST WRAPPER + TOP FADE/BLUR ---------- */
+        #results.results-v2 .results-list-wrap {
+            position: relative;
+            flex: 1 1 0;
+            min-height: 0;
+            width: 100%;
+            max-width: var(--results-col-max);
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            z-index: 5;
+        }
+
+        #results.results-v2 .results-top-blur {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 30px;
+            pointer-events: none;
+            z-index: 6;
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            -webkit-mask-image: linear-gradient(to bottom, #000 0%, #000 25%, transparent 100%);
+            mask-image: linear-gradient(to bottom, #000 0%, #000 25%, transparent 100%);
+        }
+
+        body.perf-mode #results.results-v2 .results-top-blur {
+            display: none;
+        }
+
+        /* ---------- THE LIST (hard scroll, one card per swipe) ---------- */
+        #results.results-v2 #resultsCardsScrollRow {
+            position: relative;
+            display: block;
+            flex: 1 1 0;
+            min-height: 0;
+            width: 100%;
+            height: auto;
+            margin: 0;
+            padding: 24px var(--results-side-pad) 0 var(--results-side-pad);
+            overflow-x: hidden;
+            overflow-y: auto;
+            scroll-snap-type: y mandatory;
+            scroll-padding-top: 24px;
+            overscroll-behavior-y: contain;
+            -webkit-overflow-scrolling: touch;
+            z-index: 5;
+            -webkit-mask-image: linear-gradient(to bottom, transparent 0px, #000 26px, #000 100%);
+            mask-image: linear-gradient(to bottom, transparent 0px, #000 26px, #000 100%);
+        }
+
+        /* extra space at the end so the LAST card can also snap to the top */
+        #results.results-v2 #resultsCardsScrollRow::after {
+            content: '';
+            display: block;
+            height: 90dvh;
+        }
+
+        #results.results-v2 #resultsCardsScrollRow .gyro-3d-box-container {
+            flex: none;
+            width: 100%;
+            max-width: none;
+            margin: 0 0 14px 0;
+            scroll-snap-align: start;
+            scroll-snap-stop: always;
+            transform: none;
+        }
+
+        #results.results-v2 #landingSpacer {
+            display: none;
+        }
+
+        #results.results-v2 #noMatchesFoundCard {
+            max-width: none !important;
+            padding: 0 !important;
+            scroll-snap-align: start !important;
+        }
+
+        #results.results-v2 #noMatchesFoundCard .gyro-3d-box>div {
+            color: #ffffff !important;
+        }
+
+        /* ---------- SCORECARD: solid premium black ---------- */
+        #results.results-v2 .gyro-3d-box {
+            background-color: var(--results-card-bg);
+            -webkit-backdrop-filter: none;
+            backdrop-filter: none;
+            border: 1px solid rgba(255, 255, 255, 0.07);
+            box-shadow: 0 14px 34px rgba(0, 0, 0, 0.38);
+            will-change: auto;
+        }
+
+        #results.results-v2 .gyro-3d-box-container:hover .gyro-3d-box {
+            background-color: var(--results-card-bg);
+            border-color: rgba(255, 255, 255, 0.07);
+        }
+
+        /* all texts white */
+        #results.results-v2 .innings-status-badge span,
+        #results.results-v2 .player-glow-subtext,
+        #results.results-v2 .live-overs-value,
+        #results.results-v2 .tracker-player-name,
+        #results.results-v2 .vs-middle-text,
+        #results.results-v2 .match-type-badge:not(.grand-final):not(.semi-final) {
+            color: #ffffff;
+        }
+
+        /* ---------- COLLAPSED / EXPANDED ---------- */
+        #results.results-v2 .card-below-victory {
+            overflow: hidden;
+            max-height: 0;
+            opacity: 0;
+            transition: max-height 0.85s cubic-bezier(0.25, 0.8, 0.25, 1), opacity 0.55s ease;
+        }
+
+        #results.results-v2 .gyro-3d-box-container.no-transition .card-below-victory {
+            transition: none !important;
+        }
+
+        #results.results-v2 .gyro-3d-box-container.is-open .card-below-victory {
+            max-height: 720px;
+            opacity: 1;
+        }
+
+        /* an open card never gets taller than the list (extra content scrolls inside it, no scrollbar) */
+        #results.results-v2 .gyro-3d-box-container.is-open .gyro-3d-box {
+            max-height: calc(var(--results-list-h, 70dvh) - 38px - var(--results-peek));
+            overflow-y: auto;
+            overflow-x: hidden;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        /* ---------- LOW-END (perf mode) OVERRIDES ---------- */
+        body.perf-mode #results.results-v2 .gyro-3d-box {
+            background-color: var(--results-card-bg) !important;
+            max-height: none !important;
+        }
+
+        body.perf-mode #results.results-v2 .gyro-3d-box-container.is-open .gyro-3d-box {
+            max-height: calc(var(--results-list-h, 70dvh) - 38px - var(--results-peek)) !important;
+        }
+
+        body.perf-mode #results.results-v2 .card-below-victory {
+            max-height: 0 !important;
+            opacity: 0 !important;
+            display: block !important;
+            transition: none !important;
+        }
+
+        body.perf-mode #results.results-v2 .gyro-3d-box-container.is-open .card-below-victory {
+            max-height: none !important;
+            opacity: 1 !important;
+        }
     </style>
 
     <script src="https://cdn.jsdelivr.net/npm/twemoji@14.0.2/dist/twemoji.min.js" crossorigin="anonymous"></script>
@@ -4197,6 +4666,31 @@
 
                                 <div class="premium-divider"></div>
 
+                                <!-- ===== FLIP CLOCK STATS ===== -->
+                                <div class="stats-flip-section" id="statsFlipSection">
+                                    <div class="stats-flip-grid">
+                                        <div class="stat-item">
+                                            <div class="flip-row" data-value="200"></div>
+                                            <div class="stat-label">Players</div>
+                                        </div>
+                                        <div class="stat-item">
+                                            <div class="flip-row" data-value="12"></div>
+                                            <div class="stat-label">Games</div>
+                                        </div>
+                                        <div class="stat-item">
+                                            <div class="flip-row" data-value="05"></div>
+                                            <div class="stat-label">Teams</div>
+                                        </div>
+                                        <div class="stat-item">
+                                            <div class="flip-row" data-value="01"></div>
+                                            <div class="stat-label">Champion</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- ===== /FLIP CLOCK STATS ===== -->
+
+                                <div class="premium-divider stats-divider-bottom"></div>
+
                                 <div class="showcase-carousel-wrapper">
                                     <div class="showcase-track">
                                         <div class="showcase-item logo-gems" onclick="navigateToPage(4)"
@@ -4252,6 +4746,45 @@
                                 <p
                                     style="text-align:center; color:rgba(255,255,255,0.18); font-size:0.72rem; letter-spacing:2.5px; text-transform:uppercase; margin-top:50px; font-family:system-ui,sans-serif; font-weight:500;">
                                     website made by abhyudayans</p>
+
+                                    <!-- TEMP TEST TOGGLE: REMOVE LATER -->
+                                <div style="display:flex; justify-content:center; margin-top:24px;">
+                                    <button id="perfModeTestToggle" type="button"
+                                        style="touch-action:manipulation; background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.22); color:#ffffff; padding:10px 18px; border-radius:999px; font-size:12px; font-weight:700; letter-spacing:1.2px; text-transform:uppercase; cursor:pointer;">
+                                        Mode: Loading...
+                                    </button>
+                                </div>
+                                <script>
+                                    (function () {
+                                        const btn = document.getElementById('perfModeTestToggle');
+                                        if (!btn) return;
+
+                                        function syncLabel() {
+                                            const isPerf = document.body.classList.contains('perf-mode');
+                                            btn.textContent = isPerf ? 'Perf Mode (Low-End): ON' : 'Perf Mode (Main): OFF';
+                                            btn.style.borderColor = isPerf ? '#FFCC00' : 'rgba(255,255,255,0.22)';
+                                            btn.style.color = isPerf ? '#FFCC00' : '#ffffff';
+                                        }
+
+                                        btn.addEventListener('click', function () {
+                                            const wasPerf = document.body.classList.contains('perf-mode');
+                                            document.body.classList.toggle('perf-mode');
+                                            syncLabel();
+
+                                            // Re-sync Home page transforms & restart 3D idle loop when switching back to Main mode
+                                            if (typeof updateScrollTransformations === 'function') {
+                                                updateScrollTransformations();
+                                            }
+                                            if (wasPerf && typeof updateLogoIdleMovement === 'function') {
+                                                requestAnimationFrame(updateLogoIdleMovement);
+                                            }
+                                        });
+
+                                        syncLabel();
+                                    })();
+                                </script>
+                                <!-- /TEMP TEST TOGGLE -->
+
                             </div>
                         </div>
                     </div>
@@ -4590,21 +5123,16 @@
                 <!-- ================================================
                      PAGE 2 — INTEGRATED RESULTS
                 ================================================ -->
-                <section class="page-view" id="results">
-                    <!-- Landing panel (big centered title + scroll hint) -->
-                    <div id="resultsLandingPanel" class="results-landing-panel">
-                        <h1 id="resultsTitleBig">Results</h1>
-                        <div id="resultsScrollHint" class="results-scroll-hint">
-                            <div class="hint-arrow">→</div>
-                            <p>scroll</p>
-                        </div>
+                               <section class="page-view results-v2" id="results">
+
+                    <!-- ===== RESULTS HEADER: big title + (future) search box ===== -->
+                    <div class="results-head" id="resultsHead">
+                        <h1 class="results-big-title" id="resultsBigTitle">RESULTS</h1>
+                        <div class="results-search-box" id="resultsSearchBox"></div>
                     </div>
 
-                    <!-- Small fixed title (shown after scroll starts) -->
-                    <div id="resultsTitleSmall">Results</div>
-
-                    <!-- Realigned Glassmorphic Team Selector -->
-                    <div class="results-fixed-filter-bar" id="resultsFilterBarContainer">
+                    <!-- Old team filter: kept hidden so the existing code keeps working -->
+                    <div class="results-fixed-filter-bar" id="resultsFilterBarContainer" style="display:none;">
                         <div id="resultsTeamFilterContainer" class="results-glass-dropdown-wrapper">
                             <select id="resultsTeamDropdown" class="results-glass-dropdown">
                                 <option value="ALL">All Teams</option>
@@ -4618,9 +5146,12 @@
                         </div>
                     </div>
 
-                    <!-- Horizontally scrolling row -->
-                    <div id="resultsCardsScrollRow">
-                        <!-- Content row is populated dynamically -->
+                    <!-- Vertical list of scorecards (filled by the Firebase code) -->
+                    <div class="results-list-wrap">
+                        <div class="results-top-blur" aria-hidden="true"></div>
+                        <div id="resultsCardsScrollRow">
+                            <!-- Content is populated dynamically -->
+                        </div>
                     </div>
                 </section><!-- /results -->
 
@@ -7025,7 +7556,10 @@ document.querySelectorAll('#teams .logo-3d-wrap').forEach(wrap => {
     VYV: '#0A1F5C', 'VYV-B': '#0A1F5C', 'VYV-G': '#0A1F5C',
     ADH: '#B8860B', 'ADH-B': '#B8860B', 'ADH-G': '#B8860B',
     PRJ: '#1A4A1A', 'PRJ-B': '#1A4A1A', 'PRJ-G': '#1A4A1A',
-    DEFAULT: '#a906f5'
+    get DEFAULT() {
+            const v = getComputedStyle(document.getElementById('results')).getPropertyValue('--results-default-bg').trim();
+            return /^#[0-9a-f]{6}$/i.test(v) ? v : '#8b2cf5';
+        }
 };
 
         function getCarouselHTML(images) {
@@ -7457,6 +7991,7 @@ ${matchTypeBadgeHTML(rec.matchType)}
         function renderAllFilteredMatches() {
             const teamFilter = el('resultsTeamDropdown').value;
             let combinedHTML = '';
+            const renderedCards = [];
             let totalRendered = 0;
 
             const knownSports = ['cricket', 'basketball', 'badminton', 'volleyball', 'throwball'];
@@ -7551,13 +8086,15 @@ ${matchTypeBadgeHTML(rec.matchType)}
                         `class="gyro-3d-box-container card-visible" data-winner-color="${winColor}"`
                     );
 
-                    combinedHTML += cardHTML;
+                    renderedCards.push({ ts: String(rec.lastUpdated || ''), html: cardHTML });
                     totalRendered++;
                 });
             });
 
             const row = el('resultsCardsScrollRow');
             if (!row) return;
+
+            combinedHTML = renderedCards.sort((a, b) => b.ts.localeCompare(a.ts)).map(c => c.html).join('');
 
             if (totalRendered === 0) {
                 row.innerHTML = `
@@ -7586,7 +8123,7 @@ ${matchTypeBadgeHTML(rec.matchType)}
                 el('resultsBackBtn').style.display = 'none';
             }
 
-            setTimeout(initFocusObserver, 50);
+            initFocusObserver();
             triggerScrollUpdate();
 
             window.dispatchEvent(new Event('twemojiReparseTrigger'));
@@ -7622,111 +8159,111 @@ ${matchTypeBadgeHTML(rec.matchType)}
             return `rgb(${r}, ${g}, ${b})`;
         }
 
+                /* ── RESULTS LIST: vertical hard-scroll, only the current card is expanded ── */
+
+        let resultsFocusIndex = -1;       // index of the card that is currently expanded
+        let resultsLastScrollTop = 0;     // remembered so the list keeps its place when Firebase re-renders
+        let resultsForceDefaultBg = false;
+
+        // A card becomes the current (expanded) one when its top passes this point of the list height.
+        // 0 = very top, 1 = very bottom. Lower = switches later, higher = switches earlier.
+        const RESULTS_SWITCH_LINE = 0.45;
+
+        function getResultCards() {
+            const row = el('resultsCardsScrollRow');
+            return row ? Array.from(row.querySelectorAll('.gyro-3d-box-container')) : [];
+        }
+
+        function syncResultsListHeight() {
+            const row = el('resultsCardsScrollRow');
+            if (row) row.style.setProperty('--results-list-h', row.clientHeight + 'px');
+        }
+
+        // current card + every card above it stay open, cards below it collapse
+        function applyResultsFocus(idx) {
+            resultsFocusIndex = idx;
+            getResultCards().forEach((card, i) => {
+                card.classList.toggle('is-open', i <= idx);
+            });
+        }
+
         function getSnapPoints() {
             const row = el('resultsCardsScrollRow');
             if (!row) return [];
-
-            const children = Array.from(row.children);
-            const points = [];
-
-            points.push({ offset: 0, color: winnerBGColors.DEFAULT });
-
-            children.forEach(child => {
-                if (child.id === 'landingSpacer' || child.id === 'noMatchesFoundCard') return;
-                if (child.classList.contains('gyro-3d-box-container') && child.classList.contains('card-visible')) {
-                    const offset = child.offsetLeft - row.offsetLeft - (row.clientWidth - child.clientWidth) / 2;
-                    const winColor = child.dataset.winnerColor || winnerBGColors.DEFAULT;
-                    points.push({ offset: Math.max(0, offset), color: winColor });
-                }
-            });
-
+            const pad = parseFloat(getComputedStyle(row).scrollPaddingTop) || 0;
+            const points = getResultCards().map(card => ({
+                offset: Math.max(0, card.offsetTop - pad),
+                color: card.dataset.winnerColor || winnerBGColors.DEFAULT
+            }));
             points.sort((a, b) => a.offset - b.offset);
             return points;
         }
 
         function updateScrollEffects() {
             const row = el('resultsCardsScrollRow');
-            if (!row) return;
+            const resultsSection = el('results');
+            if (!row || !resultsSection) return;
 
-            const scrollLeft = row.scrollLeft;
-            const clientWidth = row.clientWidth;
+            const scrollTop = row.scrollTop;
+            resultsLastScrollTop = scrollTop;
+            const cards = getResultCards();
 
-            const landingPanel = el('resultsLandingPanel');
-            const titleSmall = el('resultsTitleSmall');
-            const filterBar = el('resultsFilterBarContainer');
-            const fadeLimit = clientWidth * 0.4;
-            const fadeRatio = Math.min(1, scrollLeft / fadeLimit);
-
-            if (landingPanel) landingPanel.style.opacity = (1 - fadeRatio).toString();
-
-            if (titleSmall) {
-                if (scrollLeft > 60) titleSmall.classList.add('visible');
-                else titleSmall.classList.remove('visible');
+            // 1) which card is current -> expand it, collapse the ones below
+            if (cards.length) {
+                const line = row.clientHeight * RESULTS_SWITCH_LINE;
+                let idx = 0;
+                cards.forEach((card, i) => {
+                    if (card.offsetTop - scrollTop <= line) idx = i;
+                });
+                if (idx !== resultsFocusIndex) applyResultsFocus(idx);
             }
 
-            if (filterBar) {
-                if (scrollLeft > 60) filterBar.classList.add('visible');
-                else filterBar.classList.remove('visible');
+            // 2) page background colour
+            if (!cards.length || resultsForceDefaultBg) {
+                resultsSection.style.backgroundColor = winnerBGColors.DEFAULT;
+                return;
             }
 
             const points = getSnapPoints();
-            if (points.length === 0) return;
-
-            let startPoint = points[0];
-            let endPoint = points[0];
-
-            for (let i = 0; i < points.length; i++) {
-                if (scrollLeft >= points[i].offset) {
-                    startPoint = points[i];
-                }
-            }
-
-            const currentIndex = points.indexOf(startPoint);
-            if (currentIndex < points.length - 1) {
-                endPoint = points[currentIndex + 1];
-            } else {
-                endPoint = startPoint;
-            }
-
-            let factor = 0;
+            let startIndex = 0;
+            points.forEach((p, i) => { if (scrollTop >= p.offset) startIndex = i; });
+            const startPoint = points[startIndex];
+            const endPoint = points[Math.min(startIndex + 1, points.length - 1)];
             const diff = endPoint.offset - startPoint.offset;
-            if (diff > 0) {
-                factor = (scrollLeft - startPoint.offset) / diff;
-            }
-
-            const blendedColor = interpolateColor(startPoint.color, endPoint.color, factor);
-            const resultsSection = el('results');
-            if (resultsSection) {
-                resultsSection.style.backgroundColor = blendedColor;
-            }
+            const factor = diff > 0 ? Math.min(1, Math.max(0, (scrollTop - startPoint.offset) / diff)) : 0;
+            resultsSection.style.backgroundColor = interpolateColor(startPoint.color, endPoint.color, factor);
         }
 
         function triggerScrollUpdate() {
             requestAnimationFrame(updateScrollEffects);
         }
 
+        // runs after every re-render of the list
         function initFocusObserver() {
-            const scrollRow = el('resultsCardsScrollRow');
-            if (!scrollRow) return;
-
-            const options = { root: scrollRow, threshold: 0.6 };
-
-            const observer = new IntersectionObserver(entries => {
-                entries.forEach(entry => {
-                    if (entry.isIntersecting) {
-                        entry.target.classList.add('card-focused');
-                        const innerBox = entry.target.querySelector('.gyro-3d-box');
-                        if (innerBox) innerBox.scrollTop = 0;
-                    } else {
-                        entry.target.classList.remove('card-focused');
-                    }
-                });
-            }, options);
-
-            document.querySelectorAll('#resultsCardsScrollRow .gyro-3d-box-container').forEach(card => {
-                observer.observe(card);
-            });
+            const row = el('resultsCardsScrollRow');
+            if (!row) return;
+            const cards = getResultCards();
+            if (!cards.length) {
+                resultsFocusIndex = -1;
+                syncResultsListHeight();
+                return;
+            }
+            applyResultsFocus(Math.min(Math.max(resultsFocusIndex, 0), cards.length - 1));
+            syncResultsListHeight();
+            if (Math.abs(row.scrollTop - resultsLastScrollTop) > 1) row.scrollTop = resultsLastScrollTop;
+            updateScrollEffects();
         }
+
+        // for your future search box: setResultsDefaultBg(true) while searching, false when done
+        window.setResultsDefaultBg = function (on) {
+            resultsForceDefaultBg = !!on;
+            triggerScrollUpdate();
+        };
+
+        window.addEventListener('resize', () => {
+            syncResultsListHeight();
+            triggerScrollUpdate();
+        });
 
 
         /* ── PART 4: COMPILING DATABASES & GENERAL INITIALIZATION ── */
@@ -7846,6 +8383,188 @@ ${matchTypeBadgeHTML(rec.matchType)}
         });
     </script>
 
+    <script>
+        /* ============================================================
+           HOME — FLIP CLOCK STATS + FULL-WIDTH LOGO STRIP
+        ============================================================ */
+
+        /* ---------- 1) FLIP CLOCK NUMBERS ---------- */
+        (function () {
+            // ===== EDITABLE SETTINGS =====
+            var FLIP_DURATION_MS = 1000; // how long each block keeps flipping before landing on its final number
+            var FLIP_STEP_MS = 110;      // speed of one flip (smaller = faster flipping)
+            var STAGGER_MS = 110;        // delay between one block starting and the next block starting
+            // =============================
+
+            var section = document.getElementById('statsFlipSection');
+            var scroller = document.getElementById('homeScrollInner');
+            var pagesTrackEl = document.getElementById('pagesTrack');
+            if (!section || !scroller) return;
+
+            var reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+            function sleep(ms) { return new Promise(function (r) { setTimeout(r, ms); }); }
+
+            function createDigit(ch) {
+                var isDigit = /^[0-9]$/.test(ch);
+                var target = isDigit ? parseInt(ch, 10) : 0;
+
+                var el = document.createElement('div');
+                el.className = 'flip-digit';
+                el.innerHTML =
+                    '<div class="fd-half fd-top"><span></span></div>' +
+                    '<div class="fd-half fd-bottom"><span></span></div>' +
+                    '<div class="fd-half fd-leaf fd-leaf-front"><span></span></div>' +
+                    '<div class="fd-half fd-leaf fd-leaf-back"><span></span></div>' +
+                    '<div class="fd-hinge"></div>';
+
+                var topS = el.querySelector('.fd-top span');
+                var botS = el.querySelector('.fd-bottom span');
+                var frontLeaf = el.querySelector('.fd-leaf-front');
+                var backLeaf = el.querySelector('.fd-leaf-back');
+                var frontS = frontLeaf.querySelector('span');
+                var backS = backLeaf.querySelector('span');
+
+                function showAll(v) {
+                    topS.textContent = v;
+                    botS.textContent = v;
+                    frontS.textContent = v;
+                    backS.textContent = v;
+                }
+
+                var value = 0;
+                showAll(isDigit ? '0' : ch);
+
+                async function flipOnce(next, ms) {
+                    if (!el.animate) { showAll(next); await sleep(ms); return; }
+                    topS.textContent = next;   // revealed while the top leaf falls
+                    backS.textContent = next;  // lands on the bottom half
+                    var half = ms / 2;
+                    var a = frontLeaf.animate(
+                        [{ transform: 'rotateX(0deg)' }, { transform: 'rotateX(-90deg)' }],
+                        { duration: half, easing: 'ease-in', fill: 'forwards' }
+                    );
+                    var b = backLeaf.animate(
+                        [{ transform: 'rotateX(90deg)' }, { transform: 'rotateX(0deg)' }],
+                        { duration: half, delay: half, easing: 'ease-out', fill: 'both' }
+                    );
+                    await b.finished;
+                    showAll(next);
+                    a.cancel();
+                    b.cancel();
+                }
+
+                async function play(durationMs, startDelay) {
+                    if (!isDigit) return;
+                    if (startDelay) await sleep(startDelay);
+                    var delta = ((target - value) % 10 + 10) % 10;
+                    var base = Math.max(1, Math.round(durationMs / FLIP_STEP_MS));
+                    var steps = delta + 10 * Math.max(1, Math.round((base - delta) / 10));
+                    var stepMs = durationMs / steps;
+                    for (var i = 0; i < steps; i++) {
+                        value = (value + 1) % 10;
+                        await flipOnce(value, stepMs);
+                    }
+                }
+
+                function finish() {
+                    value = target;
+                    if (isDigit) showAll(String(target));
+                }
+
+                return { el: el, play: play, finish: finish };
+            }
+
+            // build the cards from the data-value attributes
+            var digits = [];
+            section.querySelectorAll('.flip-row').forEach(function (row) {
+                var str = String(row.getAttribute('data-value') || '').trim();
+                row.setAttribute('role', 'img');
+                row.setAttribute('aria-label', str);
+                str.split('').forEach(function (ch) {
+                    var d = createDigit(ch);
+                    row.appendChild(d.el);
+                    digits.push(d);
+                });
+            });
+
+            var running = false, armed = true, ticking = false;
+
+            function start() {
+                if (reduceMotion) {
+                    digits.forEach(function (d) { d.finish(); });
+                    return;
+                }
+                running = true;
+                Promise.all(digits.map(function (d, i) {
+                    return d.play(FLIP_DURATION_MS, i * STAGGER_MS);
+                })).then(function () { running = false; });
+            }
+
+            function check() {
+                ticking = false;
+                var r = section.getBoundingClientRect();
+                var vh = window.innerHeight;
+                var visible = r.height > 0 && r.top < vh * 0.75 && r.bottom > vh * 0.2 &&
+                    r.left < window.innerWidth && r.right > 0;
+                if (visible) {
+                    if (running) armed = false;
+                    else if (armed) { armed = false; start(); }
+                } else {
+                    armed = true; // scrolled away -> will flip again next time it comes into view
+                }
+            }
+
+            function schedule() {
+                if (!ticking) { ticking = true; requestAnimationFrame(check); }
+            }
+
+            scroller.addEventListener('scroll', schedule, { passive: true });
+            window.addEventListener('resize', schedule);
+            if (pagesTrackEl) pagesTrackEl.addEventListener('transitionend', schedule);
+            setTimeout(check, 800);
+        })();
+
+
+        /* ---------- 2) LOGO STRIP: FILL THE FULL SCREEN WIDTH ON WIDE SCREENS ---------- */
+        (function () {
+            var track = document.querySelector('#home .showcase-track');
+            if (!track || !track.parentElement) return;
+            var wrapper = track.parentElement;
+
+            var SECONDS_PER_SET = 18; // scroll time of one logo set (same speed as before)
+            var originals = Array.prototype.slice.call(track.children, 0, 5).map(function (n) {
+                return n.cloneNode(true);
+            });
+            var setWidth = 0, currentSets = 0;
+
+            function build(sets) {
+                track.innerHTML = '';
+                for (var i = 0; i < sets * 2; i++) {
+                    originals.forEach(function (n) { track.appendChild(n.cloneNode(true)); });
+                }
+                track.style.animationDuration = (sets * SECONDS_PER_SET) + 's';
+                currentSets = sets;
+            }
+
+            function update() {
+                if (!setWidth) {
+                    build(1);
+                    setWidth = track.offsetWidth / 2;
+                    if (!setWidth) return;
+                }
+                var needed = Math.max(1, Math.ceil(wrapper.clientWidth / setWidth));
+                if (needed !== currentSets) build(needed);
+            }
+
+            var t;
+            window.addEventListener('resize', function () {
+                clearTimeout(t);
+                t = setTimeout(update, 150);
+            });
+            window.addEventListener('load', update);
+            update();
+        })();
+    </script>
 </body>
 
 </html>
