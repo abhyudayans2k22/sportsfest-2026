@@ -13,7 +13,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
-        href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Anton&family=Oswald:wght@400;500;600;700&family=Archivo:ital,wdth,wght@1,62..125,100..900&display=swap"
+        href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Anton&family=Oswald:wght@400;500;600;700&family=Archivo:ital,wdth,wght@0,62..125,100..900;1,62..125,100..900&display=swap"
         rel="stylesheet">
 
     <style>
@@ -4283,6 +4283,10 @@
                 display: none;
             }
         }
+
+        @property --results-c1 { syntax: '<color>'; inherits: false; initial-value: #8b2cf5; }
+@property --results-c2 { syntax: '<color>'; inherits: false; initial-value: #8b2cf5; }
+
             /* ============================================================
            RESULTS PAGE — REMODEL (v2)
         ============================================================ */
@@ -4308,10 +4312,14 @@
 
         /* ---------- PAGE ---------- */
         #results.results-v2 {
-            background-color: var(--results-default-bg);
-            perspective: none;
-            align-items: stretch;
-        }
+    --results-c1: var(--results-default-bg);
+    --results-c2: var(--results-default-bg);
+    background-color: var(--results-default-bg);
+    background-image: linear-gradient(180deg, var(--results-c1) 0%, var(--results-c2) 100%);
+    transition: --results-c1 0.6s ease, --results-c2 0.6s ease;
+    perspective: none;
+    align-items: stretch;
+}
 
         #results.results-v2::before {
             background: linear-gradient(180deg, rgba(255, 255, 255, 0.10) 0%, rgba(0, 0, 0, 0) 40%, rgba(0, 0, 0, 0.22) 100%);
@@ -4363,11 +4371,103 @@
         }
 
         #results.results-v2 .results-search-box {
-            height: 42px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            height: 46px;
             margin-top: 12px;
+            padding: 0 6px 0 16px;
             border-radius: 999px;
             border: 1.5px solid rgba(255, 255, 255, 0.55);
             background: rgba(0, 0, 0, 0.20);
+            transition: border-color 0.25s ease, background 0.25s ease;
+        }
+
+        #results.results-v2 .results-search-box:focus-within {
+            border-color: rgba(255, 255, 255, 0.95);
+            background: rgba(0, 0, 0, 0.32);
+        }
+
+        #results.results-v2 .rs-icon {
+            width: 18px;
+            height: 18px;
+            flex-shrink: 0;
+            fill: none;
+            stroke: rgba(255, 255, 255, 0.8);
+            stroke-width: 2.2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        #results.results-v2 .rs-input {
+            flex: 1 1 auto;
+            min-width: 0;
+            height: 100%;
+            background: transparent;
+            border: none;
+            outline: none;
+            color: #ffffff;
+            font-family: inherit;
+            font-size: 16px;            /* 16px stops iPhone zooming in on focus */
+            font-weight: 600;
+            letter-spacing: 0.3px;
+            -webkit-appearance: none;
+            appearance: none;
+        }
+
+        #results.results-v2 .rs-input::placeholder {
+            color: rgba(255, 255, 255, 0.6);
+            font-weight: 500;
+        }
+
+        #results.results-v2 .rs-clear {
+            display: none;
+            flex-shrink: 0;
+            width: 24px;
+            height: 24px;
+            padding: 0;
+            border: none;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.22);
+            color: #ffffff;
+            font-size: 18px;
+            line-height: 22px;
+            text-align: center;
+            cursor: pointer;
+            touch-action: manipulation;
+        }
+
+        #results.results-v2 .rs-clear.show {
+            display: block;
+        }
+
+        #results.results-v2 .rs-select {
+            flex: 0 0 auto;
+            height: 34px;
+            max-width: 46%;
+            padding: 0 28px 0 14px;
+            border: none;
+            outline: none;
+            border-radius: 999px;
+            background-color: rgba(255, 255, 255, 0.2);
+            color: #ffffff;
+            font-family: inherit;
+            font-size: 12px;
+            font-weight: 800;
+            letter-spacing: 0.8px;
+            text-transform: uppercase;
+            cursor: pointer;
+            -webkit-appearance: none;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23fff'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 11px center;
+        }
+
+        #results.results-v2 .rs-select option {
+            background-color: #1f1f1e;
+            color: #ffffff;
+            text-transform: uppercase;
         }
 
         /* ---------- LIST WRAPPER + TOP FADE/BLUR ---------- */
@@ -4410,22 +4510,22 @@
             width: 100%;
             height: auto;
             margin: 0;
-            padding: 24px var(--results-side-pad) 0 var(--results-side-pad);
+            padding: 44px var(--results-side-pad) 0 var(--results-side-pad);
             overflow-x: hidden;
             overflow-y: auto;
             scroll-snap-type: none;
             overscroll-behavior-y: contain;
             -webkit-overflow-scrolling: touch;
             z-index: 5;
-            -webkit-mask-image: linear-gradient(to bottom, transparent 0px, #000 26px, #000 100%);
-            mask-image: linear-gradient(to bottom, transparent 0px, #000 26px, #000 100%);
+            -webkit-mask-image: linear-gradient(to bottom, transparent 0px, rgba(0,0,0,0.08) 8px, rgba(0,0,0,0.3) 18px, rgba(0,0,0,0.65) 28px, rgba(0,0,0,0.9) 37px, #000 44px, #000 100%);
+            mask-image: linear-gradient(to bottom, transparent 0px, rgba(0,0,0,0.08) 8px, rgba(0,0,0,0.3) 18px, rgba(0,0,0,0.65) 28px, rgba(0,0,0,0.9) 37px, #000 44px, #000 100%);
         }
 
         /* extra space at the end so the LAST card can also snap to the top */
         #results.results-v2 #resultsCardsScrollRow::after {
             content: '';
             display: block;
-            height: 90dvh;
+            height: 100px;
         }
 
         #results.results-v2 #resultsCardsScrollRow .gyro-3d-box-container {
@@ -4521,6 +4621,173 @@
             max-height: none !important;
             opacity: 1 !important;
         }
+
+        #results.results-v2 .gyro-3d-box-container { cursor: pointer; }
+
+#results.results-v2 .card-hint {
+    text-align: center;
+    margin-top: 12px;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 1.6px;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.3);   /* faint — change to taste */
+    pointer-events: none;
+    user-select: none;
+}
+#results.results-v2 .card-hint .hint-less { display: none; }
+#results.results-v2 .gyro-3d-box-container.is-open .hint-more { display: none; }
+#results.results-v2 .gyro-3d-box-container.is-open .hint-less { display: inline; }
+
+        /* ============================================================
+           RESULTS — SCORECARD REDESIGN
+        ============================================================ */
+
+        /* card shell */
+        #results.results-v2 .gyro-3d-box {
+            padding: clamp(16px, 5.2cqw, 24px) clamp(14px, 4.8cqw, 22px) clamp(12px, 3.6cqw, 16px);
+            border-radius: clamp(20px, 6cqw, 28px);
+        }
+
+                /* header row */
+        #results.results-v2 .card-header-row {
+            min-height: clamp(28px, 8cqw, 36px);
+            gap: clamp(5px, 1.8cqw, 8px);
+            flex-wrap: wrap;            /* safety net: on a very narrow phone the last badge drops to a 2nd line instead of overflowing */
+            row-gap: 6px;
+        }
+
+        #results.results-v2 .innings-status-badge {
+            padding: clamp(2px, 0.9cqw, 4px) clamp(6px, 2cqw, 9px);
+            border-radius: clamp(7px, 2cqw, 9px);
+            background: rgba(255, 255, 255, 0.07);
+            border-color: rgba(255, 255, 255, 0.22);
+        }
+
+        #results.results-v2 .innings-status-badge span {
+            font-size: clamp(9px, 2.5cqw, 11px);   /* <- "FULL TIME / SET 2 / 2ND INNINGS" size */
+            font-weight: 700;
+            letter-spacing: 0.3px;
+        }
+
+        #results.results-v2 .match-type-badge {
+            font-size: clamp(9px, 2.5cqw, 11px);   /* <- "LEAGUE / SEMI-FINAL" size */
+            letter-spacing: 0.5px;
+        }
+
+        #results.results-v2 .finished-tag-text {
+            font-size: clamp(9px, 2.5cqw, 11px);   /* <- "FINISHED" size */
+            letter-spacing: 0.3px;
+            padding: clamp(2px, 0.8cqw, 4px) clamp(6px, 1.8cqw, 8px);
+            border-radius: 7px;
+        }
+
+        /* teams + logos */
+        #results.results-v2 .match-field-arena {
+            grid-template-columns: 25% minmax(0, 1fr) auto minmax(0, 1fr) 25%;
+            column-gap: clamp(2px, 1cqw, 6px);
+            margin-bottom: clamp(10px, 3cqw, 14px);
+        }
+
+        #results.results-v2 .team-block-identity {
+            gap: clamp(6px, 1.8cqw, 8px);
+        }
+
+        #results.results-v2 .team-logo-shield {
+            width: clamp(46px, 15cqw, 68px);
+            height: clamp(46px, 15cqw, 68px);
+        }
+
+        #results.results-v2 .team-name-tag {
+            font-size: clamp(13px, 3.9cqw, 17px);
+            font-weight: 800;
+            letter-spacing: 0.3px;
+            overflow-wrap: anywhere;
+        }
+
+        #results.results-v2 .player-glow-subtext {
+            font-size: clamp(11px, 3cqw, 13px);
+        }
+
+        /* scores: cricket stays compact, every other sport gets big numbers */
+        #results.results-v2 .live-score-value {
+            font-family: 'Archivo', 'Arial Black', Impact, sans-serif;
+            font-style: normal;
+            font-weight: 900;
+            font-size: clamp(14px, 4.6cqw, 20px);
+            letter-spacing: 0;
+            text-shadow: 0 0 14px rgba(255, 255, 255, 0.3);
+        }
+
+        #results.results-v2 .gyro-3d-box-container:not([data-sport="cricket"]) .live-score-value {
+            font-size: clamp(28px, 10cqw, 46px);   /* <- make the big numbers bigger/smaller here */
+            line-height: 1;
+        }
+
+        #results.results-v2 .live-overs-value {
+            font-size: clamp(11px, 3cqw, 13px);
+            font-weight: 600;
+            margin-top: 3px;
+        }
+
+        #results.results-v2 .vs-middle-text {
+            font-size: clamp(11px, 3.2cqw, 14px);
+            letter-spacing: 1.5px;
+            opacity: 0.7;
+        }
+
+        /* insight line + winner banner */
+        #results.results-v2 .match-insight-ticker {
+            margin-top: clamp(10px, 3cqw, 14px);
+            margin-bottom: clamp(8px, 2.4cqw, 10px);
+            min-height: 20px;
+        }
+
+        #results.results-v2 .match-insight-text {
+            font-size: clamp(12px, 3.5cqw, 15px);
+            font-weight: 700;
+            letter-spacing: 0.4px;
+            text-shadow: none;
+        }
+
+        #results.results-v2 .winner-banner {
+            font-size: clamp(12.5px, 3.7cqw, 16px);
+            font-weight: 700;
+            letter-spacing: 0.3px;
+            padding: clamp(9px, 2.8cqw, 12px);
+            border-radius: clamp(10px, 3cqw, 12px);
+        }
+
+        /* expanded details: sets + player rows */
+        #results.results-v2 .sets-teams-label-column,
+        #results.results-v2 .sets-vertical-box-pair {
+            gap: clamp(8px, 2.4cqw, 10px);
+        }
+
+        #results.results-v2 .sets-team-label-name {
+            font-size: clamp(12px, 3.4cqw, 14px);
+            height: clamp(26px, 7cqw, 32px);
+        }
+
+        #results.results-v2 .set-score-outcome-box {
+            width: clamp(32px, 9cqw, 40px);
+            height: clamp(26px, 7cqw, 32px);
+            font-size: clamp(12px, 3.4cqw, 15px);
+            border-radius: 8px;
+        }
+
+        #results.results-v2 .tracker-column-header,
+        #results.results-v2 .tracker-player-name,
+        #results.results-v2 .tracker-player-points {
+            font-size: clamp(12px, 3.3cqw, 14px);
+        }
+
+        /* click for more / less */
+        #results.results-v2 .card-hint {
+            margin-top: clamp(12px, 3.4cqw, 16px);
+            font-size: clamp(10px, 2.8cqw, 11.5px);
+        }
+
     </style>
 
     <script src="https://cdn.jsdelivr.net/npm/twemoji@14.0.2/dist/twemoji.min.js" crossorigin="anonymous"></script>
@@ -5125,27 +5392,29 @@
                     <!-- ===== RESULTS HEADER: big title + (future) search box ===== -->
                     <div class="results-head" id="resultsHead">
                         <h1 class="results-big-title" id="resultsBigTitle">RESULTS</h1>
-                        <div class="results-search-box" id="resultsSearchBox"></div>
-                    </div>
-
-                    <!-- Old team filter: kept hidden so the existing code keeps working -->
-                    <div class="results-fixed-filter-bar" id="resultsFilterBarContainer" style="display:none;">
-                        <div id="resultsTeamFilterContainer" class="results-glass-dropdown-wrapper">
-                            <select id="resultsTeamDropdown" class="results-glass-dropdown">
+                        <div class="results-search-box" id="resultsSearchBox">
+                            <svg class="rs-icon" viewBox="0 0 24 24" aria-hidden="true">
+                                <circle cx="11" cy="11" r="7"></circle>
+                                <path d="M21 21l-4.3-4.3"></path>
+                            </svg>
+                            <input id="resultsSearchInput" class="rs-input" type="text"
+                                placeholder="Search sport, team, player…" autocomplete="off"
+                                autocapitalize="off" spellcheck="false" enterkeyhint="search">
+                            <button id="resultsSearchClear" class="rs-clear" type="button"
+                                aria-label="Clear search">&times;</button>
+                            <select id="resultsTeamDropdown" class="rs-select" aria-label="Filter by team">
                                 <option value="ALL">All Teams</option>
                                 <option value="ABH">Abhyudayans</option>
                                 <option value="VYV">Vyvidhians</option>
                                 <option value="ADH">Adhirans</option>
                                 <option value="PRJ">Prajvalyans</option>
                             </select>
-                            <button id="resultsBackBtn" class="results-glass-back-btn" style="display: none;">◀
-                                Back</button>
                         </div>
                     </div>
 
+
                     <!-- Vertical list of scorecards (filled by the Firebase code) -->
                     <div class="results-list-wrap">
-                        <div class="results-top-blur" aria-hidden="true"></div>
                         <div id="resultsCardsScrollRow">
                             <!-- Content is populated dynamically -->
                         </div>
@@ -7984,6 +8253,46 @@ ${matchTypeBadgeHTML(rec.matchType)}
     </div>
   </div>`;
         }
+                /* ── RESULTS SEARCH ── */
+        let resultsSearchQuery = '';
+
+        const TEAM_SEARCH_ALIASES = {
+            ABH: 'abhyudayans abh',
+            VYV: 'vyvidhians vyvdhyans vyv',
+            ADH: 'adhirans adh',
+            PRJ: 'prajvalyans prj'
+        };
+
+        // everything a person might type: sport, team, player, boys/girls, league/semi/final...
+        function buildSearchHaystack(sport, rec) {
+            const parts = [
+                sport.replace(/_/g, ' '),
+                rec.sport ? String(rec.sport).replace(/_/g, ' ') : '',
+                rec.team1, rec.team2,
+                rec.team1DisplayName, rec.team2DisplayName,
+                rec.team1Player, rec.team2Player,
+                rec.gender, rec.remarks, rec.period
+            ];
+            const mt = rec.matchType || 'league';
+            parts.push(String(mt).replace(/_/g, ' '));
+            if (mt === 'semi_final') parts.push('semi-final semifinal');
+            if (mt === 'grand_final') parts.push('grand-final final');
+
+            [rec.team1, rec.team2].forEach(t => {
+                const s = String(t || '').trim();
+                const code = normalizeTeamCode(s);
+                if (code) parts.push(TEAM_SEARCH_ALIASES[code]);
+                if (/-B$/i.test(s)) parts.push('boys');
+                if (/-G$/i.test(s)) parts.push('girls');
+            });
+
+            if (rec.playerStats) {
+                Object.values(rec.playerStats).forEach(p => { if (p && p.name) parts.push(p.name); });
+            }
+            return parts.filter(Boolean).join(' ').toLowerCase();
+        }
+
+
 
         function renderAllFilteredMatches() {
             const teamFilter = el('resultsTeamDropdown').value;
@@ -8010,6 +8319,11 @@ ${matchTypeBadgeHTML(rec.matchType)}
 
                     if (teamFilter !== 'ALL') {
                         if (norm1 !== teamFilter && norm2 !== teamFilter) return;
+                    }
+
+                    if (resultsSearchQuery) {
+                        const hay = buildSearchHaystack(sport, rec);
+                        if (!resultsSearchQuery.split(/\s+/).every(w => hay.includes(w))) return;
                     }
 
                     const cardId = `resultsDynamicCard_${sport}_${idx}`;
@@ -8080,7 +8394,7 @@ ${matchTypeBadgeHTML(rec.matchType)}
 
                     cardHTML = cardHTML.replace(
                         'class="gyro-3d-box-container card-visible"',
-                        `class="gyro-3d-box-container card-visible" data-winner-color="${winColor}"`
+                        `class="gyro-3d-box-container card-visible" data-sport="${sport}" data-winner-color="${winColor}" data-key="${sport}|${rec.lastUpdated || idx}|${t1}|${t2}"`
                     );
 
                     renderedCards.push({ ts: String(rec.lastUpdated || ''), html: cardHTML });
@@ -8104,7 +8418,7 @@ ${matchTypeBadgeHTML(rec.matchType)}
         </div>
     </div>
 `;
-                el('results').style.backgroundColor = winnerBGColors.DEFAULT;
+                
             } else {
                 row.innerHTML = `
                     <div id="landingSpacer" style="flex: 0 0 80vw; scroll-snap-align: center; pointer-events: none;"></div>
@@ -8112,13 +8426,7 @@ ${matchTypeBadgeHTML(rec.matchType)}
                 `;
             }
 
-            if (teamFilter !== 'ALL') {
-                el('resultsTeamDropdown').style.display = 'none';
-                el('resultsBackBtn').style.display = 'flex';
-            } else {
-                el('resultsTeamDropdown').style.display = 'block';
-                el('resultsBackBtn').style.display = 'none';
-            }
+
 
             initFocusObserver();
             triggerScrollUpdate();
@@ -8156,190 +8464,87 @@ ${matchTypeBadgeHTML(rec.matchType)}
             return `rgb(${r}, ${g}, ${b})`;
         }
 
-                /* ── RESULTS LIST: vertical hard-scroll, only the current card is expanded ── */
+                /* ── RESULTS LIST: free scroll, click a card to expand ── */
 
-        let resultsFocusIndex = -1;       // index of the card that is currently expanded
-        let resultsLastScrollTop = 0;     // remembered so the list keeps its place when Firebase re-renders
-        let resultsForceDefaultBg = false;
+const RESULTS_GRADIENT_DARKEN = 0.55;   // 0 = same colour at the bottom, 1 = black
+let resultsOpenKey = null;
+let resultsLastScrollTop = 0;
+let resultsForceDefaultBg = false;
 
-        // A card becomes the current (expanded) one when its top passes this point of the list height.
-        // 0 = very top, 1 = very bottom. Lower = switches later, higher = switches earlier.
-        const RESULTS_SWITCH_LINE = 0.45;
+function getResultCards() {
+    const row = el('resultsCardsScrollRow');
+    return row ? Array.from(row.querySelectorAll('.gyro-3d-box-container')) : [];
+}
 
-        function getResultCards() {
-            const row = el('resultsCardsScrollRow');
-            return row ? Array.from(row.querySelectorAll('.gyro-3d-box-container')) : [];
+function darkenHex(hex, amt) {
+    const { r, g, b } = hexToRgb(hex);
+    const k = 1 - amt;
+    return `rgb(${Math.round(r * k)}, ${Math.round(g * k)}, ${Math.round(b * k)})`;
+}
+
+// default colour when nothing is open, team gradient when a card is open
+function applyResultsTheme() {
+    const page = el('results');
+    if (!page) return;
+    const open = getResultCards().find(c => c.classList.contains('is-open'));
+    if (!open || resultsForceDefaultBg) {
+        const d = winnerBGColors.DEFAULT;
+        page.style.setProperty('--results-c1', d);
+        page.style.setProperty('--results-c2', d);
+        return;
+    }
+    const c = open.dataset.winnerColor || winnerBGColors.DEFAULT;
+    page.style.setProperty('--results-c1', c);
+    page.style.setProperty('--results-c2', darkenHex(c, RESULTS_GRADIENT_DARKEN));
+}
+
+function toggleResultCard(card) {
+    const wasOpen = card.classList.contains('is-open');
+    getResultCards().forEach(c => c.classList.remove('is-open'));   // only one open at a time
+    if (!wasOpen) {
+        card.classList.add('is-open');
+        resultsOpenKey = card.dataset.key || card.id;
+    } else {
+        resultsOpenKey = null;
+    }
+    applyResultsTheme();
+}
+
+// runs after every re-render of the list (Firebase updates)
+function initFocusObserver() {
+    const row = el('resultsCardsScrollRow');
+    if (!row) return;
+    const cards = getResultCards();
+
+    // add the faint hint once per card
+    cards.forEach(card => {
+        const box = card.querySelector('.gyro-3d-box');
+        if (box && !box.querySelector('.card-hint')) {
+            box.insertAdjacentHTML('beforeend',
+                '<div class="card-hint"><span class="hint-more">Click for more</span><span class="hint-less">Click for less</span></div>');
         }
+    });
 
-        function syncResultsListHeight() {
-            const row = el('resultsCardsScrollRow');
-            if (row) row.style.setProperty('--results-list-h', row.clientHeight + 'px');
-        }
+    // keep the same card open after a re-render, without re-animating it
+    const match = cards.find(c => (c.dataset.key || c.id) === resultsOpenKey);
+    if (match) {
+        match.classList.add('no-transition', 'is-open');
+        requestAnimationFrame(() => requestAnimationFrame(() => match.classList.remove('no-transition')));
+    } else {
+        resultsOpenKey = null;
+    }
 
-        // current card + every card above it stay open, cards below it collapse
-        function applyResultsFocus(idx) {
-            resultsFocusIndex = idx;
-            getResultCards().forEach((card, i) => {
-                card.classList.toggle('is-open', i <= idx);
-            });
-        }
+    if (Math.abs(row.scrollTop - resultsLastScrollTop) > 1) row.scrollTop = resultsLastScrollTop;
+    applyResultsTheme();
+}
 
-        function getSnapPoints() {
-            const row = el('resultsCardsScrollRow');
-            if (!row) return [];
-            const pad = parseFloat(getComputedStyle(row).scrollPaddingTop) || 0;
-            const points = getResultCards().map(card => ({
-                offset: Math.max(0, card.offsetTop - pad),
-                color: card.dataset.winnerColor || winnerBGColors.DEFAULT
-            }));
-            points.sort((a, b) => a.offset - b.offset);
-            return points;
-        }
+function triggerScrollUpdate() { applyResultsTheme(); }
 
-        function updateScrollEffects() {
-            const row = el('resultsCardsScrollRow');
-            const resultsSection = el('results');
-            if (!row || !resultsSection) return;
-
-            const scrollTop = row.scrollTop;
-            resultsLastScrollTop = scrollTop;
-            const cards = getResultCards();
-
-            // 1) which card is current -> expand it, collapse the ones below
-            if (cards.length) {
-                const line = row.clientHeight * RESULTS_SWITCH_LINE;
-                let idx = 0;
-                cards.forEach((card, i) => {
-                    if (card.offsetTop - scrollTop <= line) idx = i;
-                });
-                if (idx !== resultsFocusIndex) applyResultsFocus(idx);
-            }
-
-            // 2) page background colour
-            if (!cards.length || resultsForceDefaultBg) {
-                resultsSection.style.backgroundColor = winnerBGColors.DEFAULT;
-                return;
-            }
-
-            const points = getSnapPoints();
-            let startIndex = 0;
-            points.forEach((p, i) => { if (scrollTop >= p.offset) startIndex = i; });
-            const startPoint = points[startIndex];
-            const endPoint = points[Math.min(startIndex + 1, points.length - 1)];
-            const diff = endPoint.offset - startPoint.offset;
-            const factor = diff > 0 ? Math.min(1, Math.max(0, (scrollTop - startPoint.offset) / diff)) : 0;
-            resultsSection.style.backgroundColor = interpolateColor(startPoint.color, endPoint.color, factor);
-        }
-
-        function triggerScrollUpdate() {
-            requestAnimationFrame(updateScrollEffects);
-        }
-
-        // runs after every re-render of the list
-        function initFocusObserver() {
-            const row = el('resultsCardsScrollRow');
-            if (!row) return;
-            const cards = getResultCards();
-            if (!cards.length) {
-                resultsFocusIndex = -1;
-                syncResultsListHeight();
-                return;
-            }
-            applyResultsFocus(Math.min(Math.max(resultsFocusIndex, 0), cards.length - 1));
-            syncResultsListHeight();
-            if (Math.abs(row.scrollTop - resultsLastScrollTop) > 1) row.scrollTop = resultsLastScrollTop;
-            updateScrollEffects();
-        }
-
-        // for your future search box: setResultsDefaultBg(true) while searching, false when done
-        window.setResultsDefaultBg = function (on) {
-            resultsForceDefaultBg = !!on;
-            triggerScrollUpdate();
-        };
-
-        window.addEventListener('resize', () => {
-            syncResultsListHeight();
-            triggerScrollUpdate();
-        });
-
-        /* ── RESULTS BOUNDARY SNAP (free inside tall cards, hard snap between cards) ── */
-        let isTouchingResults = false;
-        let isProgrammaticSnap = false;
-        let snapTarget = null;
-        let resultsSnapTimer = null;
-        let programmaticSnapTimeout = null;
-        let lastScrollDir = 1;
-        let prevScrollTopForDir = 0;
-
-        function smoothSnapTo(row, target) {
-            if (Math.abs(row.scrollTop - target) <= 2) return;
-            snapTarget = target;
-            isProgrammaticSnap = true;
-            row.scrollTo({ top: target, behavior: 'smooth' });
-            clearTimeout(programmaticSnapTimeout);
-            programmaticSnapTimeout = setTimeout(() => {
-                isProgrammaticSnap = false;
-                snapTarget = null;
-            }, 600);
-        }
-
-        function snapIfInTransitionZone() {
-            const row = el('resultsCardsScrollRow');
-            if (!row || isTouchingResults || isProgrammaticSnap) return;
-
-            const cards = getResultCards();
-            if (!cards.length) return;
-
-            const pad = parseFloat(getComputedStyle(row).paddingTop) || 0;
-            const gap = 14;
-            const st = row.scrollTop;
-            if (st <= 0) return;
-
-            let idx = 0;
-            for (let i = 0; i < cards.length; i++) {
-                const cardStart = Math.max(0, cards[i].offsetTop - pad);
-                if (cardStart <= st + 2) idx = i;
-            }
-
-            const curCard = cards[idx];
-            const startI = Math.max(0, curCard.offsetTop - pad);
-            const bottomI = curCard.offsetTop + curCard.offsetHeight;
-            const maxInsideI = Math.max(startI, bottomI + gap - row.clientHeight);
-
-            // Free scroll while inside a tall card's readable body
-            if (maxInsideI > startI && st >= startI - 2 && st <= maxInsideI + 2) {
-                return;
-            }
-
-            // Past the bottom of the last card -> snap back to the bottom of the last card
-            if (idx === cards.length - 1) {
-                if (Math.abs(st - maxInsideI) > 2) {
-                    smoothSnapTo(row, maxInsideI);
-                }
-                return;
-            }
-
-            // Transition zone between current card and next card -> snap to one or the other
-            const nextCard = cards[idx + 1];
-            const zoneStart = maxInsideI;
-            const zoneEnd = Math.max(zoneStart, nextCard.offsetTop - pad);
-            const span = zoneEnd - zoneStart;
-            if (span <= 2) return;
-
-            const threshold = 0.25;
-            const target = lastScrollDir >= 0
-                ? (st >= zoneStart + span * threshold ? zoneEnd : zoneStart)
-                : (st <= zoneEnd - span * threshold ? zoneStart : zoneEnd);
-
-            smoothSnapTo(row, target);
-        }
-
-        function scheduleResultsSnap(delay = 130) {
-            clearTimeout(resultsSnapTimer);
-            resultsSnapTimer = setTimeout(snapIfInTransitionZone, delay);
-        }
-
-
+// for your future search box
+window.setResultsDefaultBg = function (on) {
+    resultsForceDefaultBg = !!on;
+    applyResultsTheme();
+};
         /* ── PART 4: COMPILING DATABASES & GENERAL INITIALIZATION ── */
 
         onValue(ref(db, 'matches_archive/cricket'), snapshot => {
@@ -8435,53 +8640,57 @@ ${matchTypeBadgeHTML(rec.matchType)}
             waveEl(el('resultsTitleSmall'));
 
             const resultsScrollRow = el('resultsCardsScrollRow');
-            if (resultsScrollRow) {
-                resultsScrollRow.addEventListener('scroll', () => {
-                    const st = resultsScrollRow.scrollTop;
-                    if (isProgrammaticSnap) {
-                        if (snapTarget !== null && Math.abs(st - snapTarget) <= 2) {
-                            isProgrammaticSnap = false;
-                            snapTarget = null;
-                            clearTimeout(programmaticSnapTimeout);
-                        }
-                    } else {
-                        if (Math.abs(st - prevScrollTopForDir) > 1) {
-                            lastScrollDir = st > prevScrollTopForDir ? 1 : -1;
-                        }
-                        if (!isTouchingResults) scheduleResultsSnap(130);
-                    }
-                    prevScrollTopForDir = st;
-                    triggerScrollUpdate();
-                }, { passive: true });
+if (resultsScrollRow) {
+    resultsScrollRow.addEventListener('scroll', () => {
+        resultsLastScrollTop = resultsScrollRow.scrollTop;
+    }, { passive: true });
 
-                resultsScrollRow.addEventListener('touchstart', () => {
-                    isTouchingResults = true;
-                    isProgrammaticSnap = false;
-                    snapTarget = null;
-                    clearTimeout(resultsSnapTimer);
-                    clearTimeout(programmaticSnapTimeout);
-                }, { passive: true });
-
-                const onTouchDone = () => {
-                    isTouchingResults = false;
-                    scheduleResultsSnap(130);
-                };
-                resultsScrollRow.addEventListener('touchend', onTouchDone, { passive: true });
-                resultsScrollRow.addEventListener('touchcancel', onTouchDone, { passive: true });
-
-                triggerScrollUpdate();
-            }
+    resultsScrollRow.addEventListener('click', (e) => {
+        if (e.target.closest('a')) return;               // let "Full Scorecard" link work
+        const card = e.target.closest('.gyro-3d-box-container');
+        if (card && resultsScrollRow.contains(card)) toggleResultCard(card);
+    });
+}
 
             const resultsTeamDropdown = el('resultsTeamDropdown');
-            if (resultsTeamDropdown) {
-                resultsTeamDropdown.addEventListener('change', renderAllFilteredMatches);
+            const resultsSearchInput = el('resultsSearchInput');
+            const resultsSearchClear = el('resultsSearchClear');
+
+            // any search/filter change: close the open card, jump to top, re-render
+            function applyResultsFilters() {
+                resultsOpenKey = null;
+                resultsLastScrollTop = 0;
+                const listRow = el('resultsCardsScrollRow');
+                if (listRow) listRow.scrollTop = 0;
+                renderAllFilteredMatches();
             }
 
-            const resultsBackBtn = el('resultsBackBtn');
-            if (resultsBackBtn) {
-                resultsBackBtn.addEventListener('click', () => {
-                    if (resultsTeamDropdown) resultsTeamDropdown.value = 'ALL';
-                    renderAllFilteredMatches();
+            if (resultsTeamDropdown) {
+                resultsTeamDropdown.addEventListener('change', applyResultsFilters);
+            }
+
+            if (resultsSearchInput) {
+                let searchTimer = null;
+                resultsSearchInput.addEventListener('input', () => {
+                    const v = resultsSearchInput.value;
+                    if (resultsSearchClear) resultsSearchClear.classList.toggle('show', v.length > 0);
+                    clearTimeout(searchTimer);
+                    searchTimer = setTimeout(() => {
+                        resultsSearchQuery = v.trim().toLowerCase();
+                        applyResultsFilters();
+                    }, 200);
+                });
+                resultsSearchInput.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter') resultsSearchInput.blur();   // closes the keyboard
+                });
+            }
+
+            if (resultsSearchClear) {
+                resultsSearchClear.addEventListener('click', () => {
+                    resultsSearchInput.value = '';
+                    resultsSearchClear.classList.remove('show');
+                    resultsSearchQuery = '';
+                    applyResultsFilters();
                 });
             }
 
