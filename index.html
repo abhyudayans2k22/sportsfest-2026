@@ -391,7 +391,7 @@
             align-items: center;
             perspective: 1000px;
             background: transparent;
-            pointer-events: auto;
+            pointer-events: none;
             transform-origin: center center;
             will-change: transform;
             z-index: 250;
@@ -2885,8 +2885,16 @@
         #gallery .masonry-container {
             max-width: 1200px;
             margin: 0 auto;
-            column-count: 4;
-            column-gap: var(--masonry-gap);
+            display: flex;
+            align-items: flex-start;
+            gap: var(--masonry-gap);
+        }
+
+        #gallery .masonry-col {
+            flex: 1 1 0;
+            min-width: 0;
+            display: flex;
+            flex-direction: column;
         }
 
         #gallery .gallery-item {
@@ -2898,18 +2906,20 @@
             border: 1px solid rgba(255, 255, 255, 0.03);
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
             transition: transform 0.3s cubic-bezier(0.25, 1, 0.5, 1), box-shadow 0.3s ease, border-color 0.3s ease;
-            opacity: 0;
-            animation: galleryFadeInUp 0.6s ease forwards;
+            animation: galleryPop 0.45s ease;
             cursor: pointer;
             position: relative;
             -webkit-user-select: none;
             user-select: none;
         }
 
-        #gallery .gallery-item:hover {
-            transform: translateY(-4px) scale(1.01);
-            box-shadow: 0 12px 30px var(--neon-glow);
-            border-color: rgba(255, 255, 255, 0.15);
+        /* hover effect only on devices that really have a mouse (stops iOS eating the first tap) */
+        @media (hover: hover) and (pointer: fine) {
+            #gallery .gallery-item:hover {
+                transform: translateY(-4px) scale(1.01);
+                box-shadow: 0 12px 30px var(--neon-glow);
+                border-color: rgba(255, 255, 255, 0.15);
+            }
         }
 
         #gallery .gallery-item img {
@@ -3243,8 +3253,7 @@
             }
 
             #gallery .masonry-container {
-                column-count: 2;
-                column-gap: 10px;
+                gap: 10px;
             }
 
             #gallery .favorites-grid {
@@ -5194,7 +5203,13 @@
         }
 
             /* ---------- SHARE POSTER: theme-coloured box + matching text ---------- */
-        .sp-main { background: var(--sp-box, #000000); color: var(--sp-fg, #ffffff); }
+        .sp-main {
+            background-color: #000000;
+            background-image: radial-gradient(circle at var(--glow-x) var(--glow-y),
+                rgba(var(--sp-glow-rgb, 0, 0, 0), var(--glow-strength)) 0%,
+                rgba(var(--sp-glow-rgb, 0, 0, 0), 0) var(--glow-size));
+            color: #ffffff;
+        }
         .sp-lakshya,
         .sp-meta-period,
         .sp-score,
@@ -5267,6 +5282,12 @@
             --gap-winner: 3.5;        /* space above the winner line */
             --footer-bottom: 4;       /* hashtags distance from the bottom */
 
+                        /* team-colour glow in the top-right corner of the black box */
+            --glow-x: 100%;           /* 0% = left edge of the black box, 100% = right edge */
+            --glow-y: 0%;             /* 0% = top edge, 100% = bottom edge */
+            --glow-size: 40%;         /* how far the glow spreads (bigger = covers more) */
+            --glow-strength: 0.85;    /* 0 = invisible, 1 = full team colour at the corner */
+
             /* black gradient at the bottom of the box */
             --grad-h: 40%;            /* how tall the gradient is */
             --grad-strength: 1;     /* 0 = invisible, 1 = solid black at the very bottom */
@@ -5307,6 +5328,35 @@
             height: var(--grad-h);
             background: linear-gradient(to bottom, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, var(--grad-strength)) 100%);
             pointer-events: none;
+        }
+
+                /* ---------- GALLERY: buffering spinner + soft appear animation ---------- */
+        #gallery #galleryLoader {
+            display: none;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            padding: 26px 0 8px;
+            color: rgba(255, 255, 255, 0.55);
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+        }
+
+        #gallery .gal-spin {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            border: 2px solid rgba(255, 255, 255, 0.18);
+            border-top-color: #ffffff;
+            animation: galSpin 0.8s linear infinite;
+        }
+
+        @keyframes galSpin { to { transform: rotate(360deg); } }
+        @keyframes galleryPop {
+            from { opacity: 0; transform: translateY(10px); }
+            to   { opacity: 1; transform: none; }
         }
     </style>
 
@@ -7204,27 +7254,200 @@
                 }, 4200);
             };
 
-            const apiURL = `https://api.github.com/repos/${user}/${repo}/contents/${folder}?ref=${branch}`;
+                        /* ── GALLERY LOADER: only fully loaded photos are shown; more load as you scroll ── */
+            const USE_THUMBS = true;     // true = small fast previews in the grid (the full photo opens in the viewer). false = always load full photos
+            const FIRST_BATCH = 12;      // photos shown at the start
+            const NEXT_BATCH = 10;       // photos added each time you reach the bottom
+            const LOAD_TIMEOUT = 12000;  // ms to wait for one photo before trying the backup source
+            const TAP_DELAY = 320;       // ms: two taps within this time = like (raise to 400 for a more forgiving double tap)
 
-            fetch(apiURL)
-                .then(response => {
-                    if (!response.ok) throw new Error("Could not fetch repository assets.");
-                    return response.json();
-                })
-                .then(files => {
+            const apiURL = `https://api.github.com/repos/${user}/${repo}/contents/${folder}?ref=${branch}`;
+            const galleryItems = [];
+            let galleryQueue = [];
+            let galleryLoading = false;
+            let colEls = [];
+
+            // buffering spinner under the grid
+            const loader = document.createElement('div');
+            loader.id = 'galleryLoader';
+            loader.innerHTML = '<div class="gal-spin"></div><span>Loading more</span>';
+            grid.insertAdjacentElement('afterend', loader);
+
+            /* columns are built in JS so photos never jump around while more are added */
+            function wantedCols() {
+                const w = window.innerWidth;
+                return w <= 600 ? 2 : (w <= 900 ? 3 : 4);
+            }
+            function buildColumns() {
+                grid.innerHTML = '';
+                colEls = [];
+                for (let i = 0; i < wantedCols(); i++) {
+                    const c = document.createElement('div');
+                    c.className = 'masonry-col';
+                    grid.appendChild(c);
+                    colEls.push(c);
+                }
+            }
+            function placeItem(item) {
+                let best = colEls[0];
+                colEls.forEach(c => { if (c.offsetHeight < best.offsetHeight) best = c; });
+                best.appendChild(item);
+            }
+            window.addEventListener('resize', function () {
+                if (!colEls.length || wantedCols() === colEls.length) return;
+                buildColumns();
+                galleryItems.forEach(placeItem);
+            });
+
+            /* load one image completely (downloaded + decoded) before it is ever shown */
+            function tryLoad(url) {
+                return new Promise((resolve, reject) => {
+                    const im = new Image();
+                    let done = false;
+                    const timer = setTimeout(() => {
+                        if (done) return;
+                        done = true; im.onload = im.onerror = null; im.src = '';
+                        reject(new Error('timeout'));
+                    }, LOAD_TIMEOUT);
+                    const finish = () => {
+                        if (done) return;
+                        done = true; clearTimeout(timer);
+                        if (im.naturalWidth > 0 && im.naturalHeight > 0) resolve(im); else reject(new Error('empty'));
+                    };
+                    im.onload = () => { if (im.decode) im.decode().then(finish, finish); else finish(); };
+                    im.onerror = () => { if (done) return; done = true; clearTimeout(timer); reject(new Error('error')); };
+                    im.src = url;
+                });
+            }
+
+            /* tries: small preview -> jsDelivr full -> GitHub raw. If all fail the photo is skipped */
+            async function loadPhoto(file) {
+                const name = encodeURIComponent(file.name);
+                const full = `https://cdn.jsdelivr.net/gh/${user}/${repo}@${branch}/${folder}/${name}`;
+                const raw = `https://raw.githubusercontent.com/${user}/${repo}/${branch}/${folder}/${name}`;
+                const thumb = `https://wsrv.nl/?url=${encodeURIComponent(full)}&w=700&we&q=80`;
+                const chain = USE_THUMBS ? [thumb, full, raw] : [full, raw];
+                for (const u of chain) {
+                    try {
+                        const im = await tryLoad(u);
+                        return { im: im, full: full, shown: u };
+                    } catch (e) { /* try the next source */ }
+                }
+                return null;
+            }
+
+            function addPhotoItem(file, result) {
+                const item = document.createElement('div');
+                item.className = 'gallery-item';
+                item.dataset.full = result.full;
+                item.dataset.shown = result.shown;
+                item.dataset.name = file.name;
+                item.setAttribute('data-url', result.full);
+                result.im.alt = 'Memory Asset';
+                result.im.draggable = false;
+                item.appendChild(result.im);
+                galleryItems.push(item);
+                placeItem(item);
+            }
+
+            async function loadMore(count) {
+                if (galleryLoading || !galleryQueue.length) return;
+                galleryLoading = true;
+                loader.style.display = 'flex';
+                let added = 0;
+                while (added < count && galleryQueue.length) {
+                    const group = galleryQueue.splice(0, 4);               // 4 photos at a time
+                    const results = await Promise.all(group.map(loadPhoto));
+                    results.forEach((r, i) => { if (r) { addPhotoItem(group[i], r); added++; } });
+                }
+                galleryLoading = false;
+                loader.style.display = 'none';
+                // big screens: keep going until the page is actually scrollable
+                if (galleryQueue.length && galleryScroll.scrollHeight <= galleryScroll.clientHeight + 300) loadMore(NEXT_BATCH);
+            }
+
+            // reaching the bottom -> load the next batch
+            galleryScroll.addEventListener('scroll', function () {
+                if (galleryQueue.length && !galleryLoading &&
+                    galleryScroll.scrollTop + galleryScroll.clientHeight >= galleryScroll.scrollHeight - 700) {
+                    loadMore(NEXT_BATCH);
+                }
+            }, { passive: true });
+
+            /* single tap = open, double tap = like (one handler for the whole grid) */
+            let lastTapItem = null, lastTapTime = 0, singleTimer = null;
+            grid.addEventListener('click', function (e) {
+                const item = e.target.closest('.gallery-item');
+                if (!item) return;
+                const now = Date.now();
+                if (lastTapItem === item && now - lastTapTime < TAP_DELAY) {
+                    clearTimeout(singleTimer);
+                    lastTapItem = null; lastTapTime = 0;
+                    addPhotoToLikes(item.dataset.full);
+                    triggerInstaHeartAnimation(item);
+                    return;
+                }
+                lastTapItem = item; lastTapTime = now;
+                clearTimeout(singleTimer);
+                singleTimer = setTimeout(function () { lastTapItem = null; openLightbox(item); }, TAP_DELAY);
+            });
+
+            function openLightbox(item) {
+                const full = item.dataset.full, shown = item.dataset.shown;
+                lightbox.setAttribute('data-active-url', full);
+                lightbox.setAttribute('data-active-filename', item.dataset.name);
+                lightboxImg.src = shown;                         // instant: this one is already loaded
+                if (shown !== full) {                            // then swap to the full-quality photo when it is ready
+                    const hi = new Image();
+                    hi.onload = function () { if (lightbox.getAttribute('data-active-url') === full) lightboxImg.src = full; };
+                    hi.src = full;
+                }
+                updateLightboxControlsState(full);
+                lightbox.classList.add('active');
+                if (headerBox) headerBox.classList.add('hide-header');
+                const _ptl = document.getElementById('pageTitleLabel');
+                if (_ptl) _ptl.style.opacity = '0';
+                if (galleryScroll) galleryScroll.style.overflow = 'auto';
+            }
+
+            /* file list from GitHub (cached 10 min so mobile networks don't hit GitHub's rate limit) */
+            async function getFileList() {
+                const KEY = 'gallery_file_cache_v1';
+                let cached = null;
+                try { cached = JSON.parse(localStorage.getItem(KEY) || 'null'); } catch (e) { }
+                if (cached && Array.isArray(cached.files) && cached.files.length && Date.now() - cached.t < 10 * 60 * 1000) return cached.files;
+                try {
+                    const r = await fetch(apiURL);
+                    if (!r.ok) throw new Error('GitHub ' + r.status);
+                    const data = await r.json();
+                    const names = data.map(f => ({ name: f.name }));
+                    try { localStorage.setItem(KEY, JSON.stringify({ t: Date.now(), files: names })); } catch (e) { }
+                    return names;
+                } catch (err) {
+                    if (cached && Array.isArray(cached.files) && cached.files.length) return cached.files;   // use the older list
+                    throw err;
+                }
+            }
+
+            async function initGallery() {
+                galleryItems.length = 0;
+                buildColumns();
+                statusText.style.display = 'block';
+                statusText.style.cursor = '';
+                statusText.onclick = null;
+                statusText.textContent = 'Connecting to gallery...';
+                try {
+                    const files = await getFileList();
                     const validExtensions = ['.jpg', '.jpeg', '.png', '.webp', '.gif'];
                     let imageFiles = files.filter(file => {
-                        const ext = file.name.substring(file.name.lastIndexOf('.')).toLowerCase();
-                        return validExtensions.includes(ext);
+                        const dot = file.name.lastIndexOf('.');
+                        return dot > -1 && validExtensions.includes(file.name.substring(dot).toLowerCase());
                     });
-
                     if (imageFiles.length === 0) {
                         statusText.textContent = "Vault connected, but it's empty!";
                         return;
                     }
-
                     imageFiles.reverse();
-
                     const pinnedCount = 4;
                     if (imageFiles.length > pinnedCount) {
                         const newestImages = imageFiles.slice(0, pinnedCount);
@@ -7232,58 +7455,24 @@
                         olderPool.sort(() => Math.random() - 0.5);
                         imageFiles = newestImages.concat(olderPool);
                     }
-
-                    statusText.style.display = "none";
-
-                    imageFiles.forEach((file, index) => {
-                        const cdnURL = `https://cdn.jsdelivr.net/gh/${user}/${repo}@${branch}/${folder}/${file.name}`;
-
-                        const item = document.createElement("div");
-                        item.className = "gallery-item";
-                        item.setAttribute("data-url", cdnURL);
-                        item.style.animationDelay = `${index * 0.04}s`;
-
-                        const img = document.createElement("img");
-                        img.src = cdnURL;
-                        img.alt = "Memory Asset";
-                        img.loading = "lazy";
-
-                        item.appendChild(img);
-                        grid.appendChild(item);
-
-                        let clickCount = 0;
-                        let clickTimer;
-
-                        item.addEventListener("click", function (e) {
-                            clickCount++;
-                            if (clickCount === 1) {
-                                clickTimer = setTimeout(function () {
-                                    lightboxImg.src = cdnURL;
-                                    lightbox.setAttribute("data-active-url", cdnURL);
-                                    lightbox.setAttribute("data-active-filename", file.name);
-
-                                    updateLightboxControlsState(cdnURL);
-
-                                    lightbox.classList.add("active");
-                                    if (headerBox) headerBox.classList.add("hide-header");
-                                    const _ptl = document.getElementById('pageTitleLabel');
-                                    if (_ptl) _ptl.style.opacity = '0';
-                                    if (galleryScroll) galleryScroll.style.overflow = "auto";
-                                    clickCount = 0;
-                                }, 250);
-                            } else {
-                                clearTimeout(clickTimer);
-                                addPhotoToLikes(cdnURL);
-                                triggerInstaHeartAnimation(item);
-                                clickCount = 0;
-                            }
-                        });
-                    });
-                })
-                .catch(error => {
-                    console.error(error);
-                    statusText.textContent = "Error sync-mapping gallery components.";
-                });
+                    galleryQueue = imageFiles;
+                    statusText.textContent = 'Loading photos...';
+                    await loadMore(FIRST_BATCH);
+                    if (galleryItems.length) {
+                        statusText.style.display = 'none';
+                    } else {
+                        statusText.textContent = 'Photos could not be loaded. Tap to try again.';
+                        statusText.style.cursor = 'pointer';
+                        statusText.onclick = initGallery;
+                    }
+                } catch (err) {
+                    console.error(err);
+                    statusText.textContent = 'Could not reach the gallery. Tap to try again.';
+                    statusText.style.cursor = 'pointer';
+                    statusText.onclick = initGallery;
+                }
+            }
+            initGallery();
 
             function triggerInstaHeartAnimation(parentCard) {
                 const heart = document.createElement("div");
@@ -7389,7 +7578,8 @@
                     card.className = "fav-card";
 
                     const img = document.createElement("img");
-                    img.src = url;
+                    img.src = USE_THUMBS ? `https://wsrv.nl/?url=${encodeURIComponent(url)}&w=500&we&q=80` : url;
+                    img.onerror = function () { img.onerror = null; img.src = url; };
 
                     const unlikeHeart = document.createElement("div");
                     unlikeHeart.className = "fav-card-heart";
@@ -8883,10 +9073,10 @@ ${matchTypeBadgeHTML(rec.matchType)}
 
         // one template per team: background image + its position/size + accent colour
         const SHARE_THEMES = {
-            ABH: { img: 'https://i.ibb.co/KjsQnB7s/Gemini-Generated-Image-xyi6b2xyi6b2xyi6.png', size: '190%', x: '26%', y: '59%', accent: '#ffb3b3', box: '#670E10', fg: '255,255,255' },
-            VYV: { img: 'https://i.ibb.co/Z1cpyP1H/Gemini-Generated-Image-h2lnheh2lnheh2ln.png', size: '200%', x: '8%',  y: '60%', accent: '#8ec5ff', box: '#0A1F5C', fg: '255,255,255' },
-            ADH: { img: 'https://i.ibb.co/ks5sSF1p/Gemini-Generated-Image-5xjbxn5xjbxn5xjb.png', size: '200%', x: '2%',  y: '60%', accent: '#2b1c00', box: '#C58E03', fg: '20,14,0' },
-            PRJ: { img: 'https://i.ibb.co/NdRhpR4r/Gemini-Generated-Image-e16ynce16ynce16y.png', size: '200%', x: '28%', y: '60%', accent: '#ffb36b', box: '#136207', fg: '255,255,255' }
+            ABH: { img: 'https://i.ibb.co/KjsQnB7s/Gemini-Generated-Image-xyi6b2xyi6b2xyi6.png', size: '190%', x: '26%', y: '59%', accent: '#ffb3b3', glow: '163,23,27' },
+            VYV: { img: 'https://i.ibb.co/Z1cpyP1H/Gemini-Generated-Image-h2lnheh2lnheh2ln.png', size: '200%', x: '8%',  y: '60%', accent: '#8ec5ff', glow: '28,63,158' },
+            ADH: { img: 'https://i.ibb.co/ks5sSF1p/Gemini-Generated-Image-5xjbxn5xjbxn5xjb.png', size: '200%', x: '2%',  y: '60%', accent: '#ffc83d', glow: '176,125,0' },
+            PRJ: { img: 'https://i.ibb.co/NdRhpR4r/Gemini-Generated-Image-e16ynce16ynce16y.png', size: '200%', x: '28%', y: '60%', accent: '#ffb36b', glow: '27,138,11' }
         };
 
         const SHARE_MATCH_TYPE = { league: 'LEAGUE MATCH', semi_final: 'SEMI FINAL', grand_final: 'FINAL' };
@@ -8978,7 +9168,7 @@ ${matchTypeBadgeHTML(rec.matchType)}
             const sm = d.small ? ' sm' : '';
             const twoLine = n => { const m = String(n).match(/^(.*)\s+(Boys|Girls)$/i); return m ? shEsc(m[1]) + '<br>' + shEsc(m[2]) : shEsc(n); };
             return `
-<div class="sp-poster" id="spPoster" style="background-image:url('${theme.img}');background-size:${theme.size} auto;background-position:${theme.x} ${theme.y};--sp-accent:${theme.accent};--sp-box:${theme.box};--sp-fg:rgb(${theme.fg});--sp-fg-rgb:${theme.fg};">
+<div class="sp-poster" id="spPoster" style="background-image:url('${theme.img}');background-size:${theme.size} auto;background-position:${theme.x} ${theme.y};--sp-accent:${theme.accent};--sp-glow-rgb:${theme.glow};">
   <div class="sp-main">
     <div class="sp-card">
       <div class="sp-header">
