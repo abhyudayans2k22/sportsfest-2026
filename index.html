@@ -3728,6 +3728,7 @@
 #teams .theme-violet  { color: #0A1F5C; }
 #teams .theme-ruby    { color: #B8860B; }
 #teams .theme-amber   { color: #1A4A1A; }
+#teams .theme-white   { color: #ffffff; }
 
         #teams .nav-arrow {
             position: absolute;
@@ -5286,7 +5287,7 @@
             --glow-x: 100%;           /* 0% = left edge of the black box, 100% = right edge */
             --glow-y: 0%;             /* 0% = top edge, 100% = bottom edge */
             --glow-size: 40%;         /* how far the glow spreads (bigger = covers more) */
-            --glow-strength: 0.85;    /* 0 = invisible, 1 = full team colour at the corner */
+            --glow-strength: 0.55;    /* 0 = invisible, 1 = full team colour at the corner */
 
             /* black gradient at the bottom of the box */
             --grad-h: 40%;            /* how tall the gradient is */
@@ -5357,6 +5358,29 @@
         @keyframes galleryPop {
             from { opacity: 0; transform: translateY(10px); }
             to   { opacity: 1; transform: none; }
+        }
+
+        /* Dark text/controls on Results page when winner color is white (SHO) */
+        #results.results-v2.is-light-bg .results-big-title {
+            color: #111111;
+        }
+        #results.results-v2.is-light-bg .results-search-box {
+            border-color: rgba(0, 0, 0, 0.45);
+            background: rgba(0, 0, 0, 0.08);
+        }
+        #results.results-v2.is-light-bg .rs-icon {
+            stroke: rgba(0, 0, 0, 0.75);
+        }
+        #results.results-v2.is-light-bg .rs-input {
+            color: #111111;
+        }
+        #results.results-v2.is-light-bg .rs-input::placeholder {
+            color: rgba(0, 0, 0, 0.55);
+        }
+        #results.results-v2.is-light-bg .rs-select {
+            background-color: rgba(0, 0, 0, 0.14);
+            color: #111111;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23111'/%3E%3C/svg%3E");
         }
     </style>
 
@@ -5574,6 +5598,11 @@
                                             style="cursor:pointer;"><img
                                                 src="https://i.ibb.co/FLvxMZgV/IMG-4242.png" alt="PRJ">
                                         </div>
+                                        <div class="showcase-item"
+                                            onclick="navigateToPage(4); setTimeout(()=>{ const s=document.getElementById('teamsLogoSlider'); s.scrollTo({left:s.offsetWidth*4,behavior:'smooth'}); },400);"
+                                            style="cursor:pointer;"><img
+                                                src="https://i.ibb.co/bj6V2J0L/IMG-5755.png" alt="SHO">
+                                        </div>
                                         <div class="showcase-item logo-gems" onclick="navigateToPage(4)"
                                             style="cursor:pointer;"><img
                                                 src="https://i.ibb.co/VWdJm7SR/gems-removebg-preview.png"
@@ -5597,6 +5626,11 @@
                                             onclick="navigateToPage(4); setTimeout(()=>{ const s=document.getElementById('teamsLogoSlider'); s.scrollTo({left:s.offsetWidth*3,behavior:'smooth'}); },400);"
                                             style="cursor:pointer;"><img
                                                 src="https://i.ibb.co/FLvxMZgV/IMG-4242.png" alt="PRJ">
+                                        </div>
+                                        <div class="showcase-item"
+                                            onclick="navigateToPage(4); setTimeout(()=>{ const s=document.getElementById('teamsLogoSlider'); s.scrollTo({left:s.offsetWidth*4,behavior:'smooth'}); },400);"
+                                            style="cursor:pointer;"><img
+                                                src="https://i.ibb.co/bj6V2J0L/IMG-5755.png" alt="SHO">
                                         </div>
                                     </div>
                                 </div>
@@ -6001,6 +6035,7 @@
                                 <option value="VYV">Vyvidhians</option>
                                 <option value="ADH">Adhirans</option>
                                 <option value="PRJ">Prajvalyans</option>
+                                <option value="SHO">Shouryangans</option>
                             </select>
                         </div>
                     </div>
@@ -6637,6 +6672,95 @@
                                                     class="last-name">Last</span></div>
                                             <div class="sport-player"><span class="first-name">First</span> <span
                                                     class="last-name">Last</span></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Slide 4: Shouryangans (SHO) -->
+                            <div class="logo-viewport theme-white">
+                                <div class="logo-3d-wrap">
+                                    <div class="logo-bg-ring" style="color: #ffffff;"></div>
+                                    <img class="jersey-img-3d"
+                                        src="https://i.ibb.co/tPXGHhH3/IMG-5756.png"
+                                        alt="Shouryangans Jersey">
+                                    <img class="logo-img-3d"
+                                        src="https://i.ibb.co/bj6V2J0L/IMG-5755.png"
+                                        alt="Shouryangans Logo">
+                                </div>
+                                <div class="team-content-box">
+                                    <div class="team-content-box">
+                                        <div class="sport-box">
+                                            <div class="sport-box-title">Cricket Boys</div>
+                                            <div class="sport-box-divider"></div>
+                                            <div class="sport-player"><span class="first-name">First</span> <span class="last-name">Last</span></div>
+                                            <div class="sport-player"><span class="first-name">First</span> <span class="last-name">Last</span></div>
+                                            <div class="sport-player"><span class="first-name">First</span> <span class="last-name">Last</span></div>
+                                            <div class="sport-player"><span class="first-name">First</span> <span class="last-name">Last</span></div>
+                                        </div>
+                                        <div class="sport-box">
+                                            <div class="sport-box-title">Cricket Girls</div>
+                                            <div class="sport-box-divider"></div>
+                                            <div class="sport-player"><span class="first-name">First</span> <span class="last-name">Last</span></div>
+                                            <div class="sport-player"><span class="first-name">First</span> <span class="last-name">Last</span></div>
+                                            <div class="sport-player"><span class="first-name">First</span> <span class="last-name">Last</span></div>
+                                            <div class="sport-player"><span class="first-name">First</span> <span class="last-name">Last</span></div>
+                                        </div>
+                                        <div class="sport-box">
+                                            <div class="sport-box-title">Basketball Boys</div>
+                                            <div class="sport-box-divider"></div>
+                                            <div class="sport-player"><span class="first-name">First</span> <span class="last-name">Last</span></div>
+                                            <div class="sport-player"><span class="first-name">First</span> <span class="last-name">Last</span></div>
+                                            <div class="sport-player"><span class="first-name">First</span> <span class="last-name">Last</span></div>
+                                            <div class="sport-player"><span class="first-name">First</span> <span class="last-name">Last</span></div>
+                                        </div>
+                                        <div class="sport-box">
+                                            <div class="sport-box-title">Basketball Girls</div>
+                                            <div class="sport-box-divider"></div>
+                                            <div class="sport-player"><span class="first-name">First</span> <span class="last-name">Last</span></div>
+                                            <div class="sport-player"><span class="first-name">First</span> <span class="last-name">Last</span></div>
+                                            <div class="sport-player"><span class="first-name">First</span> <span class="last-name">Last</span></div>
+                                            <div class="sport-player"><span class="first-name">First</span> <span class="last-name">Last</span></div>
+                                        </div>
+                                        <div class="sport-box">
+                                            <div class="sport-box-title">Badminton Boys</div>
+                                            <div class="sport-box-divider"></div>
+                                            <div class="sport-player"><span class="first-name">First</span> <span class="last-name">Last</span></div>
+                                            <div class="sport-player"><span class="first-name">First</span> <span class="last-name">Last</span></div>
+                                            <div class="sport-player"><span class="first-name">First</span> <span class="last-name">Last</span></div>
+                                            <div class="sport-player"><span class="first-name">First</span> <span class="last-name">Last</span></div>
+                                        </div>
+                                        <div class="sport-box">
+                                            <div class="sport-box-title">Badminton Girls</div>
+                                            <div class="sport-box-divider"></div>
+                                            <div class="sport-player"><span class="first-name">First</span> <span class="last-name">Last</span></div>
+                                            <div class="sport-player"><span class="first-name">First</span> <span class="last-name">Last</span></div>
+                                            <div class="sport-player"><span class="first-name">First</span> <span class="last-name">Last</span></div>
+                                            <div class="sport-player"><span class="first-name">First</span> <span class="last-name">Last</span></div>
+                                        </div>
+                                        <div class="sport-box">
+                                            <div class="sport-box-title">Volleyball</div>
+                                            <div class="sport-box-divider"></div>
+                                            <div class="sport-player"><span class="first-name">First</span> <span class="last-name">Last</span></div>
+                                            <div class="sport-player"><span class="first-name">First</span> <span class="last-name">Last</span></div>
+                                            <div class="sport-player"><span class="first-name">First</span> <span class="last-name">Last</span></div>
+                                            <div class="sport-player"><span class="first-name">First</span> <span class="last-name">Last</span></div>
+                                        </div>
+                                        <div class="sport-box">
+                                            <div class="sport-box-title">Throwball</div>
+                                            <div class="sport-box-divider"></div>
+                                            <div class="sport-player"><span class="first-name">First</span> <span class="last-name">Last</span></div>
+                                            <div class="sport-player"><span class="first-name">First</span> <span class="last-name">Last</span></div>
+                                            <div class="sport-player"><span class="first-name">First</span> <span class="last-name">Last</span></div>
+                                            <div class="sport-player"><span class="first-name">First</span> <span class="last-name">Last</span></div>
+                                        </div>
+                                        <div class="sport-box">
+                                            <div class="sport-box-title">Tug of War</div>
+                                            <div class="sport-box-divider"></div>
+                                            <div class="sport-player"><span class="first-name">First</span> <span class="last-name">Last</span></div>
+                                            <div class="sport-player"><span class="first-name">First</span> <span class="last-name">Last</span></div>
+                                            <div class="sport-player"><span class="first-name">First</span> <span class="last-name">Last</span></div>
+                                            <div class="sport-player"><span class="first-name">First</span> <span class="last-name">Last</span></div>
                                         </div>
                                     </div>
                                 </div>
@@ -7634,7 +7758,8 @@
     [139, 26, 26],
     [10, 31, 92],
     [184, 134, 11],
-    [26, 74, 26]
+    [26, 74, 26],
+    [255, 255, 255]
 ];
 
             const teamsPage = document.getElementById('teams');
@@ -7668,7 +7793,7 @@
                 const scrollLeft = logoSlider.scrollLeft;
                 const width = logoSlider.offsetWidth || window.innerWidth;
                 if (width === 0) return;
-                const progress = Math.max(0, Math.min(2.999, scrollLeft / width));
+                const progress = Math.max(0, Math.min(3.999, scrollLeft / width));
                 const baseIndex = Math.floor(progress);
                 const percent = progress - baseIndex;
                 const c1 = TEAM_COLORS[baseIndex];
@@ -8016,9 +8141,10 @@ document.querySelectorAll('#teams .logo-3d-wrap').forEach(wrap => {
             ABH: 'https://i.ibb.co/hFSd5QNH/IMG-4213.png',
             VYV: 'https://i.ibb.co/TDz9YxP3/IMG-4240.png',
             ADH: 'https://i.ibb.co/6RdWHBQL/IMG-4241.png',
-            PRJ: 'https://i.ibb.co/FLvxMZgV/IMG-4242.png'
+            PRJ: 'https://i.ibb.co/FLvxMZgV/IMG-4242.png',
+            SHO: 'https://i.ibb.co/bj6V2J0L/IMG-5755.png'
         };
-        const teamColors = { ABH: '#8B1A1A', VYV: '#0A1F5C', ADH: '#B8860B', PRJ: '#1A4A1A' };
+        const teamColors = { ABH: '#8B1A1A', VYV: '#0A1F5C', ADH: '#B8860B', PRJ: '#1A4A1A', SHO: '#ffffff' };
 
         function getLogo(k, rec) {
             if (rec && rec.team1 === k && rec.team1Logo) return rec.team1Logo;
@@ -8369,7 +8495,8 @@ document.querySelectorAll('#teams .logo-3d-wrap').forEach(wrap => {
             ABH: { name: "Abhyudayans" },
             VYV: { name: "Vyvidhians" },
             ADH: { name: "Adhirans" },
-            PRJ: { name: "Prajvalyans" }
+            PRJ: { name: "Prajvalyans" },
+            SHO: { name: "Shouryangans" }
         };
         const TEAM_CODES = Object.keys(TEAMS);
 
@@ -8597,6 +8724,7 @@ document.querySelectorAll('#teams .logo-3d-wrap').forEach(wrap => {
     VYV: '#0A1F5C', 'VYV-B': '#0A1F5C', 'VYV-G': '#0A1F5C',
     ADH: '#B8860B', 'ADH-B': '#B8860B', 'ADH-G': '#B8860B',
     PRJ: '#1A4A1A', 'PRJ-B': '#1A4A1A', 'PRJ-G': '#1A4A1A',
+    SHO: '#ffffff', 'SHO-B': '#ffffff', 'SHO-G': '#ffffff',
     get DEFAULT() {
             const v = getComputedStyle(document.getElementById('results')).getPropertyValue('--results-default-bg').trim();
             return /^#[0-9a-f]{6}$/i.test(v) ? v : '#8b2cf5';
@@ -9035,7 +9163,8 @@ ${matchTypeBadgeHTML(rec.matchType)}
             ABH: 'abhyudayans abh',
             VYV: 'vyvidhians vyv',
             ADH: 'adhirans adh',
-            PRJ: 'prajvalyans prj'
+            PRJ: 'prajvalyans prj',
+            SHO: 'shouryangans sho'
         };
 
         // everything a person might type: sport, team, player, boys/girls, league/semi/final...
@@ -9076,7 +9205,8 @@ ${matchTypeBadgeHTML(rec.matchType)}
             ABH: { img: 'https://i.ibb.co/KjsQnB7s/Gemini-Generated-Image-xyi6b2xyi6b2xyi6.png', size: '190%', x: '26%', y: '59%', accent: '#ffb3b3', glow: '163,23,27' },
             VYV: { img: 'https://i.ibb.co/Z1cpyP1H/Gemini-Generated-Image-h2lnheh2lnheh2ln.png', size: '200%', x: '8%',  y: '60%', accent: '#8ec5ff', glow: '28,63,158' },
             ADH: { img: 'https://i.ibb.co/ks5sSF1p/Gemini-Generated-Image-5xjbxn5xjbxn5xjb.png', size: '200%', x: '2%',  y: '60%', accent: '#ffc83d', glow: '176,125,0' },
-            PRJ: { img: 'https://i.ibb.co/NdRhpR4r/Gemini-Generated-Image-e16ynce16ynce16y.png', size: '200%', x: '28%', y: '60%', accent: '#ffb36b', glow: '27,138,11' }
+            PRJ: { img: 'https://i.ibb.co/NdRhpR4r/Gemini-Generated-Image-e16ynce16ynce16y.png', size: '200%', x: '28%', y: '60%', accent: '#ffb36b', glow: '27,138,11' },
+            SHO: { img: 'https://i.ibb.co/Gv4s5gQ3/Gemini-Generated-Image-x0iypzx0iypzx0iy.png', size: '170%', x: '-18%', y: '60%', accent: '#ffffff', glow: '255,255,255' }
         };
 
         const SHARE_MATCH_TYPE = { league: 'LEAGUE MATCH', semi_final: 'SEMI FINAL', grand_final: 'FINAL' };
@@ -9520,11 +9650,13 @@ function applyResultsTheme() {
         const d = winnerBGColors.DEFAULT;
         page.style.setProperty('--results-c1', d);
         page.style.setProperty('--results-c2', d);
+        page.classList.remove('is-light-bg');
         return;
     }
     const c = open.dataset.winnerColor || winnerBGColors.DEFAULT;
     page.style.setProperty('--results-c1', c);
     page.style.setProperty('--results-c2', darkenHex(c, RESULTS_GRADIENT_DARKEN));
+    page.classList.toggle('is-light-bg', c.toLowerCase() === '#ffffff');
 }
 
 function toggleResultCard(card) {
@@ -9889,7 +10021,7 @@ if (resultsScrollRow) {
             var wrapper = track.parentElement;
 
             var SECONDS_PER_SET = 18; // scroll time of one logo set (same speed as before)
-            var originals = Array.prototype.slice.call(track.children, 0, 5).map(function (n) {
+            var originals = Array.prototype.slice.call(track.children, 0, 6).map(function (n) {
                 return n.cloneNode(true);
             });
             var setWidth = 0, currentSets = 0;
