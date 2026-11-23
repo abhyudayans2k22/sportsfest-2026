@@ -4858,15 +4858,25 @@
            SHARE AS POST — button, modal, poster
         ============================================================ */
 
-        /* button inside the expanded scorebox */
-        #results.results-v2 .share-post-btn {
+        /* buttons row inside the expanded scorebox */
+        #results.results-v2 .card-actions-row {
+            display: flex;
+            align-items: stretch;
+            gap: 10px;
+            width: 100%;
+            margin-top: 14px;
+        }
+
+        #results.results-v2 .share-post-btn,
+        #results.results-v2 .celebrate-btn {
+            flex: 1 1 0;
+            min-width: 0;
             display: flex;
             align-items: center;
             justify-content: center;
             gap: 8px;
-            width: 100%;
-            margin-top: 14px;
-            padding: 12px;
+            margin-top: 0;
+            padding: 12px 10px;
             border-radius: 12px;
             background: rgba(255, 255, 255, 0.08);
             border: 1px solid rgba(255, 255, 255, 0.22);
@@ -4878,12 +4888,35 @@
             text-transform: uppercase;
             cursor: pointer;
             touch-action: manipulation;
+            transition: transform 0.1s ease, background 0.15s ease;
         }
 
-        #results.results-v2 .share-post-btn svg {
+        #results.results-v2 .celebrate-btn {
+            background: rgba(255, 204, 0, 0.12);
+            border-color: rgba(255, 204, 0, 0.35);
+            color: #FFCC00;
+        }
+
+        #results.results-v2 .share-post-btn:active,
+        #results.results-v2 .celebrate-btn:active {
+            transform: scale(0.95);
+        }
+
+        #results.results-v2 .share-post-btn svg,
+        #results.results-v2 .celebrate-btn svg {
             width: 15px;
             height: 15px;
             fill: currentColor;
+            flex-shrink: 0;
+        }
+
+        #celebrateCanvas {
+            position: fixed;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 25000;
         }
 
         /* modal */
@@ -6837,6 +6870,9 @@
         </div><!-- /content-card-wrapper -->
 
     </div><!-- /app-wrapper -->
+
+    <!-- ── PARTY POPPER RIBBONS CANVAS ── -->
+    <canvas id="celebrateCanvas"></canvas>
 
     <!-- ── SHARE AS POST modal (outside the card deck on purpose) ── -->
     <div class="share-ov" id="shareOv">
@@ -9686,14 +9722,19 @@ function initFocusObserver() {
         }
     });
 
-    // add the "Share as post" button inside the part that only shows when expanded
+    // add the "Download" + "Celebrate" buttons inside the part that only shows when expanded
     cards.forEach(card => {
         const below = card.querySelector('.card-below-victory');
-        if (below && !below.querySelector('.share-post-btn')) {
+        if (below && !below.querySelector('.card-actions-row')) {
             below.insertAdjacentHTML('beforeend',
+                '<div class="card-actions-row">' +
                 '<button type="button" class="share-post-btn" data-card="' + card.id + '">' +
                 '<svg viewBox="0 0 24 24"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92s2.92-1.31 2.92-2.92-1.31-2.92-2.92-2.92z"/></svg>' +
-                'Download</button>');
+                'Download</button>' +
+                '<button type="button" class="celebrate-btn">' +
+                '<svg viewBox="0 0 24 24"><path d="M2 22l5.5-13L15 16.5 2 22zm7.2-14.2c1.1-1.9 3.2-2.6 4.7-1.6 1 .7 1.3 2 .8 3.2l1.6.7c.9-2 .3-4.3-1.4-5.4-2.2-1.4-5.3-.5-7 2.2l1.3.9zm5.8 5.2c1.3-1.2 3.1-1.4 4.3-.4 1 .8 1.2 2.2.5 3.3l1.5.9c1.1-1.9.8-4.3-.9-5.6-1.9-1.5-4.7-1.2-6.6.6l1.2 1.2zM11 2h2v3h-2V2zm8.5 3.5l1.4 1.4-2.1 2.1-1.4-1.4 2.1-2.1z"/></svg>' +
+                'Celebrate</button>' +
+                '</div>');
         }
     });
 
@@ -9817,9 +9858,135 @@ if (resultsScrollRow) {
         resultsLastScrollTop = resultsScrollRow.scrollTop;
     }, { passive: true });
 
+    /* ── Multi-tap party popper ribbons engine ── */
+    const celCanvas = el('celebrateCanvas');
+    const celCtx = celCanvas ? celCanvas.getContext('2d') : null;
+    const celParticles = [];
+    let celRaf = null;
+    let celLastTs = 0;
+
+    function resizeCelebrateCanvas() {
+        if (!celCanvas || !celCtx) return;
+        const dpr = Math.min(window.devicePixelRatio || 1, 2);
+        celCanvas.width = Math.floor(window.innerWidth * dpr);
+        celCanvas.height = Math.floor(window.innerHeight * dpr);
+        celCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    }
+    resizeCelebrateCanvas();
+    window.addEventListener('resize', resizeCelebrateCanvas);
+
+    function spawnPartyPop(btn, card) {
+        if (!celCanvas || !celCtx) return;
+        const rect = btn.getBoundingClientRect();
+        const originX = rect.left + rect.width / 2;
+        const originY = rect.top + rect.height / 2;
+
+        const winColor = card?.dataset?.winnerColor;
+        const palette = ['#FFCC00', '#00ffcc', '#ff2d55', '#ffffff', '#ff9900', '#38bdf8'];
+        if (winColor && /^#[0-9a-f]{6}$/i.test(winColor)) palette.push(winColor, winColor);
+
+        // Trim older particles if user spam-taps rapidly
+        if (celParticles.length > 360) celParticles.splice(0, celParticles.length - 360);
+
+        const count = 46;
+        for (let i = 0; i < count; i++) {
+            const isRibbon = i % 2 === 0;
+            const spread = (Math.random() - 0.5) * 1.45; // fan upwards
+            const angle = -Math.PI / 2 + spread;
+            const speed = 7 + Math.random() * 11;
+
+            celParticles.push({
+                isRibbon,
+                x: originX + (Math.random() - 0.5) * 20,
+                y: originY,
+                vx: Math.cos(angle) * speed,
+                vy: Math.sin(angle) * speed - Math.random() * 2,
+                color: palette[Math.floor(Math.random() * palette.length)],
+                len: isRibbon ? (18 + Math.random() * 16) : (7 + Math.random() * 6),
+                width: isRibbon ? (3 + Math.random() * 1.8) : (4 + Math.random() * 3),
+                rot: Math.random() * Math.PI * 2,
+                vRot: (Math.random() - 0.5) * 0.22,
+                wavePhase: Math.random() * Math.PI * 2,
+                waveSpeed: 0.18 + Math.random() * 0.14,
+                life: 0,
+                maxLife: 1150 + Math.random() * 550 // 1.15s – 1.7s
+            });
+        }
+
+        if (!celRaf) {
+            celLastTs = performance.now();
+            celRaf = requestAnimationFrame(stepCelebrate);
+        }
+    }
+
+    function stepCelebrate(now) {
+        const dt = Math.min(34, now - celLastTs || 16.67);
+        const frameScale = dt / 16.67;
+        celLastTs = now;
+
+        celCtx.clearRect(0, 0, window.innerWidth, window.innerHeight);
+
+        for (let i = celParticles.length - 1; i >= 0; i--) {
+            const p = celParticles[i];
+            p.life += dt;
+            if (p.life >= p.maxLife) {
+                celParticles.splice(i, 1);
+                continue;
+            }
+
+            // Physics: air drag + gravity + gentle flutter
+            p.vx *= Math.pow(0.97, frameScale);
+            p.vy = p.vy * Math.pow(0.985, frameScale) + 0.34 * frameScale;
+            p.x += (p.vx + Math.sin(p.wavePhase) * 0.8) * frameScale;
+            p.y += p.vy * frameScale;
+            p.rot += p.vRot * frameScale;
+            p.wavePhase += p.waveSpeed * frameScale;
+
+            const progress = p.life / p.maxLife;
+            const alpha = progress > 0.65 ? Math.max(0, 1 - (progress - 0.65) / 0.35) : 1;
+
+            celCtx.save();
+            celCtx.globalAlpha = alpha;
+            celCtx.translate(p.x, p.y);
+            celCtx.rotate(p.rot);
+
+            if (p.isRibbon) {
+                // Curling party popper ribbon streamer
+                const curl = Math.sin(p.wavePhase) * 6;
+                celCtx.strokeStyle = p.color;
+                celCtx.lineWidth = p.width;
+                celCtx.lineCap = 'round';
+                celCtx.beginPath();
+                celCtx.moveTo(-p.len / 2, 0);
+                celCtx.quadraticCurveTo(0, curl, p.len / 2, -curl * 0.6);
+                celCtx.stroke();
+            } else {
+                // Tumbling confetti strip
+                const flip = Math.cos(p.wavePhase);
+                celCtx.fillStyle = p.color;
+                celCtx.fillRect(-p.len / 2, -(p.width * flip) / 2, p.len, p.width * flip);
+            }
+
+            celCtx.restore();
+        }
+
+        if (celParticles.length > 0) {
+            celRaf = requestAnimationFrame(stepCelebrate);
+        } else {
+            celRaf = null;
+            celCtx.clearRect(0, 0, window.innerWidth, window.innerHeight);
+        }
+    }
+
     resultsScrollRow.addEventListener('click', (e) => {
         const shareBtn = e.target.closest('.share-post-btn');
         if (shareBtn) { window.openResultShare(shareBtn.getAttribute('data-card')); return; }   // open share, don't collapse the card
+        const celebrateBtn = e.target.closest('.celebrate-btn');
+        if (celebrateBtn) {
+            const card = celebrateBtn.closest('.gyro-3d-box-container');
+            spawnPartyPop(celebrateBtn, card);
+            return; // burst ribbons without collapsing the card; supports rapid multi-taps
+        }
         if (e.target.closest('a')) return;               // let "Full Scorecard" link work
         const card = e.target.closest('.gyro-3d-box-container');
         if (card && resultsScrollRow.contains(card)) toggleResultCard(card);
