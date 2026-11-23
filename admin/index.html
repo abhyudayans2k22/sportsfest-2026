@@ -957,6 +957,13 @@
                     <option value="" disabled selected>🪙 Toss Won By</option>
                 </select>
             </div>
+            <div class="sel-wp" id="tossDecWrap" style="width:100%;margin-bottom:12px;">
+                <select id="tossDecSel" onchange="onTossPick()" disabled style="opacity:0.5;">
+                    <option value="" disabled selected>🏏 Toss Decision</option>
+                    <option value="batting">Batting</option>
+                    <option value="bowling">Bowling</option>
+                </select>
+            </div>
             <div class="scorebox-card" id="sbCard">
                 <div class="sb-hd"><span class="sb-ttl">CRICKET</span><span class="badge" id="cardSt"></span></div>
                 <div class="tm-row" id="t1Row">
@@ -1203,6 +1210,7 @@
                         <option value="VYV-B">VYV</option>
                         <option value="ADH-B">ADH</option>
                         <option value="PRJ-B">PRJ</option>
+                        <option value="SHO-B">SHO</option>
                     </select></div>
                 <div class="sel-wp"><select id="vlT2Sel" onchange="chkTmsCourt('vl')">
                         <option value="" disabled selected>Team 2</option>
@@ -1210,6 +1218,7 @@
                         <option value="VYV-B">VYV</option>
                         <option value="ADH-B">ADH</option>
                         <option value="PRJ-B">PRJ</option>
+                        <option value="SHO-B">SHO</option>
                     </select></div>
             </div>
             <div class="scorebox-card" id="vlSbCard" style="border-color:#4299e1;display:none;">
@@ -1282,6 +1291,7 @@
                         <option value="VYV-G">VYV</option>
                         <option value="ADH-G">ADH</option>
                         <option value="PRJ-G">PRJ</option>
+                        <option value="SHO-G">SHO</option>
                     </select></div>
                 <div class="sel-wp"><select id="thT2Sel" onchange="chkTmsCourt('th')">
                         <option value="" disabled selected>Team 2</option>
@@ -1289,6 +1299,7 @@
                         <option value="VYV-G">VYV</option>
                         <option value="ADH-G">ADH</option>
                         <option value="PRJ-G">PRJ</option>
+                        <option value="SHO-G">SHO</option>
                     </select></div>
             </div>
             <div class="scorebox-card" id="thSbCard" style="border-color:#ed64a6;display:none;">
@@ -1398,15 +1409,8 @@
             <!-- Sport Name -->
             <div class="md-ttl" id="roModalTitle">Result Only Entry</div>
             <label class="md-lbl">Sport Name</label>
-            <div class="sel-wp" style="margin-bottom:8px;">
-                <select id="roSportSel" onchange="handleRoSportChange()">
-                    <option value="tug_of_war">Tug of War</option>
-                    <option value="ball_badminton">Ball Badminton</option>
-                    <option value="custom">Custom...</option>
-                </select>
-            </div>
-            <input type="text" id="roCustomSport" class="md-ipt" placeholder="Type custom sport name..."
-                style="display:none;margin-bottom:12px;">
+            <input type="text" id="roCustomSport" class="md-ipt" placeholder="Type sport name (e.g. Chess, Athletics)..."
+                style="margin-bottom:12px;">
 
             <!-- Match Type -->
             <label class="md-lbl">Match Type</label>
@@ -1432,6 +1436,8 @@
                         <option value="ADH-G">ADH Girls</option>
                         <option value="PRJ-B">PRJ Boys</option>
                         <option value="PRJ-G">PRJ Girls</option>
+                        <option value="SHO-B">SHO Boys</option>
+                        <option value="SHO-G">SHO Girls</option>
                     </select>
                     <input type="text" id="roT1Name" class="md-ipt" placeholder="Custom player/team name (optional)"
                         style="margin-top:6px;margin-bottom:0;font-size:0.8rem;">
@@ -1448,6 +1454,8 @@
                         <option value="ADH-G">ADH Girls</option>
                         <option value="PRJ-B">PRJ Boys</option>
                         <option value="PRJ-G">PRJ Girls</option>
+                        <option value="SHO-B">SHO Boys</option>
+                        <option value="SHO-G">SHO Girls</option>
                     </select>
                     <input type="text" id="roT2Name" class="md-ipt" placeholder="Custom player/team name (optional)"
                         style="margin-top:6px;margin-bottom:0;font-size:0.8rem;">
@@ -1515,8 +1523,8 @@
         const genderState = { cr: 'G', bb: 'G', bd: 'G' };
 
         const ALL_TEAMS = {
-            B: ['ABH-B', 'VYV-B', 'ADH-B', 'PRJ-B'],
-            G: ['ABH-G', 'VYV-G', 'ADH-G', 'PRJ-G']
+            B: ['ABH-B', 'VYV-B', 'ADH-B', 'PRJ-B', 'SHO-B'],
+            G: ['ABH-G', 'VYV-G', 'ADH-G', 'PRJ-G', 'SHO-G']
         };
 
         function teamLabel(key) {
@@ -1553,8 +1561,11 @@
                 const tossSel = document.getElementById('tossSel');
                 tossSel.innerHTML = '<option value="" disabled selected>🪙 Toss Won By</option>';
                 tossSel.disabled = true; tossSel.style.opacity = '0.5';
+                const tossDecSel = document.getElementById('tossDecSel');
+                if (tossDecSel) { tossDecSel.selectedIndex = 0; tossDecSel.disabled = true; tossDecSel.style.opacity = '0.5'; }
                 document.getElementById('sbCard').style.display = 'none';
                 document.getElementById('ctrlCont').style.display = 'none';
+                document.getElementById('lvBtn').style.display = 'none';
             } else if (sport === 'bb') {
                 populateTeamDropdown('bbT1Sel', gender);
                 populateTeamDropdown('bbT2Sel', gender);
@@ -1579,7 +1590,9 @@
             'ADH-B': 'https://i.ibb.co/6RdWHBQL/IMG-4241.png',
             'ADH-G': 'https://i.ibb.co/6RdWHBQL/IMG-4241.png',
             'PRJ-B': 'https://i.ibb.co/FLvxMZgV/IMG-4242.png',
-            'PRJ-G': 'https://i.ibb.co/FLvxMZgV/IMG-4242.png'
+            'PRJ-G': 'https://i.ibb.co/FLvxMZgV/IMG-4242.png',
+            'SHO-B': 'https://i.ibb.co/bj6V2J0L/IMG-5755.png',
+            'SHO-G': 'https://i.ibb.co/bj6V2J0L/IMG-5755.png'
         };
 
         // ─── BASKETBALL ROSTERS ───────────────────────────────────────────────────
@@ -1587,13 +1600,15 @@
             'ABH-B': ['Arjun', 'Kiran', 'Rohan'],
             'VYV-B': ['Vyas', 'Vikram', 'Rahul'],
             'ADH-B': ['Aditya', 'Dev', 'Nikhil'],
-            'PRJ-B': ['Pranav', 'Raj', 'Suresh']
+            'PRJ-B': ['Pranav', 'Raj', 'Suresh'],
+            'SHO-B': ['Shaurya', 'Kabir', 'Aarav']
         };
         const basketballRostersGirls = {
             'ABH-G': ['Ananya', 'Kavya', 'Riya'],
             'VYV-G': ['Vidya', 'Yamini', 'Vaishnavi'],
             'ADH-G': ['Aditi', 'Diya', 'Nisha'],
-            'PRJ-G': ['Priya', 'Rachna', 'Sneha']
+            'PRJ-G': ['Priya', 'Rachna', 'Sneha'],
+            'SHO-G': ['Shruti', 'Anvi', 'Meera']
         };
 
         // ─── BADMINTON ROSTERS ────────────────────────────────────────────────────
@@ -1601,13 +1616,15 @@
             'ABH-B': ['Abhinav', 'Karthik', 'Rohit'],
             'VYV-B': ['Vijay', 'Yash', 'Varun'],
             'ADH-B': ['Akash', 'Dhruv', 'Neil'],
-            'PRJ-B': ['Parth', 'Rajan', 'Siddharth']
+            'PRJ-B': ['Parth', 'Rajan', 'Siddharth'],
+            'SHO-B': ['Shubham', 'Manav', 'Reyansh']
         };
         const badmintonRostersGirls = {
             'ABH-G': ['Aarti', 'Bhavna', 'Harini'],
             'VYV-G': ['Vandana', 'Yogita', 'Veena'],
             'ADH-G': ['Anjali', 'Deepika', 'Nalini'],
-            'PRJ-G': ['Pallavi', 'Roshni', 'Sandhya']
+            'PRJ-G': ['Pallavi', 'Roshni', 'Sandhya'],
+            'SHO-G': ['Shanaya', 'Ira', 'Tara']
         };
 
         // ─── SPORT NAME MAP ───────────────────────────────────────────────────────
@@ -1727,6 +1744,7 @@
                     record.team2Overs = `${Math.floor(matchData.t2.b / 6)}.${matchData.t2.b % 6}`;
                     record.innings = matchData.inn || 1;
                     record.toss = matchData.toss || '';
+                    record.tossDecision = matchData.tossDecision || '';
                     record.scorecardLink = matchData.scorecardLink || '';
                 } else if (sportFolder === 'basketball') {
                     record.team1Score = matchData.t1.s || 0;
@@ -1823,10 +1841,54 @@
             }
         };
 
+        function syncOppositeTeamDisable(id1, id2) {
+            const s1 = el(id1), s2 = el(id2);
+            if (!s1 || !s2) return;
+            const v1 = s1.value, v2 = s2.value;
+            Array.from(s2.options).forEach(o => { if (o.value) o.disabled = (v1 !== '' && o.value === v1); });
+            Array.from(s1.options).forEach(o => { if (o.value) o.disabled = (v2 !== '' && o.value === v2); });
+        }
+
+        function applyCricketBattingOrder(v1, v2, toss, dec) {
+            const batFirst = (dec === 'batting') ? toss : (toss === v1 ? v2 : v1);
+            const batSecond = (batFirst === v1) ? v2 : v1;
+            let s = st.crick;
+
+            // If user changed decision after tapping scores locally, keep runs with the right team
+            if (s.t1.k === batSecond && s.t2.k === batFirst) {
+                const tmp = { r: s.t1.r, w: s.t1.w, b: s.t1.b };
+                s.t1.r = s.t2.r; s.t1.w = s.t2.w; s.t1.b = s.t2.b;
+                s.t2.r = tmp.r; s.t2.w = tmp.w; s.t2.b = tmp.b;
+            }
+
+            if (!s.currentMatchId) s.currentMatchId = buildMatchId('crick', batFirst, batSecond);
+            s.t1.k = batFirst;
+            s.t2.k = batSecond;
+            s.toss = toss;
+            s.tossDecision = dec;
+
+            el('t1Lbl').textContent = teamLabel(batFirst);
+            el('t2Lbl').textContent = teamLabel(batSecond);
+            el('t1Lg').src = logos[batFirst]; el('t1Lg').style.display = 'inline-block';
+            el('t2Lg').src = logos[batSecond]; el('t2Lg').style.display = 'inline-block';
+            el('sbCard').style.display = 'flex';
+            el('ctrlCont').style.display = 'grid';
+            el('lvBtn').style.display = 'flex';
+            updUI(); saveToStorage();
+        }
+
         // ─── CRICKET ──────────────────────────────────────────────────────────────
         window.chkTms = function () {
             let v1 = el('t1Sel').value, v2 = el('t2Sel').value;
+            if (v1 && v2 && v1 === v2) {
+                alert("A team cannot play against itself!");
+                el('t2Sel').selectedIndex = 0;
+                v2 = '';
+            }
+            syncOppositeTeamDisable('t1Sel', 't2Sel');
+
             let tossSel = el('tossSel');
+            let tossDecSel = el('tossDecSel');
 
             if (v1 && v2) {
                 let currentOpts = [...tossSel.options].map(o => o.value).filter(v => v);
@@ -1839,25 +1901,21 @@
                     else if (st.crick.toss === v1 || st.crick.toss === v2) tossSel.value = st.crick.toss;
                 }
                 tossSel.disabled = false; tossSel.style.opacity = "1";
+                tossDecSel.disabled = false; tossDecSel.style.opacity = "1";
             } else {
                 tossSel.innerHTML = '<option value="" disabled selected>🪙 Toss Won By</option>';
                 tossSel.disabled = true; tossSel.style.opacity = "0.5";
+                tossDecSel.selectedIndex = 0;
+                tossDecSel.disabled = true; tossDecSel.style.opacity = "0.5";
                 el('sbCard').style.display = 'none'; el('ctrlCont').style.display = 'none';
                 el('lvBtn').style.display = 'none';
                 return;
             }
 
             let toss = tossSel.value;
-            if (v1 && v2 && toss) {
-                let s = st.crick;
-                if (!s.currentMatchId) s.currentMatchId = buildMatchId('crick', v1, v2);
-                s.t1.k = v1; s.t2.k = v2; s.toss = toss;
-                el('t1Lbl').textContent = teamLabel(v1); el('t2Lbl').textContent = teamLabel(v2);
-                el('t1Lg').src = logos[v1]; el('t1Lg').style.display = 'inline-block';
-                el('t2Lg').src = logos[v2]; el('t2Lg').style.display = 'inline-block';
-                el('sbCard').style.display = 'flex'; el('ctrlCont').style.display = 'grid';
-                el('lvBtn').style.display = 'flex';
-                updUI(); saveToStorage();
+            let dec = tossDecSel.value;
+            if (v1 && v2 && toss && dec) {
+                applyCricketBattingOrder(v1, v2, toss, dec);
             } else {
                 el('sbCard').style.display = 'none'; el('ctrlCont').style.display = 'none';
                 el('lvBtn').style.display = 'none';
@@ -1865,18 +1923,15 @@
         };
 
         window.onTossPick = function () {
-            let tossSel = el('tossSel'), toss = tossSel.value;
-            if (!toss) return;
             let v1 = el('t1Sel').value, v2 = el('t2Sel').value;
-            let s = st.crick;
-            if (!s.currentMatchId) s.currentMatchId = buildMatchId('crick', v1, v2);
-            s.t1.k = v1; s.t2.k = v2; s.toss = toss;
-            el('t1Lbl').textContent = teamLabel(v1); el('t2Lbl').textContent = teamLabel(v2);
-            el('t1Lg').src = logos[v1]; el('t1Lg').style.display = 'inline-block';
-            el('t2Lg').src = logos[v2]; el('t2Lg').style.display = 'inline-block';
-            el('sbCard').style.display = 'flex'; el('ctrlCont').style.display = 'grid';
-            el('lvBtn').style.display = 'flex';
-            updUI(); saveToStorage();
+            let toss = el('tossSel').value;
+            let dec = el('tossDecSel').value;
+            if (!v1 || !v2 || v1 === v2 || !toss || !dec) {
+                el('sbCard').style.display = 'none'; el('ctrlCont').style.display = 'none';
+                el('lvBtn').style.display = 'none';
+                return;
+            }
+            applyCricketBattingOrder(v1, v2, toss, dec);
         };
 
         window.sc = function (r, b, w = 0) {
@@ -1890,6 +1945,8 @@
 
         window.opMd = function () {
             let c = st.crick, act = c.inn === 1 ? c.t1 : c.t2;
+            el('mdInn').options[0].text = `1st Innings (${c.t1.k ? teamLabel(c.t1.k) : 'Bat 1st'})`;
+            el('mdInn').options[1].text = `2nd Innings (${c.t2.k ? teamLabel(c.t2.k) : 'Bat 2nd'})`;
             el('mdInn').value = c.inn; el('mdSc').value = `${act.r}/${act.w}`; el('mdOv').value = fmtOv(act.b);
             el('adjMd').style.display = 'flex';
         };
@@ -1919,6 +1976,12 @@
         // ─── BASKETBALL ───────────────────────────────────────────────────────────
         window.chkTmsBB = function () {
             let v1 = el('bbT1Sel').value, v2 = el('bbT2Sel').value;
+            if (v1 && v2 && v1 === v2) {
+                alert("A team cannot play against itself!");
+                el('bbT2Sel').selectedIndex = 0;
+                v2 = '';
+            }
+            syncOppositeTeamDisable('bbT1Sel', 'bbT2Sel');
             if (v1 && v2) {
                 let b = st.bball;
                 if (!b.currentMatchId) b.currentMatchId = buildMatchId('bball', v1, v2);
@@ -2070,6 +2133,12 @@
         // ─── VOLLEYBALL & THROWBALL ───────────────────────────────────────────────
         window.chkTmsCourt = function (sportKey) {
             let t1 = el(`${sportKey}T1Sel`).value, t2 = el(`${sportKey}T2Sel`).value;
+            if (t1 && t2 && t1 === t2) {
+                alert("A team cannot play against itself!");
+                el(`${sportKey}T2Sel`).selectedIndex = 0;
+                t2 = '';
+            }
+            syncOppositeTeamDisable(`${sportKey}T1Sel`, `${sportKey}T2Sel`);
             st[sportKey].t1.k = t1; st[sportKey].t2.k = t2;
             if (t1 && t2) {
                 if (!st[sportKey].currentMatchId) st[sportKey].currentMatchId = buildMatchId(sportKey, t1, t2);
@@ -2293,11 +2362,19 @@
             populateTeamDropdown('bdT2Sel', 'G');
 
             try {
-                const dropdowns = ['sportsDropdown', 't1Sel', 'tossSel', 't2Sel', 'bbT1Sel', 'bbT2Sel', 'bdT1Sel', 'bdT2Sel', 'bdP1Sel', 'bdP2Sel', 'vlT1Sel', 'vlT2Sel', 'thT1Sel', 'thT2Sel'];
+                const dropdowns = ['sportsDropdown', 't1Sel', 'tossSel', 'tossDecSel', 't2Sel', 'bbT1Sel', 'bbT2Sel', 'bdT1Sel', 'bdT2Sel', 'bdP1Sel', 'bdP2Sel', 'vlT1Sel', 'vlT2Sel', 'thT1Sel', 'thT2Sel'];
                 dropdowns.forEach(id => {
                     const elem = document.getElementById(id);
-                    if (elem) { elem.selectedIndex = 0; elem.disabled = false; elem.style.opacity = "1"; elem.style.pointerEvents = "auto"; }
+                    if (elem) {
+                        elem.selectedIndex = 0;
+                        const startDisabled = (id === 'tossSel' || id === 'tossDecSel');
+                        elem.disabled = startDisabled;
+                        elem.style.opacity = startDisabled ? "0.5" : "1";
+                        elem.style.pointerEvents = "auto";
+                    }
                 });
+                syncOppositeTeamDisable('vlT1Sel', 'vlT2Sel');
+                syncOppositeTeamDisable('thT1Sel', 'thT2Sel');
 
                 ['crMatchType', 'bbMatchType', 'bdMatchType', 'vlMatchType', 'thMatchType'].forEach(id => {
                     const e = document.getElementById(id);
@@ -2523,9 +2600,21 @@
                     st.crick.t2.b = (parseInt(o2[0]) || 0) * 6 + (parseInt(o2[1]) || 0);
                     st.crick.inn = rec.innings || 1;
                     st.crick.toss = rec.toss || '';
+                    st.crick.tossDecision = rec.tossDecision || (rec.toss ? (rec.toss === rec.team1 ? 'batting' : 'bowling') : '');
                     st.crick.scorecardLink = rec.scorecardLink || '';
                     setTimeout(() => {
-                        if (rec.toss) el('tossSel').value = rec.toss;
+                        const tossSel = el('tossSel');
+                        const tossDecSel = el('tossDecSel');
+                        if (rec.team1 && rec.team2) {
+                            tossSel.innerHTML = '<option value="" disabled selected>🪙 Toss Won By</option>';
+                            tossSel.options[tossSel.options.length] = new Option(teamLabel(rec.team1), rec.team1);
+                            tossSel.options[tossSel.options.length] = new Option(teamLabel(rec.team2), rec.team2);
+                            tossSel.disabled = false; tossSel.style.opacity = "1";
+                            tossDecSel.disabled = false; tossDecSel.style.opacity = "1";
+                            syncOppositeTeamDisable('t1Sel', 't2Sel');
+                        }
+                        if (rec.toss) tossSel.value = rec.toss;
+                        if (st.crick.tossDecision) tossDecSel.value = st.crick.tossDecision;
                         if (rec.scorecardLink) el('scorecardLink').value = rec.scorecardLink;
                     }, 60);
                 } else if (sportFolder === 'basketball') {
@@ -2764,25 +2853,26 @@
             });
         });
 
-        window.handleRoSportChange = function () {
-            const sel = document.getElementById('roSportSel');
-            const customBox = document.getElementById('roCustomSport');
-            customBox.style.display = sel.value === 'custom' ? 'block' : 'none';
-        };
-
         window.openResultOnlyModal = function () {
             editingRoMatchId = null;
             editingRoCreatedAt = null;
+            roImages = [];
 
             const titleEl = document.getElementById('roModalTitle');
             if (titleEl) titleEl.textContent = 'Result Only Entry';
             const btnEl = document.getElementById('roPublishBtn');
             if (btnEl) btnEl.textContent = '🏆 Publish Result';
 
+            document.getElementById('roCustomSport').value = '';
             document.getElementById('roT1Sel').selectedIndex = 0;
             document.getElementById('roT2Sel').selectedIndex = 0;
             document.getElementById('roT1Name').value = '';
             document.getElementById('roT2Name').value = '';
+            document.getElementById('roT1Score').value = '';
+            document.getElementById('roT2Score').value = '';
+            document.getElementById('roRemarks').value = '';
+            document.getElementById('roImgSlotLabel').textContent = '0/3 slots used';
+            refreshRoThumbs();
             updateRoScoreLabels();
             document.getElementById('resultOnlyMd').style.display = 'flex';
         };
@@ -2797,21 +2887,12 @@
             const btnEl = document.getElementById('roPublishBtn');
             if (btnEl) btnEl.textContent = '🏆 Update Result';
 
-            const sportSel = document.getElementById('roSportSel');
-            const customSportInput = document.getElementById('roCustomSport');
-            if (sportFolder === 'tug_of_war' || sportFolder === 'ball_badminton') {
-                sportSel.value = sportFolder;
-                customSportInput.style.display = 'none';
-                customSportInput.value = '';
-            } else {
-                sportSel.value = 'custom';
-                customSportInput.style.display = 'block';
-                customSportInput.value = sportFolder;
-            }
+            const displaySport = (rec.sport || sportFolder).replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+            document.getElementById('roCustomSport').value = displaySport;
 
             document.getElementById('roMatchType').value = rec.matchType || 'league';
 
-            const allVals = ['ABH-B', 'ABH-G', 'VYV-B', 'VYV-G', 'ADH-B', 'ADH-G', 'PRJ-B', 'PRJ-G'];
+            const allVals = ['ABH-B', 'ABH-G', 'VYV-B', 'VYV-G', 'ADH-B', 'ADH-G', 'PRJ-B', 'PRJ-G', 'SHO-B', 'SHO-G'];
             const setTeamVal = (selId, nameId, teamVal, displayName) => {
                 const sel = document.getElementById(selId);
                 const nameBox = document.getElementById(nameId);
@@ -2915,10 +2996,9 @@
         };
 
         window.publishResultOnly = async function () {
-            const sportSel = document.getElementById('roSportSel');
-            let sportName = sportSel.value === 'custom'
-                ? (document.getElementById('roCustomSport').value.trim() || 'custom')
-                : sportSel.value;
+            const rawSport = document.getElementById('roCustomSport').value.trim();
+            if (!rawSport) { alert('Please enter a sport name.'); return; }
+            const sportName = rawSport.toLowerCase().replace(/[.#$/[\]]/g, '').replace(/\s+/g, '_') || 'custom';
 
             const t1 = document.getElementById('roT1Sel').value;
             const t2 = document.getElementById('roT2Sel').value;
@@ -2933,7 +3013,7 @@
             const remarks = document.getElementById('roRemarks').value.trim();
 
             const now = new Date().toISOString();
-            const gender = roGender === 'B' ? 'boys' : 'girls';
+            const gender = t1.endsWith('-B') ? 'boys' : 'girls';
 
             let matchId = editingRoMatchId;
             let createdAt = editingRoCreatedAt || now;
@@ -2973,125 +3053,6 @@
                 renderHistory();
             } catch (e) {
                 alert('Failed to publish: ' + e.message);
-            }
-        };
-
-        // ─── CRICKET ──────────────────────────────────────────────────────────────
-        window.chkTms = function () {
-            let v1 = el('t1Sel').value, v2 = el('t2Sel').value;
-            let tossSel = el('tossSel');
-
-            if (v1 && v2) {
-                let currentOpts = [...tossSel.options].map(o => o.value).filter(v => v);
-                if (currentOpts[0] !== v1 || currentOpts[1] !== v2) {
-                    let prevToss = tossSel.value;
-                    tossSel.innerHTML = '<option value="" disabled selected>🪙 Toss Won By</option>';
-                    tossSel.options[tossSel.options.length] = new Option(teamLabel(v1), v1);
-                    tossSel.options[tossSel.options.length] = new Option(teamLabel(v2), v2);
-                    if (prevToss === v1 || prevToss === v2) tossSel.value = prevToss;
-                    else if (st.crick.toss === v1 || st.crick.toss === v2) tossSel.value = st.crick.toss;
-                }
-                tossSel.disabled = false; tossSel.style.opacity = "1";
-            } else {
-                tossSel.innerHTML = '<option value="" disabled selected>🪙 Toss Won By</option>';
-                tossSel.disabled = true; tossSel.style.opacity = "0.5";
-                el('sbCard').style.display = 'none'; el('ctrlCont').style.display = 'none';
-                el('lvBtn').style.display = 'none';
-                return;
-            }
-
-            let toss = tossSel.value;
-            if (v1 && v2 && toss) {
-                let s = st.crick;
-                if (!s.currentMatchId) s.currentMatchId = buildMatchId('crick', v1, v2);
-                s.t1.k = v1; s.t2.k = v2; s.toss = toss;
-                el('t1Lbl').textContent = teamLabel(v1); el('t2Lbl').textContent = teamLabel(v2);
-                el('t1Lg').src = logos[v1]; el('t1Lg').style.display = 'inline-block';
-                el('t2Lg').src = logos[v2]; el('t2Lg').style.display = 'inline-block';
-                el('sbCard').style.display = 'flex'; el('ctrlCont').style.display = 'grid';
-                el('lvBtn').style.display = 'flex';
-                updUI(); saveToStorage();
-            } else {
-                el('sbCard').style.display = 'none'; el('ctrlCont').style.display = 'none';
-                el('lvBtn').style.display = 'none';
-            }
-        };
-
-        window.onTossPick = function () {
-            let tossSel = el('tossSel'), toss = tossSel.value;
-            if (!toss) return;
-            let v1 = el('t1Sel').value, v2 = el('t2Sel').value;
-            let s = st.crick;
-            if (!s.currentMatchId) s.currentMatchId = buildMatchId('crick', v1, v2);
-            s.t1.k = v1; s.t2.k = v2; s.toss = toss;
-            el('t1Lbl').textContent = teamLabel(v1); el('t2Lbl').textContent = teamLabel(v2);
-            el('t1Lg').src = logos[v1]; el('t1Lg').style.display = 'inline-block';
-            el('t2Lg').src = logos[v2]; el('t2Lg').style.display = 'inline-block';
-            el('sbCard').style.display = 'flex'; el('ctrlCont').style.display = 'grid';
-            el('lvBtn').style.display = 'flex';
-            updUI(); saveToStorage();
-        };
-
-        // ─── BASKETBALL ───────────────────────────────────────────────────────────
-        window.chkTmsBB = function () {
-            let v1 = el('bbT1Sel').value, v2 = el('bbT2Sel').value;
-            if (v1 && v2) {
-                let b = st.bball;
-                if (!b.currentMatchId) b.currentMatchId = buildMatchId('bball', v1, v2);
-                b.t1.k = v1; b.t2.k = v2;
-                const roster = genderState.bb === 'B' ? basketballRostersBoys : basketballRostersGirls;
-                let d1 = el('bbP1Sel'), d2 = el('bbP2Sel'); d1.innerHTML = ''; d2.innerHTML = '';
-                if (roster[v1]) roster[v1].forEach(p => { b.t1.p[p] = b.t1.p[p] || 0; d1.options[d1.options.length] = new Option(p, p); });
-                if (roster[v2]) roster[v2].forEach(p => { b.t2.p[p] = b.t2.p[p] || 0; d2.options[d2.options.length] = new Option(p, p); });
-                el('bbT1Lbl').textContent = teamLabel(v1); el('bbT2Lbl').textContent = teamLabel(v2);
-                el('bbT1Lg').src = logos[v1]; el('bbT2Lg').src = logos[v2];
-                el('bbSbCard').style.display = 'flex'; el('bbCtrlCont').style.display = 'flex';
-                el('bbLvBtn').style.display = 'flex';
-                updUI(); saveToStorage();
-            } else {
-                el('bbSbCard').style.display = 'none'; el('bbCtrlCont').style.display = 'none';
-                el('bbLvBtn').style.display = 'none';
-            }
-        };
-
-        // ─── BADMINTON ────────────────────────────────────────────────────────────
-        window.chkTmsBD = function (teamSwitched) {
-            let t1 = el('bdT1Sel').value, t2 = el('bdT2Sel').value;
-            if (teamSwitched) {
-                if (t1) popBDPlayers('bdP1Sel', t1);
-                if (t2) popBDPlayers('bdP2Sel', t2);
-            }
-            st.badmin.t1.k = t1; st.badmin.t2.k = t2;
-            st.badmin.t1.p = el('bdP1Sel').value; st.badmin.t2.p = el('bdP2Sel').value;
-            if (t1 && t2 && st.badmin.t1.p && st.badmin.t2.p) {
-                if (!st.badmin.currentMatchId) st.badmin.currentMatchId = buildMatchId('badmin', t1, t2);
-                el('bdT1Txt').textContent = teamLabel(t1); el('bdT2Txt').textContent = teamLabel(t2);
-                el('bdP1Txt').textContent = st.badmin.t1.p; el('bdP2Txt').textContent = st.badmin.t2.p;
-                el('bdT1Lg').src = logos[t1] || ''; el('bdT2Lg').src = logos[t2] || '';
-                el('bdSbCard').style.display = 'flex'; el('bdCtrlCont').style.display = 'flex';
-                el('bdLvBtn').style.display = 'flex';
-                updUI(); saveToStorage();
-            } else {
-                el('bdSbCard').style.display = 'none'; el('bdCtrlCont').style.display = 'none';
-                el('bdLvBtn').style.display = 'none';
-            }
-        };
-
-        // ─── VOLLEYBALL & THROWBALL ───────────────────────────────────────────────
-        window.chkTmsCourt = function (sportKey) {
-            let t1 = el(`${sportKey}T1Sel`).value, t2 = el(`${sportKey}T2Sel`).value;
-            st[sportKey].t1.k = t1; st[sportKey].t2.k = t2;
-            if (t1 && t2) {
-                if (!st[sportKey].currentMatchId) st[sportKey].currentMatchId = buildMatchId(sportKey, t1, t2);
-                el(`${sportKey}T1Txt`).textContent = teamLabel(t1); el(`${sportKey}T2Txt`).textContent = teamLabel(t2);
-                el(`${sportKey}T1Lg`).src = logos[t1] || ''; el(`${sportKey}T1Lg`).style.display = 'inline-block';
-                el(`${sportKey}T2Lg`).src = logos[t2] || ''; el(`${sportKey}T2Lg`).style.display = 'inline-block';
-                el(`${sportKey}SbCard`).style.display = 'flex'; el(`${sportKey}CtrlCont`).style.display = 'flex';
-                el(`${sportKey}LvBtn`).style.display = 'flex';
-                updUI(); saveToStorage();
-            } else {
-                el(`${sportKey}SbCard`).style.display = 'none'; el(`${sportKey}CtrlCont`).style.display = 'none';
-                el(`${sportKey}LvBtn`).style.display = 'none';
             }
         };
 
